@@ -1,10 +1,7 @@
-///<reference path="../../typings/index.d.ts" />
-
-import { bootstrap } from '@angular/platform-browser-dynamic';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgFor } from '@angular/common';
 
-declare var electron: any;
+declare var electron_remote: Electron.Remote;
 
 @Component({
     selector: 'app',
@@ -13,29 +10,19 @@ declare var electron: any;
     <button (click)="showMessage()">Click Me</button>` 
 })
 
-export class AppComponent {
-    private remote = electron.remote;
-
+export class AppComponent implements OnInit {
     clickCount: number;
 
-    constructor() {
+    constructor() { }
+
+    ngOnInit() {
         this.clickCount = 0;
-        // remote.dialog.showMessageBox({
-        //     type: "info",
-        //     buttons: ['Ok'],
-        //     title: "test",
-        //     message: "test"
-        // });
-        // this.ipc.send('get-app-path');
-        // this.ipc.on('got-app-path', (event, path) => {
-        //     this.path = path;
-        // });
     }
 
     showMessage() {
         this.clickCount++;
         if (this.clickCount == 5) {
-            this.remote.dialog.showMessageBox({
+            electron_remote.dialog.showMessageBox({
                 type: "info",
                 buttons: ['Ok'],
                 title: "Good Clicking",
@@ -44,5 +31,3 @@ export class AppComponent {
         }
     }
 }
-
-bootstrap(AppComponent);
