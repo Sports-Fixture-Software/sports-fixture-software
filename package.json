@@ -4,7 +4,7 @@
   "main": "main.js",
   "scripts": {
     "start": "npm run build && electron build",
-    "build": "gulp copy:main && cd build; npm install --production && gulp",
+    "build": "gulp copy:main && cd build && npm install --production && gulp",
     "postinstall": "typings install"
   },
   "repository": {
