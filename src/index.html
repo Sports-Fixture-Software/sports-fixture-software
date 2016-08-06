@@ -13,13 +13,18 @@
     <!-- 2. Configure SystemJS -->
     <script src="systemjs.config.js"></script>
     <script>
+      // Load electon and store it globally
+      // The module is only defined at runtime so systemjs can't map it properly
       const electron = require('electron');
       const electron_remote = electron.remote;
+
+      // Load the app
       System.import('app').catch(function(err){ console.error(err); });
     </script>
   </head>
   <body>
       <div class="container">
+        <base href="/">
         <app>Loading...</app>
       </div>
   </body>

@@ -1,33 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { NgFor } from '@angular/common';
-
-declare var electron_remote: Electron.Remote;
+import { Component } from '@angular/core';
+import { ROUTER_DIRECTIVES } from '@angular/router';
 
 @Component({
     selector: 'app',
     template : `<h1>Welcome to Angular2</h1>
-    <div>Electron app running. Click Count: {{clickCount}}</div>
-    <button (click)="showMessage()">Click Me</button>` 
+    <nav>
+        <a routerLink="/page1" routerLinkAcitve="active">Page 1</a>
+        <a routerLink="/page2" routerLinkAcitve="active">Page 2</a>
+    </nav>
+    <router-outlet></router-outlet>` ,
+    directives: [ROUTER_DIRECTIVES]
 })
-
-export class AppComponent implements OnInit {
-    clickCount: number;
-
+export class AppComponent{
     constructor() { }
-
-    ngOnInit() {
-        this.clickCount = 0;
-    }
-
-    showMessage() {
-        this.clickCount++;
-        if (this.clickCount == 5) {
-            electron_remote.dialog.showMessageBox({
-                type: "info",
-                buttons: ['Ok'],
-                title: "Good Clicking",
-                message: "You just clicked the button 5 times. Well done!"
-            });
-        }
-    }
 }
