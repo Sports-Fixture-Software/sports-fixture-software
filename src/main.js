@@ -2,7 +2,7 @@ const electron = require('electron')
 const glob = require('glob')
 const path = require('path')
 
-var environment = process.env.NODE_ENV
+require('electron-debug')({showDevTools: true});
 
 // Module to control application life.
 const app = electron.app
@@ -19,11 +19,6 @@ function createWindow () {
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`)
-
-  // Open the DevTools.
-  if (environment !== 'production') {
-    mainWindow.webContents.openDevTools()
-  }
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
