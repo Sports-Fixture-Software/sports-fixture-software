@@ -3,10 +3,8 @@ import { LeagueService } from '../services/league.service';
 import * as path from 'path';
 
 @Component({
-    moduleId: module.id,
-    // on Windows templateUrl: 'league_list.template.html', resolves to c:/league_list.template.html
-    // which fails.
-    templateUrl : path.resolve(path.join(__dirname, 'league_list.template.html')).replace(/\\/g, '/'),
+    moduleId: module.id.replace(/\\/g, '/'),
+    templateUrl : 'league_list.template.html',
     providers: [LeagueService] 
 })
 
