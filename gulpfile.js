@@ -2,6 +2,10 @@ const gulp = require('gulp');
 const del = require('del');
 const typescript = require('gulp-typescript');
 const sourcemaps = require('gulp-sourcemaps');
+const watch = require('gulp-watch');
+const install = require("gulp-install");
+const livereload = require('gulp-livereload');
+const runElectron = require("gulp-run-electron");
 const tscConfig = require('./tsconfig.json');
 
 gulp.task('clean', function() {
@@ -14,26 +18,56 @@ gulp.task('compile', function() {
         .pipe(sourcemaps.init())
         .pipe(typescript(tscConfig.compilerOptions))
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest('build'));
+        .pipe(gulp.dest('build'))
+        .pipe(livereload());
 });
 
-gulp.task('copy:render', function() {
+gulp.task('copy:assets', function() {
     return gulp.src([
         'src/**/*.html',
-        'src/**/systemjs.config.js'
+        'src/**/*.css',
+        'src/**/*.js',
     ])
-    .pipe(gulp.dest('build/'));
+    .pipe(gulp.dest('build/'))
+    .pipe(livereload());
 })
-gulp.task('copy:main', function() {
+
+gulp.task('install', function() {
     return gulp.src([
-        'package.json',
-        'src/systemjs.config.js',
-        'src/main.js',
+        'package.json'
     ])
-    .pipe(gulp.dest('build/'));
+    .pipe(gulp.dest('build/'))
+    .pipe(install({ignoreScripts: true, production: true}))
+    .pipe(livereload());
 })
 
-gulp.task('copy:assets', ['copy:render', 'copy:main']);
+gulp.task('build:watch', ['build'], function() {
+    gulp.watch([
+        'src/**/*.html',
+        'src/**/*.css',
+        'src/**/*.js'
+    ], ['copy:assets']);
 
-gulp.task('build', ['copy:assets', 'compile']);
+    gulp.watch([
+        'src/**/*.ts'
+    ], ['compile']);
+
+    gulp.watch([
+        'package.json'
+    ], ['install'])
+    gulp.watch([
+        'tsconfig.json',
+        'typings.json'
+    ], ['build']);
+
+    livereload.listen();
+})
+
+gulp.task('run', ['build'], function() {
+    return gulp.src('build')
+        .pipe(runElectron());
+})
+
+gulp.task('watch', ['build:watch', 'run'])
+gulp.task('build', ['copy:assets', 'install', 'compile']);
 gulp.task('default', ['build']);
