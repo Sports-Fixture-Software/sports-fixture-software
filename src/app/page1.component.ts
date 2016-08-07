@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 
-declare var electron_remote: Electron.Remote;
+// declare var electron_remote: Electron.Remote;
+// const elt = require('electron');
+import * as electron from 'electron';
 
 @Component({
     moduleId: module.id,
@@ -17,7 +19,7 @@ export class Page1Component  {
     showMessage() {
         this.clickCount++;
         if (this.clickCount == 5) {
-            electron_remote.dialog.showMessageBox({
+            electron.remote.dialog.showMessageBox({
                 type: "info",
                 buttons: ['Ok'],
                 title: "Good Clicking",

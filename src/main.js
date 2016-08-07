@@ -1,6 +1,9 @@
 const electron = require('electron')
 const glob = require('glob')
 const path = require('path')
+
+var environment = process.env.NODE_ENV
+
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
@@ -18,7 +21,9 @@ function createWindow () {
   mainWindow.loadURL(`file://${__dirname}/index.html`)
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  if (environment !== 'production') {
+    mainWindow.webContents.openDevTools()
+  }
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

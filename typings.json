@@ -4,7 +4,6 @@
   "globalDependencies": {
     "core-js": "registry:dt/core-js#0.0.0+20160602141332",
     "electron": "registry:env/electron#0.37.6+20160723033700",
-    "node": "registry:dt/node#6.0.0+20160802155038",
-    "sqlite3": "registry:dt/sqlite3#2.2.3+20160724070935"
+    "node": "registry:dt/node#6.0.0+20160802155038"
   }
 }
