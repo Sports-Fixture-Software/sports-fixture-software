@@ -10,11 +10,11 @@ import * as path from 'path';
 })
 
 export class LeagueListComponent implements OnInit {
-    private _leagueService : LeagueService;
+    private _leagueService : LeagueService
     leagues : any[]
 
     constructor(private leagueService: LeagueService) {
-        this._leagueService = leagueService;
+        this._leagueService = leagueService
     }
 
     ngOnInit() {
