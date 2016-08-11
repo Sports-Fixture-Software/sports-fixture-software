@@ -26,15 +26,27 @@ export class LeagueService {
      }
 
     // TODO: error handling
-    // TODO: don't return any, return models League type
-    public async getLeagues() : Promise<any[]> {
-        var promise : Promise<any[]>
-        promise = new Promise<any[]>((resolve, reject) => {
+    public async getLeagues() : Promise<League[]> {
+        var promise : Promise<League[]>
+        promise = new Promise<League[]>((resolve, reject) => {
             this.db.all(`SELECT * FROM League;`, (err: Error, rows: any[]) => {
                 if (err) {
                     reject([])
                 }
-                resolve(rows)
+                var leagues : League[] = []
+                for (var row of rows)
+                {
+                    var createdOn : Date;
+                    if (row.createdOn == null || row.createdOn == undefined)
+                    {
+                        createdOn = null
+                    } else {
+                        createdOn = new Date(row.createdOn)
+                    }
+                    leagues.push(new League(row.id, row.name, createdOn,
+                                            row.createdBy))
+                }
+                resolve(leagues)
             })
         })
         return promise
