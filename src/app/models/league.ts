@@ -2,12 +2,29 @@
  * League
  */
 export class League {
+    private _id : number
     private _name : string
     private _createdOn : Date
     private _createdBy : string
-    constructor(private theName : string) {
-        name = theName
+
+    constructor(private theId : number,
+                private theName : string,
+                private theCreatedOn : Date,
+                private theCreatedBy : string) {
+        this.id = theId
+        this.name = theName
+        this.createdOn = theCreatedOn
+        this.createdBy = theCreatedBy
     }
+
+    get id() : number {
+        return this._id
+    }
+    set id(theId : number)
+    {
+        this._id = theId
+    }
+
     get name() : string {
         return this._name
     }
