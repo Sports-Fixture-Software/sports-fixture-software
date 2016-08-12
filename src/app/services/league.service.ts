@@ -26,12 +26,12 @@ export class LeagueService {
      }
 
     // TODO: error handling
-    public async getLeagues() : Promise<League[]> {
+    public getLeagues() : Promise<League[]> {
         var promise : Promise<League[]>
         promise = new Promise<League[]>((resolve, reject) => {
             this.db.all(`SELECT * FROM League;`, (err: Error, rows: any[]) => {
                 if (err) {
-                    reject([])
+                    return reject()
                 }
                 var leagues : League[] = []
                 for (var row of rows)
