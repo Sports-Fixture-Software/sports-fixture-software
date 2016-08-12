@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { LeagueService } from '../services/league.service';
+import { League } from '../models/league';
 import * as path from 'path';
 
 @Component({
@@ -8,6 +9,15 @@ import * as path from 'path';
     providers: [LeagueService] 
 })
 
-export class LeagueListComponent  {
-    constructor(private leagueService: LeagueService) { }
+export class LeagueListComponent implements OnInit {
+    private _leagueService : LeagueService
+    leagues : any[]
+
+    constructor(private leagueService: LeagueService) {
+        this._leagueService = leagueService
+    }
+
+    ngOnInit() {
+        this._leagueService.getLeagues().then(l => this.leagues = l)
+    }
 }
