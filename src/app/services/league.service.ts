@@ -25,13 +25,11 @@ export class LeagueService {
         })
      }
 
-    // TODO: error handling
     public getLeagues() : Promise<League[]> {
-        var promise : Promise<League[]>
-        promise = new Promise<League[]>((resolve, reject) => {
+        return new Promise<League[]>((resolve, reject) => {
             this.db.all(`SELECT * FROM League;`, (err: Error, rows: any[]) => {
                 if (err) {
-                    return reject()
+                    return reject(err)
                 }
                 var leagues : League[] = []
                 for (var row of rows)
@@ -46,10 +44,33 @@ export class LeagueService {
                     leagues.push(new League(row.id, row.name, createdOn,
                                             row.createdBy))
                 }
-                resolve(leagues)
+                return resolve(leagues)
             })
         })
-        return promise
+    }
+
+    public getLeague(id: Number) : Promise<League> {
+        return new Promise<League>((resolve, reject) => {
+            this.db.get(`SELECT * FROM League WHERE id = ?`, id, (err, row) => {
+                if (err) {
+                    return reject(err);
+                }
+                return resolve(new League(row.id, row.name, row.createdOn, row.createdBy))
+            });
+        });
+    }
+
+    public addLeague(name: String) : Promise<League> {
+        return new Promise<Number>((resolve, reject) => {
+            this.db.run(`INSERT INTO League (name) VALUES (?)`, name, function(err) {
+                if (err) {
+                    return reject(err);
+                }
+                return resolve(this.lastID);
+            })
+        }).then(id => {
+            return this.getLeague(id);
+        });
     }
 
     public close()
