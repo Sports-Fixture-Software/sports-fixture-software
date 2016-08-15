@@ -6,6 +6,8 @@ const watch = require('gulp-watch');
 const install = require("gulp-install");
 const livereload = require('gulp-livereload');
 const runElectron = require("gulp-run-electron");
+const rebuildElectron = require('electron-rebuild');
+const electron = require("electron-prebuilt");
 
 const tscConfig = require('./tsconfig.json');
 
@@ -29,6 +31,19 @@ gulp.task('compile', function() {
         .pipe(sourcemaps.write())
         .pipe(gulp.dest('build'))
         .pipe(livereload());
+});
+
+gulp.task('rebuild', ['install'], function() {
+    return rebuildElectron.shouldRebuildNativeModules(electron)
+            .then(function(needsBuild) {
+                if (!needsBuild) {
+                    console.log("No build required");
+                    return true;
+                }                
+                return rebuildElectron.installNodeHeaders('1.3.1').then(function() {
+                    return rebuildElectron.rebuildNativeModules('1.3.1', './build/node_modules');                
+                });
+            })
 });
 
 /**
@@ -97,5 +112,5 @@ gulp.task('run', ['build'], function() {
 })
 
 gulp.task('watch', ['build:watch', 'run'])
-gulp.task('build', ['copy:assets', 'install', 'compile']);
+gulp.task('build', ['copy:assets', 'install', 'rebuild', 'compile']);
 gulp.task('default', ['build']);
