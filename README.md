@@ -15,14 +15,6 @@ _Note: The first build may appear to hang. This is expected, electron-rebuild ta
 Instead of running `npm start`, run `npm run watch`.
 That will build the app and automatically refresh the electron window when files are changed.
 
-## Testing
-1. Run the SANFL application. That will create an empty `sanfl_fixture_software.database`
-1. Exit the SANFL application.
-1. Run `sqlite3 sanfl_fixture_software.database`
-1. From the sqlite3 prompt enter: `insert into League (name) values ("alpha");`
-1. Quit sqlite3 with `.q`
-1. Re-run the SANFL application. A league will now be displayed.
-
 ## Release
 ```bash
 npm install -g electron-packager
