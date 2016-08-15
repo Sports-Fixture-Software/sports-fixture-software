@@ -1,51 +1,17 @@
 /**
  * League
  */
-export class League {
-    private _id : number
-    private _name : string
-    private _createdOn : Date
-    private _createdBy : string
+import { databaseInjector } from '../bootstrap'
+import { DatabaseService } from '../services/database.service'
+import * as bookshelf from 'bookshelf'
 
-    constructor(private theId : number,
-                private theName : string,
-                private theCreatedOn : Date,
-                private theCreatedBy : string) {
-        this.id = theId
-        this.name = theName
-        this.createdOn = theCreatedOn
-        this.createdBy = theCreatedBy
+export class League extends (databaseInjector.get(DatabaseService) as DatabaseService).Model<League> {
+
+    constructor(params ?: any) {
+         super(params)
     }
 
-    get id() : number {
-        return this._id
-    }
-    set id(theId : number)
-    {
-        this._id = theId
-    }
-
-    get name() : string {
-        return this._name
-    }
-    set name(theName : string)
-    {
-        this._name = theName
-    }
-
-    get createdOn() : Date {
-        return this._createdOn
-    }
-    set createdOn(theCreatedOn : Date)
-    {
-        this._createdOn = theCreatedOn
-    }
-
-    get createdBy() :string {
-        return this._createdBy
-    }
-    set createdBy(theCreatedBy : string)
-    {
-        this._createdBy = theCreatedBy
-    }
+    get tableName() { return 'league'; }
+    public get name(): string { return this.get('name') }
+    public set name(value: string) { this.set('name', value) }
 }
