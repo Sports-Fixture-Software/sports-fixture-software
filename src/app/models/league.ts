@@ -12,6 +12,6 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
     }
 
     get tableName() { return 'league'; }
-    public get name(): string { return this.get('name') }
-    public set name(value: string) { this.set('name', value) }
+    get name(): string { return this.get('name') }
+    set name(value: string) { this.set('name', value) }
 }
