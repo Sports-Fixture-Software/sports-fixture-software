@@ -1,28 +1,41 @@
-import { Component, OnInit } from '@angular/core';
-import { LeagueService } from '../services/league.service';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { League } from '../models/league';
-import * as path from 'path';
 import { DatabaseService } from '../services/database.service'
+import { LeagueService } from '../services/league.service';
 import { Collection }  from '../services/collection'
 import * as Promise from 'bluebird'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl : 'league_list.template.html',
+    properties : ['leagues'],
     providers: [LeagueService] 
 })
 
 export class LeagueListComponent implements OnInit {
-    private _leagueService : LeagueService
-    leagues: League[]
-
-    constructor(private leagueService: LeagueService) {
+    /**
+     * ## API
+     * - `changeref` (provided by the injector)
+     *    Angular2's change detector auto-detects Events, XHR, & Timers. For
+     *    `bookshelf` data, we have call the change detector when data changes
+     */
+    constructor(private leagueService: LeagueService,
+        private changeref: ChangeDetectorRef) {
         this._leagueService = leagueService
+        this._changeref = changeref
     }
+
+    get leagues(): League[] { return this._leagues }
+    set leagues(value: League[]) { this._leagues = value }
 
     ngOnInit() {
-        return this._leagueService.getLeagues().then((l) => {
+        this._leagueService.getLeagues().then((l) => {
             this.leagues = l.toArray()
+            this._changeref.detectChanges()
         })
     }
+
+    private _leagueService: LeagueService
+    private _changeref: ChangeDetectorRef
+    private _leagues : League[]
 }
