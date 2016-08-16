@@ -3,7 +3,6 @@
  */
 import { databaseInjector } from '../bootstrap'
 import { DatabaseService } from '../services/database.service'
-import * as bookshelf from 'bookshelf'
 
 export class League extends (databaseInjector.get(DatabaseService) as DatabaseService).Model<League> {
 
