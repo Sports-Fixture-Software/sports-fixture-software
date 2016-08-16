@@ -1,7 +1,6 @@
 /**
 * Global CSS styles go here
 */
-.core-content {
-    margin-top: 20px;
-    margin-left: 40px;
+.popover {
+    max-width: 500px;
 }

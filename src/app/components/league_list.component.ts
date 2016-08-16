@@ -4,12 +4,16 @@ import { DatabaseService } from '../services/database.service'
 import { LeagueService } from '../services/league.service';
 import { Collection }  from '../services/collection'
 import * as Promise from 'bluebird'
+import { Navbar } from './navbar.component';
+import { LeagueListItem } from './league_list_item.component';
+import { POPOVER_DIRECTIVES } from 'ng2-popover';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl : 'league_list.template.html',
     properties : ['leagues'],
-    providers: [LeagueService] 
+    providers: [LeagueService], 
+    directives: [Navbar, LeagueListItem, POPOVER_DIRECTIVES]
 })
 
 export class LeagueListComponent implements OnInit {
@@ -24,6 +28,7 @@ export class LeagueListComponent implements OnInit {
         this._leagueService = leagueService
         this._changeref = changeref
     }
+    newLeagueText : String
 
     get leagues(): League[] { return this._leagues }
     set leagues(value: League[]) { this._leagues = value }
@@ -33,6 +38,12 @@ export class LeagueListComponent implements OnInit {
             this.leagues = l.toArray()
             this._changeref.detectChanges()
         })
+    }
+
+    submitAddLeague(leagueName: String) {
+        this._leagueService
+            .addLeague(new League({ name: leagueName }))
+            .then(l => this.leagues.push(l))
     }
 
     private _leagueService: LeagueService

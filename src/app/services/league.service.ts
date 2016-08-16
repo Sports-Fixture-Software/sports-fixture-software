@@ -19,5 +19,17 @@ export class LeagueService {
         })
     }
 
+    getLeague(id: number): Promise<League> {
+        return this._db.init().then(() => {
+            return new League().where('id', id).fetch()
+        })
+    }
+
+    public addLeague(league: League): Promise<League> {
+        return this._db.init().then(() => {
+            return league.save()
+        })
+    }
+
     private _db: DatabaseService
 }
