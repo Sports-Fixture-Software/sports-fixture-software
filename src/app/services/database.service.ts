@@ -6,12 +6,8 @@ import * as Promise from 'bluebird'
 @Injectable()
 export class DatabaseService {
 
-    private static count: number = 0
-    
     constructor() {
-        console.log('DatabaseService: ' + DatabaseService.count)
         this.Model = this.get().Model
-        DatabaseService.count++
     }
 
     Model : typeof bookshelf.Model;
