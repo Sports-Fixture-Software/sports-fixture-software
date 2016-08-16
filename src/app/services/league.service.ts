@@ -31,5 +31,12 @@ export class LeagueService {
         })
     }
 
+    /**
+     * returns an empty League
+     */
+    deleteLeague(league: League): Promise<League> {
+        return league.destroy()
+    }
+
     private _db: DatabaseService
 }
