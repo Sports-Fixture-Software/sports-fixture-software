@@ -7,8 +7,13 @@ import * as bookshelf from 'bookshelf'
 
 export class League extends (databaseInjector.get(DatabaseService) as DatabaseService).Model<League> {
 
-    constructor(params ?: any) {
-         super(params)
+    constructor(params?: string | any) {
+        if (typeof params === 'string') {
+            super()
+            this.name = params
+        } else {
+            super(params)
+        }
     }
 
     get tableName() { return 'league'; }
