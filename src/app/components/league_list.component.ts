@@ -43,7 +43,10 @@ export class LeagueListComponent implements OnInit {
     submitAddLeague(leagueName: String) {
         this._leagueService
             .addLeague(new League({ name: leagueName }))
-            .then(l => this.leagues.push(l))
+            .then((l) => {
+                this.leagues.push(l)
+                this._changeref.detectChanges()
+            })
     }
 
     private _leagueService: LeagueService
