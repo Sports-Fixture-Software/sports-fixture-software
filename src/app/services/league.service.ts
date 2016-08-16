@@ -9,15 +9,15 @@ import * as Promise from 'bluebird'
 @Injectable()
 export class LeagueService {
 
-    private _db : DatabaseService
-
     constructor() {
         this._db = databaseInjector.get(DatabaseService);
      }
 
-    public getLeagues(): Promise<Collection<League>> {
-        //return this._db.init().then(() => {
+    getLeagues(): Promise<Collection<League>> {
+        return this._db.init().then(() => {
             return new League().fetchAll()
-        //})
+        })
     }
+
+    private _db: DatabaseService
 }
