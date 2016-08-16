@@ -48,7 +48,8 @@ export class DatabaseService {
         client: 'sqlite3',
         connection: {
             filename: this.dbFilename
-        }
+        },
+        useNullAsDefault: true
     }
     
     private _initCalled : boolean = false
