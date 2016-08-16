@@ -25,6 +25,13 @@ export class DatabaseService {
                 table.increments('id')
                 table.string('name')
             }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('fixture',
+                    (table) => {
+                        table.increments('id')
+                        table.string('name')
+                        table.integer('league_id').notNullable().references('id').inTable('league')
+                })
+            }).then((res) => {
                 this._initCalled = true
                 return res
             }).catch((err: Error) => {
