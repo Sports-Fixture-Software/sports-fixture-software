@@ -1,5 +1,18 @@
 <navbar title="Leagues"></navbar>
 
+<modal #errorModal [keyboard]="false" [backdrop]="'static'">
+    <modal-header>
+        <h4 class="modal-title">Error initialising the application</h4>
+    </modal-header>
+    <modal-body>
+        {{ lastError.message }}
+    </modal-body>
+    <modal-footer>
+        <button type="button" class="btn btn-primary"
+            (click)="errorModalOk()">Ok</button>
+    </modal-footer>
+</modal>
+
 <div class="row">
     <div class="col-xs-1">
         <popover-content #createLeagePopover title="Create League" [closeOnClickOutside]="true">
