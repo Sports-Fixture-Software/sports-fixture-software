@@ -35,12 +35,18 @@ export class DatabaseService {
                 this._initCalled = true
                 return res
             }).catch((err: Error) => {
-                return new Error('Unable create table "league": ' + err.message)
+                this._initError = new Error
+                    (`Unable to open database "${this.dbFilename}"
+                     (${err.message})`)
             })
         }
         else {
             return new Promise<any>((resolve, reject) => resolve(null))
         }
+    }
+
+    getInitError(): Error {
+        return this._initError
     }
 
     private dbFilename: string = 'sanfl_fixture_software.database'
@@ -52,6 +58,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
     
-    private _initCalled : boolean = false
+    private _initError: Error
+    private _initCalled: boolean = false
     private _db : bookshelf = null
 }
