@@ -14,21 +14,15 @@ export class LeagueService {
      }
 
     getLeagues(): Promise<Collection<League>> {
-        return this._db.init().then(() => {
-            return new League().fetchAll()
-        })
+        return new League().fetchAll()
     }
 
     getLeague(id: number): Promise<League> {
-        return this._db.init().then(() => {
-            return new League().where('id', id).fetch()
-        })
+        return new League().where('id', id).fetch()
     }
 
     public addLeague(league: League): Promise<League> {
-        return this._db.init().then(() => {
-            return league.save()
-        })
+        return league.save()
     }
 
     /**
@@ -36,6 +30,10 @@ export class LeagueService {
      */
     deleteLeague(league: League): Promise<League> {
         return league.destroy()
+    }
+
+    getInitError(): Error {
+        return this._db.getInitError()
     }
 
     private _db: DatabaseService
