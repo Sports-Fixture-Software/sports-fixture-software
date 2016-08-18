@@ -5,7 +5,7 @@
         <h4 class="modal-title">Error initialising the application</h4>
     </modal-header>
     <modal-body>
-        {{ lastError.message }}
+        {{ lastError?.message }}
     </modal-body>
     <modal-footer>
         <button type="button" class="btn btn-primary"
@@ -36,7 +36,7 @@
         <table class="table table-striped table-bordered">
             <tbody>
                 <tr *ngFor="let league of leagues">
-                    <td>
+                    <td (click)="selectLeague(league)">
                         <league-list-item [league]="league"></league-list-item>
                     </td>
                 </tr>
