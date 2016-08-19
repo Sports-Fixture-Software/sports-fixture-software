@@ -7,3 +7,11 @@
 .clickable {
     cursor: pointer;
 }
+.breadcrumb > li + li:before {
+    color: #ccc;
+    content: "> ";
+    padding: 0 5px;
+}
+.breadcrumb > li {
+    font-size: 18px;
+}
