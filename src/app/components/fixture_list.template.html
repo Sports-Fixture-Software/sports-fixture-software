@@ -1,1 +1,37 @@
-<a href="#">{{activeLeage?.name}}</a>
+<ol class="breadcrumb">
+    <li><a href="#">{{activeLeage? activeLeage.name : 'League'}}</a></li>
+    <li class="active">New Fixture</li>
+</ol>
+<form [formGroup]="fixtureForm" novalidate (ngSubmit)="createFixture(fixtureForm.value)">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label for="fixtureName">Fixture name</label>
+                <input type="text" class="form-control" id="fixtureName" placeholder="Name" formControlName="name">
+            </div>
+            <div class="form-group">
+                <label for="fixtureDescription">Description</label>
+                <input type="text" class="form-control" id="fixtureDescription" placeholder="Description (optional)">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label for="fixtureStartDate">Start Date</label>
+                <input type="date" class="form-control" id="fixtureStartDate" placeholder="Start Date">
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label for="fixtureEndDate">End Date</label>
+                <input type="date" class="form-control" id="fixtureEndDate" placeholder="End Date">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <button class="btn btn-default" type="submit">Create Fixture</button>
+        </div>
+    </div>
+</form>
