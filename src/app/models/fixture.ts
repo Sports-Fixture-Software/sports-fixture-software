@@ -22,6 +22,7 @@ export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseS
             return res.related('league') as League
         })
     }
+    setLeague(value: League) { this.set('league_id', value.id) }
 
     /**
      * Needed by bookshelf to setup relationship
