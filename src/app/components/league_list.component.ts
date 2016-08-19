@@ -1,6 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { League } from '../models/league';
-import { LeaguePresenter } from '../presenters/league.presenter';
 import { LeagueService } from '../services/league.service';
 import { Collection }  from '../services/collection'
 import * as Promise from 'bluebird'
@@ -8,7 +7,6 @@ import { Navbar } from './navbar.component';
 import { LeagueListItem } from './league_list_item.component';
 import { POPOVER_DIRECTIVES } from 'ng2-popover';
 import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
-import { Router } from '@angular/router';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -26,8 +24,6 @@ export class LeagueListComponent implements OnInit {
      *    `bookshelf` data, we have call the change detector when data changes
      */
     constructor(private leagueService: LeagueService,
-        private _leagePresenter: LeaguePresenter,
-        private _router: Router,
         private changeref: ChangeDetectorRef) {
         this._leagueService = leagueService
         this._changeref = changeref
@@ -71,11 +67,6 @@ export class LeagueListComponent implements OnInit {
 
     errorModalOk() {
         this.errorModal.close()
-    }
-
-    selectLeague(league: League) {
-        this._leagePresenter.activeLeague = league
-        this._router.navigate(['fixture'])
     }
 
     private _leagueService: LeagueService
