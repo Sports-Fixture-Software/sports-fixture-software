@@ -46,7 +46,7 @@ export class FixtureListComponent implements OnInit {
         this._fixtureService.addFixture(fixture).then((f) => {
             this.fixtures.push(f)
             this._changeref.detectChanges()
-        }
+        })
     }
 
     private _fixtures: Fixture[]

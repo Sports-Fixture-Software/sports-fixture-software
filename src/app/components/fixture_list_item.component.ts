@@ -9,10 +9,14 @@ import { Fixture } from '../models/fixture'
 })
 export class FixtureListItem implements OnInit {
     @Input('fixture-list-item') fixture: Fixture;
-    
+
     constructor() {
     }
 
-    ngOnInit() {        
+    ngOnInit() {
+    }
+
+    selectFixture(fixture: Fixture) {
+
     }
 }
