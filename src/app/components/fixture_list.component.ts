@@ -6,12 +6,13 @@ import { League } from '../models/league'
 import { Fixture } from '../models/fixture'
 import { FixtureForm } from '../models/fixture.form'
 import { LeaguePresenter } from '../presenters/league.presenter'
+import { POPOVER_DIRECTIVES } from 'ng2-popover';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
-    directives: [REACTIVE_FORM_DIRECTIVES],
     providers: [FixtureService],
-    templateUrl: 'fixture_list.template.html'
+    templateUrl: 'fixture_list.template.html',
+    directives: [REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES]
 })
 
 export class FixtureListComponent implements OnInit {

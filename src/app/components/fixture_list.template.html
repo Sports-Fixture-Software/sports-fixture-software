@@ -2,36 +2,63 @@
     <li><a href="#">{{activeLeage? activeLeage.name : 'League'}}</a></li>
     <li class="active">New Fixture</li>
 </ol>
-<form [formGroup]="fixtureForm" novalidate (ngSubmit)="createFixture(fixtureForm.value)">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="form-group">
-                <label for="fixtureName">Fixture name</label>
-                <input type="text" class="form-control" id="fixtureName" placeholder="Name" formControlName="name">
-            </div>
-            <div class="form-group">
-                <label for="fixtureDescription">Description</label>
-                <input type="text" class="form-control" id="fixtureDescription" placeholder="Description (optional)">
-            </div>
-        </div>
+
+<div class="row">
+    <div class="col-xs-1">
+        <popover-content #createFixturePopover placement="right-top" id="fixture-popover" title="Create Fixture" [closeOnClickOutside]="true">
+            <form [formGroup]="fixtureForm" novalidate (ngSubmit)="createFixturePopover.hide(); createFixture(fixtureForm.value)">
+                <div>
+                    <!--class="row"-->
+                    <div>
+                        <!--class="col-sm-12"-->
+                        <div class="form-group">
+                            <label for="fixtureName">Fixture name</label>
+                            <input type="text" class="form-control" id="fixtureName" placeholder="Name" formControlName="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="fixtureDescription">Description</label>
+                            <input type="text" class="form-control" id="fixtureDescription" placeholder="Description (optional)">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <!--class="row"-->
+                    <div>
+                        <!--class="col-sm-6"-->
+                        <div class="form-group">
+                            <label for="fixtureStartDate">Start Date</label>
+                            <input type="date" class="form-control" style="min-width:150px" id="fixtureStartDate" placeholder="Start Date">
+                        </div>
+                    </div>
+                    <div>
+                        <!--class="col-sm-6"-->
+                        <div class="form-group">
+                            <label for="fixtureEndDate">End Date</label>
+                            <input type="date" class="form-control" style="min-width:150px" id="fixtureEndDate" placeholder="End Date">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <!--class="row"-->
+                    <div>
+                        <!--class="col-sm-12"-->
+                        <button class="btn btn-default" type="submit">Create Fixture</button>
+                    </div>
+                </div>
+            </form>
+        </popover-content>
+        <button class="btn btn-default" [popover]="createFixturePopover" [popoverCloseOnClickOutside]="true" popoverPlacement="right-top">
+                <span class="glyphicon glyphicon-plus"></span>
+        </button>
     </div>
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="form-group">
-                <label for="fixtureStartDate">Start Date</label>
-                <input type="date" class="form-control" id="fixtureStartDate" placeholder="Start Date">
-            </div>
-        </div>
-        <div class="col-sm-6">
-            <div class="form-group">
-                <label for="fixtureEndDate">End Date</label>
-                <input type="date" class="form-control" id="fixtureEndDate" placeholder="End Date">
-            </div>
-        </div>
+
+    <div class="col-xs-11">
+        <table class="table table-striped table-bordered">
+            <tbody>
+                <tr>
+                    <td>aaaaaaaaaaaaa</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <button class="btn btn-default" type="submit">Create Fixture</button>
-        </div>
-    </div>
-</form>
+</div>
