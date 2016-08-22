@@ -17,6 +17,6 @@ export class LeagueListItem implements OnInit {
     }
 
     selectLeague(league: League) {
-        this._router.navigate(['fixture', league.id])
+        this._router.navigate(['league', league.id])
     }
 }
