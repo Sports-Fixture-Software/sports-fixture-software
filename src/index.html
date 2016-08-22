@@ -6,7 +6,12 @@
 
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="application.css">
-    
+    <script>
+      window.$ = window.jQuery =
+        require('./node_modules/jquery/dist/jquery.js');
+      require('./node_modules/bootstrap/dist/js/bootstrap.min.js');
+    </script>
+
     <!-- Live Reload for development -->
     <script src="http://localhost:35729/livereload.js"></script>
     
