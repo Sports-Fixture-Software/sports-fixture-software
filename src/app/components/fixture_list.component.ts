@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core'
 import { Validators } from '@angular/common'
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Router, Params } from '@angular/router';
 import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
 import { LeagueService } from '../services/league.service'
 import { FixtureService } from '../services/fixture.service'
@@ -18,8 +18,11 @@ import { POPOVER_DIRECTIVES } from 'ng2-popover';
 })
 
 export class FixtureListComponent implements OnInit {
-    constructor(private _changeref: ChangeDetectorRef, private _fixtureService: FixtureService,
-        private _leagueService: LeagueService, private _route: ActivatedRoute) {
+    constructor(private _changeref: ChangeDetectorRef,
+        private _fixtureService: FixtureService,
+        private _leagueService: LeagueService,
+        private _router: Router,
+        private _route: ActivatedRoute) {
     }
     fixtureForm: FormGroup
 
@@ -29,19 +32,20 @@ export class FixtureListComponent implements OnInit {
     set league(value: League) { this._league = value }
 
     ngOnInit() {
-        this._route.params.forEach((params: Params) => {
-            let id = +params['id'];
-            this._leagueService.getLeague(id).then((l) => {
-                this.league = l
-                return l.getFixtures()
-            }).then((f) => {
-                this.fixtures = f.toArray()
-                this._changeref.detectChanges()
+        this._router.routerState.parent(this._route)
+            .params.forEach(params => {
+                let id = +params['id'];
+                this._leagueService.getLeague(id).then((l) => {
+                    this.league = l
+                    return l.getFixtures()
+                }).then((f) => {
+                    this.fixtures = f.toArray()
+                    this._changeref.detectChanges()
+                })
+                this.fixtureForm = new FormGroup({
+                    name: new FormControl('', [<any>Validators.required])
+                })
             })
-            this.fixtureForm = new FormGroup({
-                name: new FormControl('', [<any>Validators.required])
-            })
-        })
     }
 
     createFixture(form: FixtureForm) {
