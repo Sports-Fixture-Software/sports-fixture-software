@@ -1,1 +1,23 @@
+<style>
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 25%;
+    background-color: #f1f1f1;
+    height: 100%; /* Full height */
+    position: fixed; /* Make it stick, even on scroll */
+    overflow: auto; /* Enable scrolling if the sidenav has too much content */
+}
+</style>
+
 <navbar title="{{ league?.name }}"></navbar>
+
+<ul>
+  <li><a [routerLink]="['./']" class="active" href="#home">Details</a></li>
+</ul>
+
+
+<div style="margin-left:25%;padding:1px 16px;height:1000px;">
+    <router-outlet></router-outlet>
+</div>

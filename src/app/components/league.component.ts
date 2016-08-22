@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ROUTER_DIRECTIVES } from '@angular/router';
 import { Subscription } from 'rxjs/subscription';
 
 import { League } from '../models/league';
@@ -14,7 +14,7 @@ import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl : 'league.template.html',
     providers: [LeagueService], 
-    directives: [Navbar, POPOVER_DIRECTIVES, MODAL_DIRECTIVES]
+    directives: [Navbar, POPOVER_DIRECTIVES, MODAL_DIRECTIVES, ROUTER_DIRECTIVES]
 })
 export class LeagueComponent implements OnInit, OnDestroy {
     private league: League;
