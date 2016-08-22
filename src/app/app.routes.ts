@@ -7,7 +7,13 @@ import { LeagueComponent } from './components/league.component';
 export const routes: RouterConfig = [
   { path: '', component: LeagueListComponent },
   { path: 'league', component: LeagueListComponent },
-  { path: 'league/:id', component: LeagueComponent }
+  { 
+    path: 'league/:id',
+    component: LeagueComponent,
+    children: [
+      { path: '', component: LeagueListComponent }
+    ]
+   }
 ];
 
 export const APP_ROUTER_PROVIDERS = [
