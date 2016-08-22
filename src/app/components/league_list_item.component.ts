@@ -1,7 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core'
 import { Router } from '@angular/router'
 import { League } from '../models/league'
-import { LeaguePresenter } from '../presenters/league.presenter'
 
 @Component({
     selector: '[league-list-item]',
@@ -11,15 +10,13 @@ import { LeaguePresenter } from '../presenters/league.presenter'
 export class LeagueListItem implements OnInit {
     @Input('league-list-item') league: League;
     
-    constructor(private _leagePresenter: LeaguePresenter,
-        private _router: Router) {
+    constructor(private _router: Router) {
     }
 
     ngOnInit() {        
     }
 
     selectLeague(league: League) {
-        this._leagePresenter.activeLeague = league
-        this._router.navigate(['fixture'])
+        this._router.navigate(['fixture', league.id])
     }
 }

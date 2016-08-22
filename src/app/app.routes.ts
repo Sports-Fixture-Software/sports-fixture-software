@@ -6,7 +6,7 @@ import { FixtureListComponent } from './components/fixture_list.component';
 
 export const routes: RouterConfig = [
   { path: '', component: LeagueListComponent },
-  { path: 'fixture', component: FixtureListComponent },
+  { path: 'fixture/:id', component: FixtureListComponent },
 ];
 
 export const APP_ROUTER_PROVIDERS = [
