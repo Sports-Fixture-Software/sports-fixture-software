@@ -1,11 +1,8 @@
 <style>
-ul {
-    list-style-type: none;
+.sidebar {
     margin: 0;
     padding: 0;
-    width: 25%;
-    background-color: #f1f1f1;
-    height: 100%; /* Full height */
+    width: 150px;
     position: fixed; /* Make it stick, even on scroll */
     overflow: auto; /* Enable scrolling if the sidenav has too much content */
 }
@@ -13,11 +10,12 @@ ul {
 
 <navbar title="{{ league?.name }}"></navbar>
 
-<ul>
-  <li><a [routerLink]="['./']" class="active" href="#home">Details</a></li>
-</ul>
+<div class="sidebar btn-group-vertical">
+    <button type="button" class="btn btn-default" [routerLink]="['./']" [routerLinkActive]="['btn-primary']">Details</button>
+    <button type="button" class="btn btn-default" [routerLink]="['./teams']" [routerLinkActive]="['btn-primary']">Teams</button>
+    <button type="button" class="btn btn-default" [routerLink]="['./fixtures']" [routerLinkActive]="['btn-primary']">Fixtures</button>    
+</div>
 
-
-<div style="margin-left:25%;padding:1px 16px;height:1000px;">
+<div style="margin-left:150px; padding-left: 16px">
     <router-outlet></router-outlet>
 </div>
