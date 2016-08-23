@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { League } from '../models/league';
 import { LeagueService } from '../services/league.service';
 import { Collection }  from '../services/collection'
@@ -24,7 +25,8 @@ export class LeagueListComponent implements OnInit {
      *    `bookshelf` data, we have call the change detector when data changes
      */
     constructor(private leagueService: LeagueService,
-        private changeref: ChangeDetectorRef) {
+        private changeref: ChangeDetectorRef,
+        private router: Router) {
         this._leagueService = leagueService
         this._changeref = changeref
     }
@@ -63,6 +65,10 @@ export class LeagueListComponent implements OnInit {
                 this.lastError = err
                 this.errorModal.open()
             })
+    }
+
+    navigateToLeague(league: League) {
+        this.router.navigate(['/league', league.id]);
     }
 
     errorModalOk() {
