@@ -35,7 +35,7 @@
                 </div>
                 <div>
                     <!--class="row"-->
-                    <div>
+                    <div class="pull-right">
                         <!--class="col-sm-12"-->
                         <popover-content #errorPopover placement="bottom" title="Error Creating Fixture" [closeOnClickOutside]="true">
                             <div class="alert alert-danger" role="alert">
@@ -43,7 +43,7 @@
                                 <span class="sr-only">Error Creating Fixture:</span> {{lastError? lastError.message : 'Unknown error'}}
                             </div>
                         </popover-content>
-                        <button class="btn btn-default" type="submit" [popover]="errorPopover">Create Fixture</button>
+                        <button class="btn btn-default" style="margin-bottom:10px" type="submit" [popover]="errorPopover">Create Fixture</button>
                     </div>
                 </div>
             </form>
