@@ -1,3 +1,6 @@
 export interface FixtureForm {
-    name : string
+    name: string,
+    description: string,
+    startDate: Date,
+    endDate: Date
 }
