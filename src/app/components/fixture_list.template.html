@@ -2,49 +2,31 @@
     <div class="col-xs-1">
         <popover-content #createFixturePopover placement="right-top" id="fixture-popover" title="Create Fixture" [closeOnClickOutside]="true">
             <form [formGroup]="fixtureForm" novalidate (ngSubmit)="createFixture(fixtureForm.value)">
-                <div>
-                    <!--class="row"-->
-                    <div>
-                        <!--class="col-sm-12"-->
-                        <div class="form-group">
-                            <label for="fixtureName">Fixture name</label>
-                            <input type="text" class="form-control" id="fixtureName" placeholder="Name" formControlName="name">
-                        </div>
-                        <div class="form-group">
-                            <label for="fixtureDescription">Description</label>
-                            <input type="text" class="form-control" id="fixtureDescription" placeholder="Description (optional)" formControlName="description">
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label for="fixtureName">Fixture name</label>
+                    <input type="text" class="form-control" id="fixtureName" placeholder="Name" formControlName="name">
                 </div>
-                <div>
-                    <!--class="row"-->
-                    <div>
-                        <!--class="col-sm-6"-->
-                        <div class="form-group">
-                            <label for="fixtureStartDate">Start Date</label>
-                            <input type="date" class="form-control" id="fixtureStartDate" placeholder="Start Date" formControlName="startDate">
-                        </div>
-                    </div>
-                    <div>
-                        <!--class="col-sm-6"-->
-                        <div class="form-group">
-                            <label for="fixtureEndDate">End Date</label>
-                            <input type="date" class="form-control" id="fixtureEndDate" placeholder="End Date" formControlName="endDate">
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label for="fixtureDescription">Description</label>
+                    <input type="text" class="form-control" id="fixtureDescription" placeholder="Description (optional)" formControlName="description">
                 </div>
-                <div>
-                    <!--class="row"-->
-                    <div class="pull-right">
-                        <!--class="col-sm-12"-->
-                        <popover-content #errorPopover placement="bottom" title="Error Creating Fixture" [closeOnClickOutside]="true">
-                            <div class="alert alert-danger" role="alert">
-                                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                                <span class="sr-only">Error Creating Fixture:</span> {{lastError? lastError.message : 'Unknown error'}}
-                            </div>
-                        </popover-content>
-                        <button class="btn btn-default" style="margin-bottom:10px" type="submit" [popover]="errorPopover">Create Fixture</button>
-                    </div>
+                <div class="form-group">
+                    <label for="fixtureStartDate">Start Date</label>
+                    <input type="date" class="form-control" id="fixtureStartDate" placeholder="Start Date" formControlName="startDate">
+                </div>
+                <div class="form-group">
+                    <label for="fixtureEndDate">End Date</label>
+                    <input type="date" class="form-control" id="fixtureEndDate" placeholder="End Date" formControlName="endDate">
+                </div>
+                <div class="pull-right">
+                    <popover-content #errorPopover placement="bottom" title="Error Creating Fixture" [closeOnClickOutside]="true">
+                        <div class="alert alert-danger" role="alert" style="min-width:250px">
+                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                            <span class="sr-only">Error Creating Fixture:</span> {{lastError? lastError.message : 'Unknown
+                            error'}}
+                        </div>
+                    </popover-content>
+                    <button class="btn btn-default" style="margin-bottom:10px" type="submit" [popover]="errorPopover">Create Fixture</button>
                 </div>
             </form>
         </popover-content>
