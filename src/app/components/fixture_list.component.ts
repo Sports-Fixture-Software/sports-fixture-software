@@ -68,6 +68,10 @@ export class FixtureListComponent implements OnInit {
             this._changeref.detectChanges()
         }).catch((err) => {
             this.lastError = err
+            // .hide() works around a bug where: if user clicks the create
+            // button twice, the popup moves around. The popup still moves but
+            // not as much
+            this.errorPopover.hide()
             this.errorPopover.show()
             this._changeref.detectChanges()
         })
