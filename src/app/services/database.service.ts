@@ -28,7 +28,14 @@ export class DatabaseService {
                 return this.get().knex.schema.createTableIfNotExists('fixture',
                     (table) => {
                         table.increments('id')
-                        table.string('name')
+                        table.string('name').notNullable()
+                        table.string('description')
+                        table.date('startDate')
+                        table.date('endDate')
+                        table.date('createdOn')
+                        table.string('createdBy')
+                        table.date('generatedOn')
+                        table.string('generatedBy')
                         table.integer('league_id').notNullable().references('id').inTable('league')
                 })
             }).then((res) => {
