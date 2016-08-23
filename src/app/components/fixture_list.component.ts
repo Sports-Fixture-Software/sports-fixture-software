@@ -8,7 +8,7 @@ import { League } from '../models/league'
 import { Fixture } from '../models/fixture'
 import { FixtureForm } from '../models/fixture.form'
 import { FixtureListItem } from './fixture_list_item.component'
-import { POPOVER_DIRECTIVES } from 'ng2-popover';
+import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -24,12 +24,16 @@ export class FixtureListComponent implements OnInit {
         private _router: Router,
         private _route: ActivatedRoute) {
     }
+    @ViewChild('errorPopover') errorPopover: PopoverContent
+    @ViewChild('createFixturePopover') createFixturePopover: PopoverContent
     fixtureForm: FormGroup
 
     get fixtures(): Fixture[] { return this._fixtures }
     set fixtures(value: Fixture[]) { this._fixtures = value }
     get league(): League { return this._league }
     set league(value: League) { this._league = value }
+    get lastError(): Error { return this._error }
+    set lastError(value: Error) { this._error = value }
 
     ngOnInit() {
         this._router.routerState.parent(this._route)
@@ -43,7 +47,10 @@ export class FixtureListComponent implements OnInit {
                     this._changeref.detectChanges()
                 })
                 this.fixtureForm = new FormGroup({
-                    name: new FormControl('', [<any>Validators.required])
+                    name: new FormControl('', [<any>Validators.required]),
+                    description: new FormControl('', [<any>Validators.required]),
+                    startDate: new FormControl('', [<any>Validators.required]),
+                    endDate: new FormControl('', [<any>Validators.required])
                 })
             })
     }
@@ -51,13 +58,22 @@ export class FixtureListComponent implements OnInit {
     createFixture(form: FixtureForm) {
         let fixture: Fixture = new Fixture()
         fixture.name = form.name
+        fixture.description = form.description
+        fixture.startDate = form.startDate
+        fixture.endDate = form.endDate
         fixture.setLeague(this.league)
         this._fixtureService.addFixture(fixture).then((f) => {
             this.fixtures.push(fixture)
+            this.createFixturePopover.hide()
+            this._changeref.detectChanges()
+        }).catch((err) => {
+            this.lastError = err
+            this.errorPopover.show()
             this._changeref.detectChanges()
         })
     }
 
     private _fixtures: Fixture[]
     private _league: League
+    private _error: Error
 }
