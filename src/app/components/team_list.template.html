@@ -1,0 +1,33 @@
+<div class="row">
+    <div class="col-xs-1">
+        <popover-content #createTeamPopover title="Create Team" [closeOnClickOutside]="true">
+            <div style="width: 270px">
+                <div class="input-group" style="width: 100%">
+                    <div class="input-group">
+                        <input #newTeamText type="text" class="form-control" placeholder="Team Name..." (keyup.enter)="submitAddTeam(newTeamText.value); createTeamPopover.hide(); newTeamText.value=''; addTeamButton.focus()">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-default" (click)="submitAddTeam(newTeamText.value); createTeamPopover.hide(); newTeamText.value=''; addTeamButton.focus()"><span class="glyphicon glyphicon-ok"></span></button>
+                        </span>     
+                    </div>
+                </div>
+            </div>
+        </popover-content>
+        <button #addTeamButton class="btn btn-default" type="button" [popover]="createTeamPopover" popoverPlacement="right"
+            (keyup.enter)="newTeamText.focus()"
+            (mouseup)="newTeamText.focus()">
+                <span class="glyphicon glyphicon-plus"></span>
+        </button>
+    </div>
+
+    <div class="col-xs-11">
+        <table class="table table-striped table-bordered">
+            <tbody>
+                <tr *ngFor="let team of teams">
+                    <td>
+                        <team-list-item [team]="team"></team-list-item>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
