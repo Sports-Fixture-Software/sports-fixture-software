@@ -7,8 +7,12 @@ import * as Promise from 'bluebird'
 @Injectable()
 export class FixtureService {
 
-    getFixtures(): Promise<Collection<Fixture>> {
-        return new Fixture().fetchAll()
+    getFixtures(leagueId?: number): Promise<Collection<Fixture>> {
+        if (leagueId) {
+            return new Fixture().where('league_id', leagueId).fetchAll()
+        } else {
+            return new Fixture().fetchAll()
+        }
     }
 
     getFixture(id: number): Promise<Fixture> {
@@ -20,7 +24,7 @@ export class FixtureService {
     }
 
     /**
-     * returns an empty League
+     * returns an empty Fixture
      */
     deleteFixture(fixture: Fixture): Promise<Fixture> {
         return fixture.destroy()
