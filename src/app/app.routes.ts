@@ -2,6 +2,7 @@ import { provideRouter, RouterConfig } from '@angular/router';
 
 // Import Pages
 import { LeagueListComponent } from './components/league_list.component';
+import { TeamListComponent } from './components/team_list.component';
 import { LeagueComponent } from './components/league.component';
 
 export const routes: RouterConfig = [
@@ -11,7 +12,8 @@ export const routes: RouterConfig = [
     path: 'league/:id',
     component: LeagueComponent,
     children: [
-      { path: '', component: LeagueListComponent }
+      { path: '', component: LeagueListComponent },
+      { path: 'team', component: TeamListComponent }
     ]
    }
 ];
