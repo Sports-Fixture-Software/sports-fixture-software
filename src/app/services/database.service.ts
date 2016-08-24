@@ -32,6 +32,13 @@ export class DatabaseService {
                         table.integer('league_id').notNullable().references('id').inTable('league')
                 })
             }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('team',
+                    (table) => {
+                        table.increments('id')
+                        table.string('name').notNullable()
+                        table.integer('league_id').notNullable().references('id').inTable('league')
+                })
+            }).then((res) => {
                 this._initCalled = true
                 return res
             }).catch((err: Error) => {
