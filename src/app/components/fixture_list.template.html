@@ -19,14 +19,8 @@
                     <input type="date" class="form-control" id="fixtureEndDate" placeholder="End Date" formControlName="endDate">
                 </div>
                 <div class="pull-right">
-                    <popover-content #errorPopover placement="bottom" title="Error Creating Fixture" [closeOnClickOutside]="true">
-                        <div class="alert alert-danger" role="alert" style="min-width:250px">
-                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                            <span class="sr-only">Error Creating Fixture:</span> {{lastError? lastError.message : 'Unknown
-                            error'}}
-                        </div>
-                    </popover-content>
-                    <button class="btn btn-default" style="margin-bottom:10px" type="submit" [popover]="errorPopover">Create Fixture</button>
+                    <error-popover #errorPopover title="Error Creating Fixture"></error-popover>
+                    <button class="btn btn-default" style="margin-bottom:10px" type="submit" [popover]="errorPopover.popoverContent">Create Fixture</button>
                 </div>
             </form>
         </popover-content>

@@ -9,12 +9,13 @@ import { Fixture } from '../models/fixture'
 import { FixtureForm } from '../models/fixture.form'
 import { FixtureListItem } from './fixture_list_item.component'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
+import { ErrorPopover } from './error_popover.component'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     providers: [FixtureService, LeagueService],
     templateUrl: 'fixture_list.template.html',
-    directives: [FixtureListItem, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES]
+    directives: [FixtureListItem, ErrorPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES]
 })
 
 export class FixtureListComponent implements OnInit {
@@ -24,7 +25,7 @@ export class FixtureListComponent implements OnInit {
         private _router: Router,
         private _route: ActivatedRoute) {
     }
-    @ViewChild('errorPopover') errorPopover: PopoverContent
+    @ViewChild('errorPopover') errorPopover: ErrorPopover
     @ViewChild('createFixturePopover') createFixturePopover: PopoverContent
     fixtureForm: FormGroup
 
@@ -32,8 +33,6 @@ export class FixtureListComponent implements OnInit {
     set fixtures(value: Fixture[]) { this._fixtures = value }
     get league(): League { return this._league }
     set league(value: League) { this._league = value }
-    get lastError(): Error { return this._error }
-    set lastError(value: Error) { this._error = value }
 
     ngOnInit() {
         this._router.routerState.parent(this._route)
@@ -66,18 +65,12 @@ export class FixtureListComponent implements OnInit {
             this.fixtures.push(fixture)
             this.createFixturePopover.hide()
             this._changeref.detectChanges()
-        }).catch((err) => {
-            this.lastError = err
-            // .hide() works around a bug where: if user clicks the create
-            // button twice, the popup moves around. The popup still moves but
-            // not as much
-            this.errorPopover.hide()
-            this.errorPopover.show()
+        }).catch((err : Error) => {
+            this.errorPopover.message = err.message
             this._changeref.detectChanges()
         })
     }
 
     private _fixtures: Fixture[]
     private _league: League
-    private _error: Error
 }
