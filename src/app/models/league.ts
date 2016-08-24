@@ -5,6 +5,7 @@ import { databaseInjector } from '../bootstrap'
 import { DatabaseService } from '../services/database.service'
 import { Collection } from '../services/collection'
 import { Fixture } from './fixture'
+import { Team } from './team'
 import * as Promise from 'bluebird'
 
 export class League extends (databaseInjector.get(DatabaseService) as DatabaseService).Model<League> {
@@ -28,10 +29,22 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
         })
     }
 
+    getTeams(): Promise<Collection<Team>> {
+        return this.fetch({ withRelated: ['teams']}).then((res) => {
+            return res.related('teams') as Collection<Team>
+        })
+    }
+
     /**
      * Needed by bookshelf to setup relationship
      */
     protected fixtures(): Collection<Fixture> {
         return this.hasMany(Fixture)
+    }
+    /**
+     * Needed by bookshelf to setup relationship
+     */
+   protected teams(): Collection<Team> {
+        return this.hasMany(Team)
     }
 }
