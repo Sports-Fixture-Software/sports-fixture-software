@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute, ROUTER_DIRECTIVES } from '@angular/router';
+import { Router, ActivatedRoute, ROUTER_DIRECTIVES } from '@angular/router';
 import { Subscription } from 'rxjs/subscription';
 
 import { League } from '../models/league';
@@ -20,7 +20,8 @@ export class LeagueComponent implements OnInit, OnDestroy {
     private league: League;
     private routeSubscription: Subscription;
 
-    constructor(private route: ActivatedRoute,
+    constructor(private router: Router,
+                public route: ActivatedRoute,
                 private leagueService: LeagueService,
                 private changeref: ChangeDetectorRef) {
     }

@@ -6,14 +6,21 @@
     position: fixed; /* Make it stick, even on scroll */
     overflow: auto; /* Enable scrolling if the sidenav has too much content */
 }
+.sidebar a {
+    width: 100%;
+}
+.sidebar button {
+    width: 100%;
+}
+
 </style>
 
 <navbar title="{{ league?.name }}"></navbar>
 
 <div class="sidebar btn-group-vertical">
-    <button type="button" class="btn btn-default" [routerLink]="['./']" [routerLinkActive]="['btn-primary']">Details</button>
-    <button type="button" class="btn btn-default" [routerLink]="['./teams']" [routerLinkActive]="['btn-primary']">Teams</button>
-    <button type="button" class="btn btn-default" [routerLink]="['./fixtures']" [routerLinkActive]="['btn-primary']">Fixtures</button>    
+    <a [routerLink]="['details']" [routerLinkActive]="['btn-primary']" class="btn btn-default">Details</a>
+    <a [routerLink]="['teams']" [routerLinkActive]="['btn-primary']" class="btn btn-default">Teams</a>
+    <a [routerLink]="['fixtures']" [routerLinkActive]="['btn-primary']" class="btn btn-default">Fixtures</a>
 </div>
 
 <div style="margin-left:150px; padding-left: 16px">

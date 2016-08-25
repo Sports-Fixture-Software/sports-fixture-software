@@ -12,7 +12,8 @@ export const routes: RouterConfig = [
     path: 'league/:id',
     component: LeagueComponent,
     children: [
-      { path: '', component: LeagueDetailsComponent }
+      { path: '', redirectTo: 'details', pathMatch: 'full' },
+      { path: 'details', component: LeagueDetailsComponent }
     ]
    }
 ];
