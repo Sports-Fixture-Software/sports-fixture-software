@@ -9,13 +9,13 @@ import { Fixture } from '../models/fixture'
 import { FixtureForm } from '../models/fixture.form'
 import { FixtureListItem } from './fixture_list_item.component'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
-import { ErrorPopover } from './error_popover.component'
+import { ButtonPopover } from './button_popover.component'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     providers: [FixtureService, LeagueService],
     templateUrl: 'fixture_list.template.html',
-    directives: [FixtureListItem, ErrorPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES]
+    directives: [FixtureListItem, ButtonPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES]
 })
 
 export class FixtureListComponent implements OnInit {
@@ -25,7 +25,7 @@ export class FixtureListComponent implements OnInit {
         private _router: Router,
         private _route: ActivatedRoute) {
     }
-    @ViewChild('errorPopover') errorPopover: ErrorPopover
+    @ViewChild('createFixtureButton') createFixtureButton: ButtonPopover
     @ViewChild('createFixturePopover') createFixturePopover: PopoverContent
     fixtureForm: FormGroup
 
@@ -65,8 +65,8 @@ export class FixtureListComponent implements OnInit {
             this.fixtures.push(fixture)
             this.createFixturePopover.hide()
             this._changeref.detectChanges()
-        }).catch((err : Error) => {
-            this.errorPopover.message = err.message
+        }).catch((err: Error) => {
+            this.createFixtureButton.showError('Error creating fixture', err.message)
             this._changeref.detectChanges()
         })
     }

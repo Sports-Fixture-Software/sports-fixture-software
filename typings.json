@@ -6,9 +6,11 @@
   "globalDependencies": {
     "bluebird": "registry:dt/bluebird#2.0.0+20160701023356",
     "bookshelf": "registry:dt/bookshelf#0.8.2+20160514174357",
+    "bootstrap": "registry:dt/bootstrap#3.3.5+20160619023404",
     "core-js": "registry:dt/core-js#0.0.0+20160602141332",
     "create-error": "registry:dt/create-error#0.3.1+20160316155526",
     "electron": "registry:env/electron#0.37.6+20160723033700",
+    "jquery": "registry:dt/jquery#1.10.0+20160704162008",
     "knex": "registry:dt/knex#0.0.0+20160812170915",
     "node": "registry:dt/node#6.0.0+20160805072842",
     "sqlite3": "registry:dt/sqlite3#2.2.3+20160724070935"
