@@ -20,6 +20,13 @@ export class ButtonPopover implements OnInit, AfterViewInit {
     ngOnInit() {
     }
 
+    getMarginBottom() : string {
+        if (this.theType == 'submit') {
+            return '10px'
+        }
+        return ''
+    }
+
     onClick(event: Event) {
         this.clickForwarder.emit(event)
     }
