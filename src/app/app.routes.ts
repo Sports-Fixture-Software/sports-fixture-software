@@ -2,6 +2,7 @@ import { provideRouter, RouterConfig } from '@angular/router';
 
 // Import Pages
 import { LeagueListComponent } from './components/league_list.component';
+import { TeamListComponent } from './components/team_list.component';
 import { FixtureListComponent } from './components/fixture_list.component';
 import { LeagueComponent } from './components/league.component';
 import { LeagueDetailsComponent } from './components/league_details.component';
@@ -15,6 +16,7 @@ export const routes: RouterConfig = [
     children: [
       { path: '', redirectTo: 'details', pathMatch: 'full' },
       { path: 'details', component: LeagueDetailsComponent },
+      { path: 'teams', component: TeamListComponent },
       { path: 'fixtures', component: FixtureListComponent }
     ]
    }
