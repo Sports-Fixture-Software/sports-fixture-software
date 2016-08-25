@@ -1,0 +1,11 @@
+<navbar title="{{ league?.name }}"></navbar>
+
+<div class="sidebar btn-group-vertical">
+    <a [routerLink]="['details']" [routerLinkActive]="['btn-primary']" class="btn btn-default">Details</a>
+    <a [routerLink]="['teams']" [routerLinkActive]="['btn-primary']" class="btn btn-default">Teams</a>
+    <a [routerLink]="['fixtures']" [routerLinkActive]="['btn-primary']" class="btn btn-default">Fixtures</a>
+</div>
+
+<div style="margin-left:150px; padding-left: 16px">
+    <router-outlet></router-outlet>
+</div>
