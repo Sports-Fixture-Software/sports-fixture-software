@@ -1,0 +1,43 @@
+<div class="row">
+    <div class="col-xs-1">
+        <popover-content #createFixturePopover placement="right-top" id="fixture-popover" title="Create Fixture" [closeOnClickOutside]="true">
+            <form [formGroup]="fixtureForm" novalidate (ngSubmit)="createFixture(fixtureForm.value)">
+                <div class="form-group">
+                    <label for="fixtureName">Fixture name</label>
+                    <input type="text" class="form-control" id="fixtureName" placeholder="Name" formControlName="name">
+                </div>
+                <div class="form-group">
+                    <label for="fixtureDescription">Description</label>
+                    <input type="text" class="form-control" id="fixtureDescription" placeholder="Description (optional)" formControlName="description">
+                </div>
+                <div class="form-group">
+                    <label for="fixtureStartDate">Start Date</label>
+                    <input type="date" class="form-control" id="fixtureStartDate" placeholder="Start Date" formControlName="startDate">
+                </div>
+                <div class="form-group">
+                    <label for="fixtureEndDate">End Date</label>
+                    <input type="date" class="form-control" id="fixtureEndDate" placeholder="End Date" formControlName="endDate">
+                </div>
+                <div class="pull-right">
+                <button-popover #createFixtureButton type="submit">Create Fixture</button-popover>
+                </div>
+            </form>
+        </popover-content>
+        <button class="btn btn-default" [popover]="createFixturePopover" [popoverCloseOnClickOutside]="true" popoverPlacement="right-top"
+            (click)="createFixtureButton.hideError()">
+                <span class="glyphicon glyphicon-plus"></span>
+        </button>
+    </div>
+
+    <div class="col-xs-11">
+        <table class="table table-striped table-bordered">
+            <tbody>
+                <tr *ngFor="let fixture of fixtures">
+                    <td>
+                        <fixture-list-item [fixture]="fixture"></fixture-list-item>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
