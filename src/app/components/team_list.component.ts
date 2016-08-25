@@ -11,8 +11,6 @@ import { TeamListItem } from './team_list_item.component';
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
 import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { ButtonPopover } from './button_popover.component'
-import * as twitterBootstrap from 'bootstrap'
-declare var jQuery:JQueryStatic;
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -62,18 +60,12 @@ export class TeamListComponent implements OnInit {
         team.setLeague(this.league)
         this._teamService.addTeam(team).then((t) => {
             this.teams.push(team)
-            //this.errorPopover.popoverContent.hide()
             this.createTeamPopover.hide()
             this._changeref.detectChanges()
         }).catch((err : Error) => {
             this.newTeamButton.showError('Error creating team', err.message)
-            //this.errorPopover.message = err.message
             this._changeref.detectChanges()
         })
-    }
-
-    boo() {
-        console.log('booaaa')
     }
 
     private _teams: Team[]
