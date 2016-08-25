@@ -6,7 +6,7 @@ import { LeagueComponent } from './components/league.component';
 import { LeagueDetailsComponent } from './components/league_details.component';
 
 export const routes: RouterConfig = [
-  { path: '', component: LeagueListComponent },
+  { path: '', redirectTo: 'league', pathMatch: 'full' },
   { path: 'league', component: LeagueListComponent },
   { 
     path: 'league/:id',
