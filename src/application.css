@@ -4,17 +4,6 @@
 .popover {
     max-width: 500px;
 }
-.clickable {
-    cursor: pointer;
-}
-.breadcrumb > li + li:before {
-    color: #ccc;
-    content: "> ";
-    padding: 0 5px;
-}
-.breadcrumb > li {
-    font-size: 18px;
-}
 .popover.right-top {
     margin-left: 10px;
 }
@@ -35,4 +24,21 @@
 }
 input[type="date"] {
     min-width:150px;
+}
+
+/**
+* Sidebar
+*/
+.sidebar {
+    margin: 0;
+    padding: 0;
+    width: 150px;
+    position: fixed; /* Make it stick, even on scroll */
+    overflow: auto; /* Enable scrolling if the sidenav has too much content */
+}
+.sidebar a {
+    width: 100%;
+}
+.sidebar button {
+    width: 100%;
 }
