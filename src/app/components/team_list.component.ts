@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core'
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'
 import { Router, ActivatedRoute } from '@angular/router'
 import { Team } from '../models/team'
 import { League } from '../models/league'
@@ -10,13 +10,15 @@ import { Navbar } from './navbar.component';
 import { TeamListItem } from './team_list_item.component';
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
 import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
-import { ErrorPopover } from './error_popover.component'
+import { ButtonPopover } from './button_popover.component'
+import * as twitterBootstrap from 'bootstrap'
+declare var jQuery:JQueryStatic;
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'team_list.template.html',
     providers: [LeagueService, TeamService],
-    directives: [TeamListItem, ErrorPopover, POPOVER_DIRECTIVES, MODAL_DIRECTIVES]
+    directives: [TeamListItem, ButtonPopover, POPOVER_DIRECTIVES, MODAL_DIRECTIVES]
 })
 
 export class TeamListComponent implements OnInit {
@@ -32,8 +34,8 @@ export class TeamListComponent implements OnInit {
         private _router: Router,
         private _route: ActivatedRoute) {
     }
-    @ViewChild('errorPopover') errorPopover: ErrorPopover
     @ViewChild('createTeamPopover') createTeamPopover: PopoverContent
+    @ViewChild('newTeamButton') newTeamButton: ButtonPopover
     newTeamText: String
 
     get teams(): Team[] { return this._teams }
@@ -60,13 +62,18 @@ export class TeamListComponent implements OnInit {
         team.setLeague(this.league)
         this._teamService.addTeam(team).then((t) => {
             this.teams.push(team)
-            this.errorPopover.popoverContent.hide()
+            //this.errorPopover.popoverContent.hide()
             this.createTeamPopover.hide()
             this._changeref.detectChanges()
         }).catch((err : Error) => {
-            this.errorPopover.message = err.message
+            this.newTeamButton.showError('Error creating team', err.message)
+            //this.errorPopover.message = err.message
             this._changeref.detectChanges()
         })
+    }
+
+    boo() {
+        console.log('booaaa')
     }
 
     private _teams: Team[]

@@ -4,17 +4,19 @@
             <div style="width: 270px">
                 <div class="input-group" style="width: 100%">
                     <div class="input-group">
-                        <input #newTeamText type="text" class="form-control" placeholder="Team Name..." (keyup.enter)="newTeamButton.click()">
+                        <input #newTeamText type="text" class="form-control" placeholder="Team Name..." (keyup.enter)="submitAddTeam(newTeamText.value); newTeamText.value=''; addTeamButton.focus()">
                         <span class="input-group-btn">
-                            <error-popover #errorPopover title="Error Creating Team"></error-popover>
-                            <button #newTeamButton type="submit" class="btn btn-default" (click)="submitAddTeam(newTeamText.value); newTeamText.value=''; addTeamButton.focus()" [popover]="errorPopover.popoverContent"><span class="glyphicon glyphicon-ok"></span></button>
+                            <button-popover #newTeamButton
+                            (click)="submitAddTeam(newTeamText.value); newTeamText.value=''; addTeamButton.focus()">
+                                <span class="glyphicon glyphicon-ok"></span>
+                            </button-popover>
                         </span>
                     </div>
                 </div>
             </div>
         </popover-content>
-        <button #addTeamButton class="btn btn-default" type="button" [popover]="createTeamPopover" popoverPlacement="right" (keyup.enter)="newTeamText.focus()"
-            (mouseup)="newTeamText.focus()">
+        <button #addTeamButton class="btn btn-default" type="button" [popover]="createTeamPopover" popoverPlacement="right" (keyup.enter)="newTeamButton.hideError(); newTeamText.focus()"
+            (mouseup)="newTeamButton.hideError(); newTeamText.focus()">
                 <span class="glyphicon glyphicon-plus"></span>
         </button>
     </div>

@@ -1,0 +1,4 @@
+<button #button type="button" class="btn btn-primary button-popover" (click)="onClick($event)" data-toggle="popover" data-placement="bottom"
+  data-trigger="manual" [title]="errorTitle" [attr.data-content]="errorContent">
+  <ng-content></ng-content>
+</button>
