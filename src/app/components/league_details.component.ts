@@ -1,33 +1,28 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Router, ActivatedRoute, ROUTER_DIRECTIVES } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/subscription';
 
+import { LeagueComponent } from './league.component';
 import { League } from '../models/league';
 import { LeagueService } from '../services/league.service';
-import { Collection }  from '../services/collection'
-import { Navbar } from './navbar.component';
-
-import { POPOVER_DIRECTIVES } from 'ng2-popover';
-import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
-    templateUrl : 'league.template.html',
-    providers: [LeagueService], 
-    directives: [Navbar, POPOVER_DIRECTIVES, MODAL_DIRECTIVES, ROUTER_DIRECTIVES]
+    template : `<h2>League Details</h2>
+                League Name: {{ league?.name }}`
 })
-export class LeagueComponent implements OnInit, OnDestroy {
+export class LeagueDetailsComponent implements OnInit, OnDestroy {
     private league: League;
     private routeSubscription: Subscription;
 
-    constructor(private router: Router,
-                public route: ActivatedRoute,
+    constructor(private parent: LeagueComponent,
+                private route: ActivatedRoute,
                 private leagueService: LeagueService,
                 private changeref: ChangeDetectorRef) {
     }
     
     ngOnInit() { 
-        this.routeSubscription = this.route.params.subscribe(params => {
+        this.routeSubscription = this.parent.route.params.subscribe(params => {
             let id = +params['id'];
             this.leagueService.getLeague(id).then(league => {
                 this.league = league;

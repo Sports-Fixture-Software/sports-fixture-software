@@ -4,6 +4,7 @@ import { provideRouter, RouterConfig } from '@angular/router';
 import { LeagueListComponent } from './components/league_list.component';
 import { FixtureListComponent } from './components/fixture_list.component';
 import { LeagueComponent } from './components/league.component';
+import { LeagueDetailsComponent } from './components/league_details.component';
 
 export const routes: RouterConfig = [
   { path: '', redirectTo: 'league', pathMatch: 'full' },
@@ -12,8 +13,9 @@ export const routes: RouterConfig = [
     path: 'league/:id',
     component: LeagueComponent,
     children: [
-      { path: '', redirectTo: 'fixture' },
-      { path: 'fixture', component: FixtureListComponent }
+      { path: '', redirectTo: 'details', pathMatch: 'full' },
+      { path: 'details', component: LeagueDetailsComponent },
+      { path: 'fixtures', component: FixtureListComponent }
     ]
    }
 ];
