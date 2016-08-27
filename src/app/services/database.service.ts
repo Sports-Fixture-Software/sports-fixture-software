@@ -21,7 +21,46 @@ export class DatabaseService {
 
     init(): Promise<any> {
         if (this._initCalled == false) {
-            return this.get().knex.schema.createTableIfNotExists('league', (table) => {
+            return this.get().knex.schema.createTableIfNotExists
+                ('info', (table) => {
+                table.integer('databaseVersion')
+            }).then((res) => {
+                return this.get().knex.select().from('info')
+            }).then((res) => {
+                if (!res || res.length < 1
+                    || res[0].databaseVersion != this._databaseVersion) {
+                    return this.cleanDatabase().then((res) => {
+                        return this.initDatabase()
+                    })
+                }
+                return res
+            }).then((res) => {
+                this._initCalled = true
+                return res
+            }).catch((err: Error) => {
+                this._initError = new Error
+                    (`Unable to open database "${this.dbFilename}"
+                     (${err.message})`)
+            })
+        }
+        else {
+            return new Promise<any>((resolve, reject) => resolve(null))
+        }
+    }
+
+    private cleanDatabase(): Promise<any> {
+        return this.get().knex.select('name').from('sqlite_master')
+            .where('type', 'table').andWhere('name', '<>', 'sqlite_sequence')
+            .then((res) => {
+                return Promise.each(res, ((row : any) => {
+                    return this.get().knex.schema.dropTable(row.name)
+                }))
+            })
+    }
+
+    private initDatabase(): Promise<any> {
+        return this.get().knex.schema.createTableIfNotExists('league',
+            (table) => {
                 table.increments('id')
                 table.string('name')
             }).then((res) => {
@@ -46,17 +85,14 @@ export class DatabaseService {
                         table.integer('league_id').notNullable().references('id').inTable('league')
                 })
             }).then((res) => {
-                this._initCalled = true
-                return res
-            }).catch((err: Error) => {
-                this._initError = new Error
-                    (`Unable to open database "${this.dbFilename}"
-                     (${err.message})`)
+                return this.get().knex.schema.createTableIfNotExists('info',
+                    (table) => {
+                        table.integer('databaseVersion')
+                })
+            }).then((res) => {
+                return this.get().knex('info').insert
+                    ({databaseVersion: this._databaseVersion})
             })
-        }
-        else {
-            return new Promise<any>((resolve, reject) => resolve(null))
-        }
     }
 
     getInitError(): Error {
@@ -72,6 +108,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
     
+    private _databaseVersion: number = 1
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null
