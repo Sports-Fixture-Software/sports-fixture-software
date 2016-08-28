@@ -12,7 +12,7 @@ import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
-    templateUrl : 'league.template.html',
+    templateUrl : 'fixture.template.html',
     providers: [FixtureService], 
     directives: [Navbar, POPOVER_DIRECTIVES, MODAL_DIRECTIVES, ROUTER_DIRECTIVES]
 })
