@@ -22,8 +22,8 @@ export class FixtureDetailsComponent implements OnInit {
             .params.forEach(params => {
                 let id = +params['id']
                 this.fixtureService.getFixture(id).then(fixture => {
-                    this.fixture = fixture;
-                    this.changeref.detectChanges();
+                    this.fixture = fixture
+                    this.changeref.detectChanges()
                 })
             })
      }
