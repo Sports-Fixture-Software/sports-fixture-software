@@ -58,6 +58,11 @@ export class DatabaseService {
             })
     }
 
+    /**
+     * If you make any changes to the database schema below, increment
+     * `_databaseVersion` by one. This will delete all data in the database to
+     * avoid errors from conflicting schemas.
+     */
     private initDatabase(): Promise<any> {
         return this.get().knex.schema.createTableIfNotExists('league',
             (table) => {
@@ -75,14 +80,16 @@ export class DatabaseService {
                         table.string('createdBy')
                         table.date('generatedOn')
                         table.string('generatedBy')
-                        table.integer('league_id').notNullable().references('id').inTable('league')
+                        table.integer('league_id').notNullable().references
+                            ('id').inTable('league')
                 })
             }).then((res) => {
                 return this.get().knex.schema.createTableIfNotExists('team',
                     (table) => {
                         table.increments('id')
                         table.string('name').notNullable()
-                        table.integer('league_id').notNullable().references('id').inTable('league')
+                        table.integer('league_id').notNullable().references
+                            ('id').inTable('league')
                 })
             }).then((res) => {
                 return this.get().knex.schema.createTableIfNotExists('info',
