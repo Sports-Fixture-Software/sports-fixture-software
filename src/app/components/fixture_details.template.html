@@ -1,5 +1,25 @@
 <h2>Fixture {{ fixture?.name }}</h2>
-<dl>
-    <dt>Description</dt>
-    <dd>{{ fixture?.description }}</dd>
-</dl>
+<table class="table table-striped">
+    <colgroup>
+        <col class="col-md-1 col-xs-1">
+        <col class="col-md-2 col-xs-2">
+        <col class="col-md-9 col-xs-9">
+    </colgroup>
+    <tbody>
+        <tr>
+            <td></td>
+            <td><strong>Description</strong></td>
+            <td>{{ fixture?.description }}</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" disabled [checked]="fixture?.startDate" /></td>
+            <td><strong>Start Date</strong></td>
+            <td>{{ fixture?.startDate }}</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" disabled [checked]="fixture?.endDate" /></td>
+            <td><strong>End Date</strong></td>
+            <td>{{ fixture?.endDate }}</td>
+        </tr>
+    </tbody>
+</table>
