@@ -25,6 +25,20 @@
 input[type="date"] {
     min-width:150px;
 }
+.form-title {
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+.form-control-ro {
+    min-height: 34px;
+    padding-bottom: 7px;
+    padding-top: 7px;
+    padding-left: 13px;
+    padding-right: 13px; 
+}
+h2 { 
+    margin-top: 0px;
+}
 
 /**
 * Sidebar
