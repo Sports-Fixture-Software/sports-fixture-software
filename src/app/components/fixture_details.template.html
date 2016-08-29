@@ -1,64 +1,81 @@
-<div class="row">
-    <div class="col-md-9 col-xs-9">
-        <h2>Fixture Details</h2>
+<form [formGroup]="fixtureForm" novalidate (ngSubmit)="updateFixture(fixtureForm.value)">
+    <div class="row">
+        <div class="col-md-9 col-xs-7">
+            <h2>Fixture Details</h2>
+        </div>
+        <div class="col-md-3 col-xs-5 heading-row">
+            <div class="pull-right">
+                <button *ngIf="!editing" class="btn btn-primary" (click)="onEditFixture()" type="button">Edit Fixture</button>
+                <button *ngIf="editing" class="btn btn-default button-spacing" type="button" (click)="onRevert()">Revert</button>
+                <button-popover *ngIf="editing" type="submit">Save Changes</button-popover>
+            </div>
+        </div>
     </div>
-    <div class="col-md-3 col-xs-3">
-        <button-popover #editFixtureButton (click)="onEditFixture()">Edit Fixture</button-popover>
-    </div>
-</div>
-
-<table class="table table-striped">
-    <colgroup>
-        <col class="col-md-1 col-xs-1">
-        <col class="col-md-2 col-xs-2">
-        <col class="col-md-9 col-xs-9">
-    </colgroup>
-    <tbody>
-        <tr>
-            <td></td>
-            <td>
-                <div class="form-title"><strong>Name</strong></div>
-            </td>
-            <td *ngIf="!editing"><div class="form-control-ro">{{ fixture?.name }}</div></td>
-            <td *ngIf="editing">
-                <input type="text" class="form-control"
-                    [value]="fixture?.name" />
-            </td>
-        </tr>
-        <tr>
-            <td></td>
-            <td>
-                <div class="form-title"><strong>Description</strong></div>
-            </td>
-            <td *ngIf="!editing"><div class="form-control-ro">{{ fixture?.description }}</div></td>
-            <td *ngIf="editing">
-                <input type="text" class="form-control"
-                    [value]="fixture?.description" />
-            </td>
-        </tr>
-        <tr>
-            <td><input type="checkbox" [disabled]="!editing"
-                [checked]="fixture?.startDate" /></td>
-            <td>
-                <div class="form-title"><strong>Start Date</strong></div>
-            </td>
-            <td *ngIf="!editing"><div class="form-control-ro">{{ fixture?.startDate }}</div></td>
-            <td *ngIf="editing">
-                <input type="date" class="form-control"
-                    [value]="fixture?.startDate" />
-            </td>
-        </tr>
-        <tr>
-            <td><input type="checkbox" [disabled]="!editing"
-                [checked]="fixture?.endDate" /></td>
-            <td>
-                <div class="form-title"><strong>End Date</strong></div>
-            </td>
-            <td *ngIf="!editing"><div class="form-control-ro">{{ fixture?.endDate }}</div></td>
-            <td *ngIf="editing">
-                <input type="date" class="form-control"
-                    [value]="fixture?.endDate" />
-            </td>
-        </tr>
-    </tbody>
-</table>
+    <table class="table table-striped">
+        <colgroup>
+            <col class="col-md-1 col-xs-1">
+            <col class="col-md-2 col-xs-2">
+            <col class="col-md-9 col-xs-9">
+        </colgroup>
+        <tbody>
+            <tr>
+                <td></td>
+                <td>
+                    <div class="form-title"><strong>Name</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro">{{ fixture?.name }}</div>
+                </td>
+                <td *ngIf="editing">
+                    <input type="text" class="form-control" [value]="fixture?.name" formControlName="name" />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <div class="form-title"><strong>Description</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro">
+                        {{ fixture?.description }}
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input type="text" class="form-control" [value]="fixture?.description" formControlName="description" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" [checked]="fixture?.startDate" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-title"><strong>Start Date</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro">{{ fixture?.startDate }}</div>
+                </td>
+                <td *ngIf="editing">
+                    <input type="date" class="form-control" [value]="fixture?.startDate" formControlName="startDate" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" [checked]="fixture?.endDate" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-title"><strong>End Date</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro">{{ fixture?.endDate }}</div>
+                </td>
+                <td *ngIf="editing">
+                    <input type="date" class="form-control" [value]="fixture?.endDate" formControlName="endDate" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
