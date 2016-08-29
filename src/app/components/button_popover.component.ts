@@ -11,7 +11,7 @@ export class ButtonPopover implements OnInit, AfterViewInit {
     @Input() errorTitle: String
     @Input() errorContent: String
     @Input('type') theType: String
-    @Output('click') clickForwarder = new EventEmitter<Event>()
+    @Output('click') onClick = new EventEmitter<Event>()
     @ViewChild('button') button: ElementRef
 
     constructor(private _changeref: ChangeDetectorRef) {
@@ -25,10 +25,6 @@ export class ButtonPopover implements OnInit, AfterViewInit {
             return '10px'
         }
         return ''
-    }
-
-    onClick(event: Event) {
-        this.clickForwarder.emit(event)
     }
 
     ngAfterViewInit() {
