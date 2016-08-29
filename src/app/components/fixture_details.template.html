@@ -1,4 +1,12 @@
-<h2>Fixture {{ fixture?.name }}</h2>
+<div class="row">
+    <div class="col-md-9 col-xs-9">
+        <h2>Fixture Details</h2>
+    </div>
+    <div class="col-md-3 col-xs-3">
+        <button-popover #editFixtureButton (click)="onEditFixture()">Edit Fixture</button-popover>
+    </div>
+</div>
+
 <table class="table table-striped">
     <colgroup>
         <col class="col-md-1 col-xs-1">
@@ -8,18 +16,49 @@
     <tbody>
         <tr>
             <td></td>
-            <td><strong>Description</strong></td>
-            <td>{{ fixture?.description }}</td>
+            <td>
+                <div class="form-title"><strong>Name</strong></div>
+            </td>
+            <td *ngIf="!editing"><div class="form-control-ro">{{ fixture?.name }}</div></td>
+            <td *ngIf="editing">
+                <input type="text" class="form-control"
+                    [value]="fixture?.name" />
+            </td>
         </tr>
         <tr>
-            <td><input type="checkbox" disabled [checked]="fixture?.startDate" /></td>
-            <td><strong>Start Date</strong></td>
-            <td>{{ fixture?.startDate }}</td>
+            <td></td>
+            <td>
+                <div class="form-title"><strong>Description</strong></div>
+            </td>
+            <td *ngIf="!editing"><div class="form-control-ro">{{ fixture?.description }}</div></td>
+            <td *ngIf="editing">
+                <input type="text" class="form-control"
+                    [value]="fixture?.description" />
+            </td>
         </tr>
         <tr>
-            <td><input type="checkbox" disabled [checked]="fixture?.endDate" /></td>
-            <td><strong>End Date</strong></td>
-            <td>{{ fixture?.endDate }}</td>
+            <td><input type="checkbox" [disabled]="!editing"
+                [checked]="fixture?.startDate" /></td>
+            <td>
+                <div class="form-title"><strong>Start Date</strong></div>
+            </td>
+            <td *ngIf="!editing"><div class="form-control-ro">{{ fixture?.startDate }}</div></td>
+            <td *ngIf="editing">
+                <input type="date" class="form-control"
+                    [value]="fixture?.startDate" />
+            </td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" [disabled]="!editing"
+                [checked]="fixture?.endDate" /></td>
+            <td>
+                <div class="form-title"><strong>End Date</strong></div>
+            </td>
+            <td *ngIf="!editing"><div class="form-control-ro">{{ fixture?.endDate }}</div></td>
+            <td *ngIf="editing">
+                <input type="date" class="form-control"
+                    [value]="fixture?.endDate" />
+            </td>
         </tr>
     </tbody>
 </table>
