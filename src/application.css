@@ -29,15 +29,28 @@ input[type="date"] {
     padding-top: 7px;
     padding-bottom: 7px;
 }
-.form-control-ro {
+.form-title-ro {
     min-height: 34px;
     padding-bottom: 7px;
     padding-top: 7px;
     padding-left: 13px;
     padding-right: 13px; 
 }
+.form-control-ro {
+    margin-top: 7px;
+}
 h2 { 
     margin-top: 0px;
+}
+.heading-row {
+    min-height: 44px;
+}
+.form- {
+    vertical-align: middle
+}
+.button-spacing {
+    margin-bottom: 10px;
+    margin-right: 10px;
 }
 
 /**
