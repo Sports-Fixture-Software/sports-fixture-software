@@ -2,5 +2,7 @@ export interface FixtureForm {
     name: string,
     description: string,
     startDate: Date,
-    endDate: Date
+    startDateEnabled: boolean,
+    endDate: Date,
+    endDateEnabled: boolean
 }
