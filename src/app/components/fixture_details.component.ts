@@ -144,7 +144,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             })
         }
         fc = this.fixtureForm.controls['startDateEnabled'] as FormControl
-        fc.updateValue(this.fixture.startDate != null)
+        fc.updateValue(this.fixture.startDate)
         if (!this.listeners.startDateEnabled) {
             this.listeners.startDateEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onStartDateEnabledChange(evt)
@@ -158,7 +158,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             })
         }
         fc = this.fixtureForm.controls['endDateEnabled'] as FormControl
-        fc.updateValue(this.fixture.endDate != null)
+        fc.updateValue(this.fixture.endDate)
         if (!this.listeners.endDateEnabled) {
             this.listeners.endDateEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onEndDateEnabledChange(evt)
