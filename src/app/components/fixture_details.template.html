@@ -7,7 +7,7 @@
             <div class="pull-right">
                 <button *ngIf="!editing" class="btn btn-primary" (click)="onEditFixture()" type="button">Edit Fixture</button>
                 <button *ngIf="editing" class="btn btn-default button-spacing" type="button" (click)="onRevert()">Revert</button>
-                <button-popover *ngIf="editing" type="submit">Save Changes</button-popover>
+                <button-popover #saveChangesButton *ngIf="editing" type="submit">Save Changes</button-popover>
             </div>
         </div>
     </div>
@@ -27,7 +27,7 @@
                     <div class="form-title-ro">{{ fixture?.name }}</div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="text" class="form-control" [value]="fixture?.name" formControlName="name" />
+                    <input type="text" class="form-control" formControlName="name" />
                 </td>
             </tr>
             <tr>
@@ -41,13 +41,13 @@
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="text" class="form-control" [value]="fixture?.description" formControlName="description" />
+                    <input type="text" class="form-control" formControlName="description" />
                 </td>
             </tr>
             <tr>
                 <td>
                     <div class="form-control-ro">
-                        <input type="checkbox" [disabled]="!editing" [checked]="fixture?.startDate" />
+                        <input type="checkbox" [disabled]="!editing" formControlName="startDateEnabled" />
                     </div>
                 </td>
                 <td>
@@ -57,13 +57,13 @@
                     <div class="form-title-ro">{{ fixture?.startDate }}</div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="date" class="form-control" [value]="fixture?.startDate" formControlName="startDate" />
+                    <input type="date" class="form-control" formControlName="startDate" />
                 </td>
             </tr>
             <tr>
                 <td>
                     <div class="form-control-ro">
-                        <input type="checkbox" [disabled]="!editing" [checked]="fixture?.endDate" />
+                        <input type="checkbox" [disabled]="!editing" formControlName="endDateEnabled"/>
                     </div>
                 </td>
                 <td>
@@ -73,7 +73,7 @@
                     <div class="form-title-ro">{{ fixture?.endDate }}</div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="date" class="form-control" [value]="fixture?.endDate" formControlName="endDate" />
+                    <input type="date" class="form-control" formControlName="endDate" />
                 </td>
             </tr>
         </tbody>
