@@ -157,7 +157,7 @@ export class DatabaseService {
             { name: 'North U18', league_id: 3},
             { name: 'Norwood U18', league_id: 3},
             { name: 'Port U18', league_id: 3},
-            { name: 'South U18', league_id: 1},
+            { name: 'South U18', league_id: 3},
             { name: 'Sturt U18', league_id: 3},
             { name: 'West U18', league_id: 3},
         ]
