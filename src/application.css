@@ -39,14 +39,14 @@ input[type="date"] {
 .form-control-ro {
     margin-top: 7px;
 }
+.form-s {
+    min-width: 200px;
+}
 h2 { 
     margin-top: 0px;
 }
 .heading-row {
     min-height: 44px;
-}
-.form- {
-    vertical-align: middle
 }
 .button-spacing {
     margin-bottom: 10px;
