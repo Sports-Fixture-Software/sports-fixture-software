@@ -8,6 +8,7 @@ import { FixtureListComponent } from './components/fixture_list.component';
 import { FixtureDetailsComponent } from './components/fixture_details.component';
 import { LeagueComponent } from './components/league.component';
 import { LeagueDetailsComponent } from './components/league_details.component';
+import { RoundListComponent } from './components/round_list.component';
 
 export const routes: RouterConfig = [
   { path: '', redirectTo: 'league', pathMatch: 'full' },
@@ -27,7 +28,8 @@ export const routes: RouterConfig = [
     component: FixtureComponent,
     children: [
       { path: '', redirectTo: 'details', pathMatch: 'full' },
-      { path: 'details', component: FixtureDetailsComponent }
+      { path: 'details', component: FixtureDetailsComponent },
+      { path: 'rounds', component: RoundListComponent }
     ]
   }
 ];
