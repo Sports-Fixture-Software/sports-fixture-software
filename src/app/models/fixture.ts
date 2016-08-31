@@ -2,6 +2,7 @@ import { databaseInjector } from '../bootstrap'
 import { DatabaseService } from '../services/database.service'
 import { League } from './league'
 import * as Promise from 'bluebird'
+import * as moment from 'moment'
 
 export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseService).Model<Fixture> {
 
@@ -20,8 +21,8 @@ export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseS
     set name(value: string) { this.set('name', value) }
     set description(value: string) { this.set('description', value) }
     get description(): string { return this.get('description') }
-    set startDate(value: Date) { this.set('startDate', value) }
-    get startDate(): Date { return this.get('startDate') }
+    set startDate(value: moment.Moment) { this.set('startDate', value) }
+    get startDate(): moment.Moment { return this.get('startDate') }
     set endDate(value: Date) { this.set('endDate', value) }
     get endDate(): Date { return this.get('endDate') }
     set createdOn(value: Date) { this.set('createdOn', value) }

@@ -1,2 +1,14 @@
 <p>Round List</p>
 <button (click)="clicky()">Click</button>
+<table class="table table-striped table-bordered">
+    <tbody>
+        <tr *ngFor="let round of rounds">
+            <td>
+                {{round.number}}
+            </td>
+            <td>
+                {{round.startDate}}
+            </td>
+        </tr>
+    </tbody>
+</table>
