@@ -1,9 +1,7 @@
-import * as moment from 'moment'
-
 export interface FixtureForm {
     name: string,
     description: string,
-    startDate: moment.Moment,
+    startDate: Date,
     startDateEnabled: boolean,
     endDate: Date,
     endDateEnabled: boolean
