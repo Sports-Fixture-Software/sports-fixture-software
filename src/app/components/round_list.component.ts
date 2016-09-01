@@ -43,6 +43,23 @@ export class RoundListComponent implements OnInit {
             })
     }
 
+    /**
+     * Return the number of rounds between two dates.
+     * 
+     * The `startDate` can be any day of the week. If `startDate` is a weekend,
+     * the round count will include that weekend, otherwise count starts at
+     * next weekend. 
+     * 
+     * The `endDate` can be any day of the week. If `endDate` is a weekend, the
+     * round count will include that weekend, otherwise count ends at the
+     * previous weekend.
+     * 
+     * If both `startDate` and `endDate` are mid-week in the same week, the
+     * returned round count will be 0.
+
+     * If both `startDate` and `endDate` are on the weeked in the same week, the
+     * returned round count will be 1.
+     */
     private getNumberOfRounds(startDate: Date, endDate: Date): number {
         let start = moment(startDate)
         let end = moment(endDate)
