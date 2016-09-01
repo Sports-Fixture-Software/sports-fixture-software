@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { FixtureService } from '../services/fixture.service'
 import { Fixture } from '../models/fixture'
+import { Round } from '../models/round'
 import * as moment from 'moment'
 
 @Component({
@@ -23,18 +24,23 @@ export class RoundListComponent implements OnInit {
                 let id = +params['id'];
                 this._fixtureService.getFixture(id).then((f) => {
                     this.fixture = f
+                    let runningDate = moment(f.startDate)
+                    if (runningDate.day() == 0) { // 0 is Sunday
+                        runningDate.subtract(1, 'day')
+                    } else if (runningDate.day() < 6) { // 6 is Saturday
+                        runningDate.add(6 - runningDate.day(), 'day')
+                    }
+                    for (let i = 1; i <= this.getNumberOfRounds(f.startDate, f.endDate); i++) {
+                        if (i == 1) {
+                            this.rounds.push(new Round({ number: i, startDate: f.startDate }))
+                        } else {
+                            runningDate.add(1, 'week')
+                            this.rounds.push(new Round({ number: i, startDate: moment(runningDate).toDate() }))
+                        }
+                    }
+                    this._changeref.detectChanges()
                 })
             })
-        this.getNumberOfRounds(null, null)
-    }
-
-    clicky() {
-        let rounds = this.getNumberOfRounds(this.fixture.startDate, this.fixture.endDate)
-        console.log(rounds)
-    }
-
-    navigateToFixture() {
-        //this._router.navigate(['/fixture', fixture.id]);
     }
 
     private getNumberOfRounds(startDate: Date, endDate: Date): number {
@@ -58,5 +64,6 @@ export class RoundListComponent implements OnInit {
         }
     }
 
+    private rounds: Round[] = []
     private fixture: Fixture
 }
