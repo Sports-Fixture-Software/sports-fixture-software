@@ -1,2 +1,26 @@
-<p>Round List</p>
-<button (click)="clicky()">Click</button>
+<h2>Round List</h2>
+<table class="table table-striped">
+    <colgroup>
+        <col class="col-xs-1">
+        <col class="col-xs-3">
+        <col class="col-xs-8">
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Round</th>
+            <th>Date</th>
+            <th>Match-ups</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let round of rounds">
+            <td>
+                {{round.number}}
+            </td>
+            <td>
+                {{round.startDate | date}}
+            </td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
