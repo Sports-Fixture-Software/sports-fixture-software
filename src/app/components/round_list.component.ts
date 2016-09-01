@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, Params } from '@angular/router';
 import { FixtureService } from '../services/fixture.service'
 import { Fixture } from '../models/fixture'
 import { Round } from '../models/round'
+import { DaysOfWeek } from '../util/days_of_week'
 import * as moment from 'moment'
 
 @Component({
@@ -25,10 +26,10 @@ export class RoundListComponent implements OnInit {
                 this._fixtureService.getFixture(id).then((f) => {
                     this.fixture = f
                     let runningDate = moment(f.startDate)
-                    if (runningDate.day() == 0) { // 0 is Sunday
+                    if (runningDate.day() == DaysOfWeek.Sunday) {
                         runningDate.subtract(1, 'day')
-                    } else if (runningDate.day() < 6) { // 6 is Saturday
-                        runningDate.add(6 - runningDate.day(), 'day')
+                    } else if (runningDate.day() < DaysOfWeek.Saturday) {
+                        runningDate.add(DaysOfWeek.Saturday - runningDate.day(), 'day')
                     }
                     for (let i = 1; i <= this.getNumberOfRounds(f.startDate, f.endDate); i++) {
                         if (i == 1) {
@@ -63,12 +64,12 @@ export class RoundListComponent implements OnInit {
     private getNumberOfRounds(startDate: Date, endDate: Date): number {
         let start = moment(startDate)
         let end = moment(endDate)
-        if (start.day() == 0) { // 0 is Sunday
+        if (start.day() == DaysOfWeek.Sunday) {
             start.subtract(1, 'day')
-        } else if (start.day() < 6) { // 6 is Saturday
-            start.add(6 - start.day(), 'day')
+        } else if (start.day() < DaysOfWeek.Saturday) {
+            start.add(DaysOfWeek.Saturday - start.day(), 'day')
         }
-        if (end.day() < 6) {
+        if (end.day() < DaysOfWeek.Saturday) {
             end.subtract(end.day() + 1, 'day')
         }
         let daysdiff = end.diff(start, 'days')
