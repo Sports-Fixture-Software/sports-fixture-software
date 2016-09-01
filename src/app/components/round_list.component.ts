@@ -57,9 +57,11 @@ export class RoundListComponent implements OnInit {
      * 
      * If both `startDate` and `endDate` are mid-week in the same week, the
      * returned round count will be 0.
-
+     * 
      * If both `startDate` and `endDate` are on the weeked in the same week, the
      * returned round count will be 1.
+     * 
+     * If `startDate` is later than `endDate`, returned round count will be 0.
      */
     private getNumberOfRounds(startDate: Date, endDate: Date): number {
         let start = moment(startDate)
