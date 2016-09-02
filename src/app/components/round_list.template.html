@@ -1,5 +1,5 @@
 <popover-content id="createMatchupPopover" #createMatchupPopover title="Create Match-up" [closeOnClickOutside]="true">
-    <form id="matchupForm" class="form-s" [formGroup]="matchupForm" novalidate (ngSubmit)="createMatchup(matchupForm)">
+    <form id="matchupForm" class="form-s" [formGroup]="matchupForm" novalidate (ngSubmit)="createMatchup(matchupForm.value)">
         <div class="form-group hidden">
             <label for="number">Round number</label>
             <input #roundNumber type="text" class="form-control" id="number" formControlName="number" />

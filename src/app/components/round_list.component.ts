@@ -3,11 +3,13 @@ import { ActivatedRoute, Router, Params } from '@angular/router';
 import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
 import { Validators } from '@angular/common'
 import { FixtureService } from '../services/fixture.service'
+import { RoundService } from '../services/round.service'
 import { Collection } from '../services/collection'
 import { Fixture } from '../models/fixture'
 import { League } from '../models/league'
 import { Team } from '../models/team'
 import { Round } from '../models/round'
+import { RoundForm } from '../models/round.form'
 import { DaysOfWeek } from '../util/days_of_week'
 import { ButtonPopover } from './button_popover.component'
 import { POPOVER_DIRECTIVES } from 'ng2-popover';
@@ -15,7 +17,7 @@ import * as moment from 'moment'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
-    providers: [FixtureService],
+    providers: [FixtureService, RoundService],
     directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES],
     templateUrl: 'round_list.template.html'
 })
@@ -23,6 +25,7 @@ import * as moment from 'moment'
 export class RoundListComponent implements OnInit {
     constructor(private _changeref: ChangeDetectorRef,
         private _fixtureService: FixtureService,
+        private _roundService: RoundService,
         private _router: Router,
         private _route: ActivatedRoute) {
     }
@@ -70,8 +73,16 @@ export class RoundListComponent implements OnInit {
             })
     }
 
-    createMatchup(form: any) {
-        console.log(form)
+    createMatchup(form: RoundForm) {
+        this._roundService.count(form.number).then((res: number) => {
+            if (res < 1) {
+                return this._roundService.addRound(new Round(form.number))
+            }
+        }).then(() => {
+
+        })
+        console.log(form.homeTeam)
+        console.log(form.awayTeam)
     }
 
     /**
