@@ -35,7 +35,7 @@ export class RoundListComponent implements OnInit {
             number: new FormControl('', [<any>Validators.required]),
             homeTeam: new FormControl('', [<any>Validators.required]),
             awayTeam: new FormControl('', [<any>Validators.required])
-        })
+        }, {}, this.differentTeamsSelectedValidator)
 
         this._router.routerState.parent(this._route)
             .params.forEach(params => {
@@ -112,6 +112,14 @@ export class RoundListComponent implements OnInit {
         } else {
             return Math.round(daysdiff / 7) + 1
         }
+    }
+
+    /**
+     * Validator to ensure different teams are selected. Can't reserve a
+     * match-up of teamX vs teamX
+     */
+    private differentTeamsSelectedValidator = ({value}: FormGroup): { [key: string]: any } => {
+        return value.homeTeam == value.awayTeam ? { equal: true } : null
     }
 
     private initComplete: boolean = false
