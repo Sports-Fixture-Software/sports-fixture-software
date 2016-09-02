@@ -24,13 +24,14 @@ export class RoundListComponent implements OnInit {
         private _route: ActivatedRoute) {
     }
 
-    @ViewChild('addMatchupContent') addMatchupContent: ElementRef
     matchupForm: FormGroup
 
     ngOnInit() {
         this.matchupForm = new FormGroup({
             name: new FormControl('', [<any>Validators.required])
         })
+
+        this.setPopupsToHideWhenClickOutside()
 
         this._router.routerState.parent(this._route)
             .params.forEach(params => {
@@ -54,33 +55,37 @@ export class RoundListComponent implements OnInit {
                     this._changeref.detectChanges()
                 })
             })
-        let r = this.addMatchupContent
     }
 
     onDataBound() {
         if (!this.initComplete) {
             jQuery('.add-matchup-button').popover
                 ({
-                    html: true, content: () => {
-                        return this.addMatchupContent.nativeElement.innerHTML
-                    }
+                    html: true, content: jQuery('#matchupForm')
                 })
             this.initComplete = true
         }
     }
 
-    createMatchup(form : any) {
+    createMatchup(form: any) {
         console.log(form)
     }
 
-    boo() {
-        console.log('booo')
+    /**
+     * http://stackoverflow.com/a/14857326
+     */
+    setPopupsToHideWhenClickOutside() {
+        jQuery(document).on('click', function (e) {
+            jQuery('[data-toggle="popover"],[data-original-title]').each(function () {
+                //the 'is' for buttons that trigger popups
+                //the 'has' for icons within a button that triggers a popup
+                if (!jQuery(this).is(e.target) && jQuery(this).has(e.target).length === 0 && jQuery('.popover').has(e.target).length === 0) {
+                    ((jQuery(this).popover('hide').data('bs.popover') || {}).inState || {}).click = false  // fix for BS 3.3.6
+                }
+            })
+        })
     }
 
-
-    getAddMatchupConent(source: ElementRef) {
-        return this.addMatchupContent.nativeElement.innerHTML
-    }
     /**
      * Return the number of rounds between two dates.
      * 

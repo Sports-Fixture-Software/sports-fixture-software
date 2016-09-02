@@ -1,16 +1,13 @@
-<div #addMatchupContent id="amc">
-    <form class="form-s" [formGroup]="matchupForm" novalidate (ngSubmit)="createMatchup(matchupForm.value)">
-        <div class="form-group">
-            <label for="matchupName">Team name</label>
-            <input type="text" class="form-control" id="matchupName" placeholder="Name" formControlName="name" />
-        </div>
-  
-        <div class="pull-right">
-            <button #createMatchupButton type="button" (click)="boo()">Create Match-up</button>
-            <!--<button-popover #createMatchupButton type="button" (click)="boo()">Create Match-up</button-popover>-->
-        </div>
-    </form>
-</div>
+<form id="matchupForm" class="form-s" [formGroup]="matchupForm" novalidate (ngSubmit)="createMatchup(matchupForm.value)">
+    <div class="form-group">
+        <label for="matchupName">Team name</label>
+        <input type="text" class="form-control" id="matchupName" placeholder="Name" formControlName="name" />
+    </div>
+
+    <div class="pull-right">
+        <button-popover #createMatchupButton type="submit">Create Match-up</button-popover>
+    </div>
+</form>
 
 <h2>Round List</h2>
 <table class="table table-striped">
