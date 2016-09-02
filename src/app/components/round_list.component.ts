@@ -63,9 +63,9 @@ export class RoundListComponent implements OnInit {
                 }).then((league: League) => {
                     return league.getTeams()
                 }).then((teams: Collection<Team>) => {
-                    this.teams = teams.toArray()
-                    this.teamsIncBye = teams.toArray()
-                    this.teamsIncBye.push(new Team('Bye'))
+                    this.homeTeams = teams.toArray()
+                    this.awayTeams = teams.toArray()
+                    this.awayTeams.push(new Team('Bye'))
                 })
             })
     }
@@ -116,7 +116,7 @@ export class RoundListComponent implements OnInit {
 
     private initComplete: boolean = false
     private rounds: Round[] = []
-    private teams: Team[]
-    private teamsIncBye: Team[]
+    private homeTeams: Team[]
+    private awayTeams: Team[]
     private fixture: Fixture
 }

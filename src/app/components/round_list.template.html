@@ -10,7 +10,7 @@
                     <td>
                         <label for="homeTeam">Home</label>
                         <select id="homeTeam" class="form-control" formControlName="homeTeam">
-                            <option *ngFor="let team of teams" [ngValue]="team">
+                            <option *ngFor="let team of homeTeams" [ngValue]="team">
                                 {{team.name}}
                             </option>
                         </select>
@@ -19,7 +19,7 @@
                     <td>
                         <label for="awayTeam">Away</label>
                         <select id="awayTeam" class="form-control" formControlName="awayTeam">
-                            <option *ngFor="let team of teamsIncBye" [ngValue]="team">
+                            <option *ngFor="let team of awayTeams" [ngValue]="team">
                                 {{team.name}}
                             </option>
                         </select>
