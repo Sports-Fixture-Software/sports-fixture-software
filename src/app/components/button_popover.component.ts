@@ -27,46 +27,33 @@ export class ButtonPopover implements AfterViewInit {
     ngAfterViewInit() {
         jQuery(this.button.nativeElement).popover({ html: true }).on('hidden.bs.popover', () => {
             this.state = State.Hidden
-            if (this.showRequested) {
-                this.showRequested = false
-                this.showErrorPopup()
-            }
         }).on('shown.bs.popover', () => {
             this.state = State.Shown
-            if (this.hideRequested) {
-                this.hideRequested = false
-                this.hideErrorPopup()
-            }
         })
-        document.addEventListener("mousedown", this.onDocumentMouseDown)
+        document.addEventListener('mousedown', this.onDocumentMouseDown)
     }
 
     showError(title: string, message: string) {
         this.button.nativeElement.setAttribute('data-original-title', title)
-
         this.errorContent = `<div class="alert alert-danger" role="alert"
         style="min-width:250px">
         <span class="glyphicon glyphicon-exclamation-sign"
             aria-hidden="true"></span>
             <span class="sr-only">${title}</span>${message}</div>`
         this._changeref.detectChanges()
-        if (this.state == State.Hidding) {
-            this.showRequested = true
-        } else if (this.state == State.Hidden) {
+        if (this.state == State.Hidden) {
             this.showErrorPopup()
         }
     }
 
     hideError() {
-        if (this.state == State.Showing) {
-            this.hideRequested = true
-        } else if (this.state == State.Shown) {
+        if (this.state == State.Shown) {
             this.hideErrorPopup()
         }
     }
 
     ngOnDestroy() {
-        document.removeEventListener("mousedown", this.onDocumentMouseDown)
+        document.removeEventListener('mousedown', this.onDocumentMouseDown)
         jQuery(this.button.nativeElement).off('hidden.bs.popover').off('shown.bs.popover')
     }
 
@@ -84,14 +71,10 @@ export class ButtonPopover implements AfterViewInit {
         }
     }
 
-    private onDocumentMouseDown = (event: any) => {
-        if (this.state == State.Shown || this.state == State.Showing) {
-            this.hideError()
-        }
+    private onDocumentMouseDown = () => {
+        this.hideError()
     }
 
-    private showRequested: boolean = false
-    private hideRequested: boolean = false
     private state: State = State.Hidden
 }
 enum State {
