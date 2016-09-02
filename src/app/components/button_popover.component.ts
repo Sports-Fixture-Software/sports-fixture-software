@@ -10,6 +10,7 @@ declare var jQuery: JQueryStatic;
 export class ButtonPopover implements AfterViewInit {
     @Input() errorTitle: String
     @Input() errorContent: String
+    @Input('disabled') disabled: boolean
     @Input('type') theType: String
     @Output('click') onClick = new EventEmitter<Event>()
     @ViewChild('button') button: ElementRef
