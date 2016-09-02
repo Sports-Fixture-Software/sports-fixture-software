@@ -1,14 +1,19 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core'
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute, Router, Params } from '@angular/router';
+import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
+import { Validators } from '@angular/common'
+
 import { FixtureService } from '../services/fixture.service'
 import { Fixture } from '../models/fixture'
 import { Round } from '../models/round'
 import { DaysOfWeek } from '../util/days_of_week'
+import { ButtonPopover } from './button_popover.component'
 import * as moment from 'moment'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     providers: [FixtureService],
+    directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES],
     templateUrl: 'round_list.template.html'
 })
 
@@ -19,7 +24,14 @@ export class RoundListComponent implements OnInit {
         private _route: ActivatedRoute) {
     }
 
+    @ViewChild('addMatchupContent') addMatchupContent: ElementRef
+    matchupForm: FormGroup
+
     ngOnInit() {
+        this.matchupForm = new FormGroup({
+            name: new FormControl('', [<any>Validators.required])
+        })
+
         this._router.routerState.parent(this._route)
             .params.forEach(params => {
                 let id = +params['id'];
@@ -42,8 +54,33 @@ export class RoundListComponent implements OnInit {
                     this._changeref.detectChanges()
                 })
             })
+        let r = this.addMatchupContent
     }
 
+    onDataBound() {
+        if (!this.initComplete) {
+            jQuery('.add-matchup-button').popover
+                ({
+                    html: true, content: () => {
+                        return this.addMatchupContent.nativeElement.innerHTML
+                    }
+                })
+            this.initComplete = true
+        }
+    }
+
+    createMatchup(form : any) {
+        console.log(form)
+    }
+
+    boo() {
+        console.log('booo')
+    }
+
+
+    getAddMatchupConent(source: ElementRef) {
+        return this.addMatchupContent.nativeElement.innerHTML
+    }
     /**
      * Return the number of rounds between two dates.
      * 
@@ -84,6 +121,7 @@ export class RoundListComponent implements OnInit {
         }
     }
 
+    private initComplete: boolean = false
     private rounds: Round[] = []
     private fixture: Fixture
 }
