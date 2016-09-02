@@ -52,6 +52,11 @@ h2 {
     margin-bottom: 10px;
     margin-right: 10px;
 }
+.form-centre {
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
 
 /**
 * Sidebar
