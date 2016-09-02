@@ -1,13 +1,19 @@
-<form id="matchupForm" class="form-s" [formGroup]="matchupForm" novalidate (ngSubmit)="createMatchup(matchupForm.value)">
-    <div class="form-group">
-        <label for="matchupName">Team name</label>
-        <input type="text" class="form-control" id="matchupName" placeholder="Name" formControlName="name" />
-    </div>
+<popover-content id="createMatchupPopover" #createMatchupPopover title="Create Match-up" [closeOnClickOutside]="true">
+    <form id="matchupForm" class="form-s" [formGroup]="matchupForm" novalidate (ngSubmit)="createMatchup(matchupForm.value)">
+        <div class="form-group hidden">
+            <label for="number">Round number</label>
+            <input #roundNumber type="text" class="form-control" id="number" formControlName="number" />
+        </div>
+        <div class="form-group">
+            <label for="matchupName">Team name</label>
+            <input type="text" class="form-control" id="matchupName" placeholder="Name" formControlName="name" />
+        </div>
 
-    <div class="pull-right">
-        <button-popover #createMatchupButton type="submit">Create Match-up</button-popover>
-    </div>
-</form>
+        <div class="pull-right">
+            <button-popover #createMatchupButton type="submit">Create Match-up</button-popover>
+        </div>
+    </form>
+</popover-content>
 
 <h2>Round List</h2>
 <table class="table table-striped">
@@ -24,15 +30,17 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let round of rounds; let last = last">
+        <tr *ngFor="let round of rounds">
             <td>
-                {{round.number}}{{last ? onDataBound() : ''}}
+                {{round.number}}
             </td>
             <td>
                 {{round.startDate | date}}
             </td>
             <td>
-                <button class="btn btn-default add-matchup-button" data-toggle="popover" data-placement="bottom" title="testy">Add</button>
+                <button class="btn btn-default" [popover]="createMatchupPopover" popoverPlacement="bottom" (click)="matchupForm.controls['number'].updateValue(round.number)">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </button>
             </td>
         </tr>
     </tbody>

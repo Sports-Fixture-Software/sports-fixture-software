@@ -8,12 +8,13 @@ import { Fixture } from '../models/fixture'
 import { Round } from '../models/round'
 import { DaysOfWeek } from '../util/days_of_week'
 import { ButtonPopover } from './button_popover.component'
+import { POPOVER_DIRECTIVES } from 'ng2-popover';
 import * as moment from 'moment'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     providers: [FixtureService],
-    directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES],
+    directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES],
     templateUrl: 'round_list.template.html'
 })
 
@@ -28,10 +29,9 @@ export class RoundListComponent implements OnInit {
 
     ngOnInit() {
         this.matchupForm = new FormGroup({
-            name: new FormControl('', [<any>Validators.required])
+            name: new FormControl('', [<any>Validators.required]),
+            number: new FormControl('', [<any>Validators.required])
         })
-
-        this.setPopupsToHideWhenClickOutside()
 
         this._router.routerState.parent(this._route)
             .params.forEach(params => {
@@ -57,33 +57,8 @@ export class RoundListComponent implements OnInit {
             })
     }
 
-    onDataBound() {
-        if (!this.initComplete) {
-            jQuery('.add-matchup-button').popover
-                ({
-                    html: true, content: jQuery('#matchupForm')
-                })
-            this.initComplete = true
-        }
-    }
-
     createMatchup(form: any) {
         console.log(form)
-    }
-
-    /**
-     * http://stackoverflow.com/a/14857326
-     */
-    setPopupsToHideWhenClickOutside() {
-        jQuery(document).on('click', function (e) {
-            jQuery('[data-toggle="popover"],[data-original-title]').each(function () {
-                //the 'is' for buttons that trigger popups
-                //the 'has' for icons within a button that triggers a popup
-                if (!jQuery(this).is(e.target) && jQuery(this).has(e.target).length === 0 && jQuery('.popover').has(e.target).length === 0) {
-                    ((jQuery(this).popover('hide').data('bs.popover') || {}).inState || {}).click = false  // fix for BS 3.3.6
-                }
-            })
-        })
     }
 
     /**
