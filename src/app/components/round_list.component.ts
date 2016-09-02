@@ -63,11 +63,29 @@ export class RoundListComponent implements OnInit {
                 }).then((league: League) => {
                     return league.getTeams()
                 }).then((teams: Collection<Team>) => {
-                    this.teams = teams.toArray()
-                    this.teamsIncBye = teams.toArray()
-                    this.teamsIncBye.push(new Team('Bye'))
+                    this.allTeams = teams.toArray()
+                    this.homeTeams = this.allTeams.slice(0)
+                    this.awayTeams = this.allTeams.slice(0)
+                    this.awayTeams.push(this.byeTeam)
                 })
             })
+    }
+
+    onChangeHomeTeam(team: Team) {
+        this.awayTeams = this.allTeams.slice(0)
+        let index = this.awayTeams.indexOf(team, 0)
+        if (index > -1) {
+            this.awayTeams.splice(index, 1)
+        }
+        this.awayTeams.push(this.byeTeam)
+    }
+
+    onChangeAwayTeam(team: Team) {
+        this.homeTeams = this.allTeams.slice(0)
+        let index = this.homeTeams.indexOf(team, 0)
+        if (index > -1) {
+            this.homeTeams.splice(index, 1)
+        }
     }
 
     createMatchup(form: any) {
@@ -116,7 +134,9 @@ export class RoundListComponent implements OnInit {
 
     private initComplete: boolean = false
     private rounds: Round[] = []
-    private teams: Team[]
-    private teamsIncBye: Team[]
+    private byeTeam: Team = new Team('Bye')
+    private homeTeams: Team[]
+    private awayTeams: Team[]
+    private allTeams: Team[]
     private fixture: Fixture
 }
