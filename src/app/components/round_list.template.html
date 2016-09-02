@@ -5,8 +5,27 @@
             <input #roundNumber type="text" class="form-control" id="number" formControlName="number" />
         </div>
         <div class="form-group">
-            <label for="matchupName">Team name</label>
-            <input type="text" class="form-control" id="matchupName" placeholder="Name" formControlName="name" />
+            <table>
+                <tr>
+                    <td>
+                        <label for="homeTeam">Home</label>
+                        <select id="homeTeam" class="form-control" formControlName="homeTeam">
+                            <option *ngFor="let team of teams" [ngValue]="team">
+                                {{team.name}}
+                            </option>
+                        </select>
+                    </td>
+                    <td class="form-centre">vs</td>
+                    <td>
+                        <label for="awayTeam">Away</label>
+                        <select id="awayTeam" class="form-control" formControlName="awayTeam">
+                            <option *ngFor="let team of teamsIncBye" [ngValue]="team">
+                                {{team.name}}
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
         </div>
 
         <div class="pull-right">
@@ -38,9 +57,11 @@
                 {{round.startDate | date}}
             </td>
             <td>
-                <button class="btn btn-default" [popover]="createMatchupPopover" popoverPlacement="bottom" (click)="matchupForm.controls['number'].updateValue(round.number)">
+                <div class="pull-right">
+                    <button class="btn btn-default" [popover]="createMatchupPopover" popoverPlacement="bottom" (click)="matchupForm.controls['number'].updateValue(round.number)">
                     <span class="glyphicon glyphicon-plus"></span>
                 </button>
+                </div>
             </td>
         </tr>
     </tbody>

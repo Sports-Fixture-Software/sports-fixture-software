@@ -2,9 +2,11 @@ import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@an
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
 import { Validators } from '@angular/common'
-
 import { FixtureService } from '../services/fixture.service'
+import { Collection } from '../services/collection'
 import { Fixture } from '../models/fixture'
+import { League } from '../models/league'
+import { Team } from '../models/team'
 import { Round } from '../models/round'
 import { DaysOfWeek } from '../util/days_of_week'
 import { ButtonPopover } from './button_popover.component'
@@ -30,8 +32,9 @@ export class RoundListComponent implements OnInit {
 
     ngOnInit() {
         this.matchupForm = new FormGroup({
-            name: new FormControl('', [<any>Validators.required]),
-            number: new FormControl('', [<any>Validators.required])
+            number: new FormControl('', [<any>Validators.required]),
+            homeTeam: new FormControl('', [<any>Validators.required]),
+            awayTeam: new FormControl('', [<any>Validators.required])
         })
 
         this._router.routerState.parent(this._route)
@@ -54,6 +57,15 @@ export class RoundListComponent implements OnInit {
                         }
                     }
                     this._changeref.detectChanges()
+                    return f
+                }).then((fixture: Fixture) => {
+                    return fixture.getLeague()
+                }).then((league: League) => {
+                    return league.getTeams()
+                }).then((teams: Collection<Team>) => {
+                    this.teams = teams.toArray()
+                    this.teamsIncBye = teams.toArray()
+                    this.teamsIncBye.push(new Team('Bye'))
                 })
             })
     }
@@ -104,5 +116,7 @@ export class RoundListComponent implements OnInit {
 
     private initComplete: boolean = false
     private rounds: Round[] = []
+    private teams: Team[]
+    private teamsIncBye: Team[]
     private fixture: Fixture
 }
