@@ -25,6 +25,7 @@ export class RoundListComponent implements OnInit {
         private _route: ActivatedRoute) {
     }
 
+    @ViewChild('createMatchupButton') createMatchupButton: ButtonPopover
     matchupForm: FormGroup
 
     ngOnInit() {
