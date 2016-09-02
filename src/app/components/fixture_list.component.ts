@@ -71,6 +71,10 @@ export class FixtureListComponent implements OnInit {
         })
     }
 
+    navigateToFixture(fixture: Fixture) {
+        this._router.navigate(['/fixture', fixture.id]);
+    }
+
     private _fixtures: Fixture[]
     private _league: League
 }
