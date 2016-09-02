@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, AfterViewInit, ElementRef, ChangeDetectorRef} from '@angular/core'
+import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, ElementRef, ChangeDetectorRef} from '@angular/core'
 import * as twitterBootstrap from 'bootstrap'
 declare var jQuery: JQueryStatic;
 
@@ -7,7 +7,7 @@ declare var jQuery: JQueryStatic;
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'button_popover.template.html'
 })
-export class ButtonPopover implements OnInit, AfterViewInit {
+export class ButtonPopover implements AfterViewInit {
     @Input() errorTitle: String
     @Input() errorContent: String
     @Input('type') theType: String
@@ -17,10 +17,7 @@ export class ButtonPopover implements OnInit, AfterViewInit {
     constructor(private _changeref: ChangeDetectorRef) {
     }
 
-    ngOnInit() {
-    }
-
-    getMarginBottom() : string {
+    getMarginBottom(): string {
         if (this.theType == 'submit') {
             return '10px'
         }
@@ -28,7 +25,20 @@ export class ButtonPopover implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        jQuery(this.button.nativeElement).popover({ html: true })
+        jQuery(this.button.nativeElement).popover({ html: true }).on('hidden.bs.popover', () => {
+            this.state = State.Hidden
+            if (this.showRequested) {
+                this.showRequested = false
+                this.showErrorPopup()
+            }
+        }).on('shown.bs.popover', () => {
+            this.state = State.Shown
+            if (this.hideRequested) {
+                this.hideRequested = false
+                this.hideErrorPopup()
+            }
+        })
+        document.addEventListener("mousedown", this.onDocumentMouseDown)
     }
 
     showError(title: string, message: string) {
@@ -40,10 +50,53 @@ export class ButtonPopover implements OnInit, AfterViewInit {
             aria-hidden="true"></span>
             <span class="sr-only">${title}</span>${message}</div>`
         this._changeref.detectChanges()
-        jQuery(this.button.nativeElement).popover('show')
+        if (this.state == State.Hidding) {
+            this.showRequested = true
+        } else if (this.state == State.Hidden) {
+            this.showErrorPopup()
+        }
     }
 
     hideError() {
-        jQuery(this.button.nativeElement).popover('hide')
+        if (this.state == State.Showing) {
+            this.hideRequested = true
+        } else if (this.state == State.Shown) {
+            this.hideErrorPopup()
+        }
     }
+
+    ngOnDestroy() {
+        document.removeEventListener("mousedown", this.onDocumentMouseDown)
+        jQuery(this.button.nativeElement).off('hidden.bs.popover').off('shown.bs.popover')
+    }
+
+    private showErrorPopup() {
+        jQuery(this.button.nativeElement).popover('show')
+    }
+
+    private hideErrorPopup() {
+        let data = jQuery(this.button.nativeElement).popover('hide').data('bs.popover')
+        if (data && data.inState) {
+            // needed to work around a bug in Twitter bootstrap
+            // where requires two clicks to show popup
+            // http://stackoverflow.com/a/14857326
+            data.inState.click = false
+        }
+    }
+
+    private onDocumentMouseDown = (event: any) => {
+        if (this.state == State.Shown || this.state == State.Showing) {
+            this.hideError()
+        }
+    }
+
+    private showRequested: boolean = false
+    private hideRequested: boolean = false
+    private state: State = State.Hidden
+}
+enum State {
+    Hidden,
+    Hidding,
+    Shown,
+    Showing
 }
