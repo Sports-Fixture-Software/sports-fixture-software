@@ -25,6 +25,33 @@
 input[type="date"] {
     min-width:150px;
 }
+.form-title {
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+.form-title-ro {
+    min-height: 34px;
+    padding-bottom: 7px;
+    padding-top: 7px;
+    padding-left: 13px;
+    padding-right: 13px; 
+}
+.form-control-ro {
+    margin-top: 7px;
+}
+.form-s {
+    min-width: 200px;
+}
+h2 { 
+    margin-top: 0px;
+}
+.heading-row {
+    min-height: 44px;
+}
+.button-spacing {
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
 
 /**
 * Sidebar
