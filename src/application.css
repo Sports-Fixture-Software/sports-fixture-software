@@ -80,7 +80,7 @@ body {
     border-left-width: 0;
 }
 input[type="date"] {
-    min-width:150px
+    min-width:150px;
 }
 .form-title {
     padding-top: 7px;
