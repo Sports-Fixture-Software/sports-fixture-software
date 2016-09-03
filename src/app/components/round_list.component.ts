@@ -4,11 +4,13 @@ import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@
 import { Validators } from '@angular/common'
 import { FixtureService } from '../services/fixture.service'
 import { RoundService } from '../services/round.service'
+import { RoundConfigService } from '../services/round_config.service'
 import { Collection } from '../services/collection'
 import { Fixture } from '../models/fixture'
 import { League } from '../models/league'
 import { Team } from '../models/team'
 import { Round } from '../models/round'
+import { RoundConfig } from '../models/round_config'
 import { RoundForm } from '../models/round.form'
 import { DaysOfWeek } from '../util/days_of_week'
 import { ButtonPopover } from './button_popover.component'
@@ -17,7 +19,7 @@ import * as moment from 'moment'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
-    providers: [FixtureService, RoundService],
+    providers: [FixtureService, RoundService, RoundConfigService],
     directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES],
     templateUrl: 'round_list.template.html'
 })
@@ -26,6 +28,7 @@ export class RoundListComponent implements OnInit {
     constructor(private _changeref: ChangeDetectorRef,
         private _fixtureService: FixtureService,
         private _roundService: RoundService,
+        private _roundConfigService: RoundConfigService,
         private _router: Router,
         private _route: ActivatedRoute) {
     }
@@ -75,11 +78,17 @@ export class RoundListComponent implements OnInit {
 
     createMatchup(form: RoundForm) {
         let round: Round = new Round(form.number)
+        round.setFixture(this.fixture)
         this._roundService.updateRoundIfNotExistAdd(round).then(() => {
-
+            let value: string = JSON.stringify(
+                {
+                    homeTeam: form.homeTeam.id,
+                    awayTeam: form.awayTeam.id
+                })
+            let roundConfig = new RoundConfig({ key: RoundConfig.keyReservedMatch, value: value })
+            roundConfig.setRound(round)
+            this._roundConfigService.addConfig(roundConfig)
         })
-        console.log(form.homeTeam)
-        console.log(form.awayTeam)
     }
 
     /**
