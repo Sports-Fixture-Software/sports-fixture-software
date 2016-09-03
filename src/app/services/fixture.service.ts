@@ -23,6 +23,10 @@ export class FixtureService {
         return fixture.save()
     }
 
+    public updateFixture(fixture: Fixture): Promise<Fixture> {
+        return fixture.save()
+    }
+
     /**
      * returns an empty Fixture
      */

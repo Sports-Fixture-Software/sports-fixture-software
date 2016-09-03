@@ -47,9 +47,7 @@ export class FixtureListComponent implements OnInit {
                 })
                 this.fixtureForm = new FormGroup({
                     name: new FormControl('', [<any>Validators.required]),
-                    description: new FormControl('', [<any>Validators.required]),
-                    startDate: new FormControl('', [<any>Validators.required]),
-                    endDate: new FormControl('', [<any>Validators.required])
+                    description: new FormControl('', [<any>Validators.required])
                 })
             })
     }
@@ -58,8 +56,6 @@ export class FixtureListComponent implements OnInit {
         let fixture: Fixture = new Fixture()
         fixture.name = form.name
         fixture.description = form.description
-        fixture.startDate = form.startDate
-        fixture.endDate = form.endDate
         fixture.setLeague(this.league)
         this._fixtureService.addFixture(fixture).then((f) => {
             this.fixtures.push(fixture)
@@ -69,6 +65,10 @@ export class FixtureListComponent implements OnInit {
             this.createFixtureButton.showError('Error creating fixture', err.message)
             this._changeref.detectChanges()
         })
+    }
+
+    navigateToFixture(fixture: Fixture) {
+        this._router.navigate(['/fixture', fixture.id]);
     }
 
     private _fixtures: Fixture[]
