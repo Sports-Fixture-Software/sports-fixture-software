@@ -11,8 +11,6 @@ export class RoundConfig extends (databaseInjector.get(DatabaseService) as Datab
 
     get tableName() { return 'roundconfig' }
 
-    get number(): number { return this.get('number') }
-    set number(value: number) { this.set('number', value) }
     get priority(): number { return this.get('priority') }
     set priority(value: number) { this.set('priority', value) }
     set key(value: string) { this.set('key', value) }
