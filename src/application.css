@@ -10,12 +10,45 @@ body {
 }
 .table-striped > tbody > tr:nth-child(2n+1) > td, .table-striped > tbody > tr:nth-child(2n+1) > th {
     background-color: #ff120d;
-    border-color: #fee000
+    border: 1px solid #fee000;
+    border-left-color: #646a7b;
+    border-right-color: #646a7b;
 }
 .table-striped > tbody > tr:nth-child(2n) > td, .table-striped > tbody > tr:nth-child(2n) > th {
     background-color: #dc100b;
-    border-color: #fee000
+    border: 1px solid #fee000;
+    border-left-color: #646a7b;
+    border-right-color: #646a7b;
 }
+.btn-default, .btn-primary {
+    color: #fff;
+    background-color: #001450;
+    border-color: #fee000;
+}
+.btn-default:hover, .btn-primary:hover {
+    color: #fff;
+    background-color: #002eb1;
+    border-color: #fee000;
+}
+.btn-primary.focus, .btn-primary:focus {
+    background-color: #286090;
+    border-color: #fee000;
+}
+.container-fluid>.navbar-header {
+    background-color: #001450;
+}
+.navbar-default {
+    background-color: #001450;
+    border-color: transparent;
+    border-bottom-color: #fee000;
+}
+.navbar-default .navbar-brand, .navbar-default .navbar-brand:focus {
+    color: #fff;
+}
+.navbar-default .navbar-brand:hover {
+    color: #7692e2;
+}
+
 
 .popover {
     max-width: 500px;
@@ -39,7 +72,7 @@ body {
     border-left-width: 0;
 }
 input[type="date"] {
-    min-width:150px;
+    min-width:150px
 }
 .form-title {
     padding-top: 7px;
