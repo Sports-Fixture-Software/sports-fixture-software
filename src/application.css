@@ -44,9 +44,17 @@ body {
 }
 .navbar-default .navbar-brand, .navbar-default .navbar-brand:focus {
     color: #fff;
+    vertical-align: inherit;
 }
 .navbar-default .navbar-brand:hover {
     color: #7692e2;
+    vertical-align: inherit;
+}
+.SANFL-logo-container {
+    padding-left: 40.5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    min-width: 150px;
 }
 
 
