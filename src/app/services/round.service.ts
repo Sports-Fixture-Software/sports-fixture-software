@@ -6,8 +6,14 @@ import * as Promise from 'bluebird'
 @Injectable()
 export class RoundService {
 
-    count(number: number): Promise<number> {
-        return new Round().where('number', number).count()
+    updateRoundIfNotExistAdd(round: Round): Promise<Round> {
+        return new Round().where('number', round.number).fetch()
+            .then((res: Round) => {
+                if (res) {
+                    round.id = res.id
+                }
+                return round.save()
+            })
     }
 
     addRound(round: Round): Promise<Round> {

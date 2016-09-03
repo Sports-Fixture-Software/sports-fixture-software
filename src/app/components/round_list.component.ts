@@ -74,11 +74,8 @@ export class RoundListComponent implements OnInit {
     }
 
     createMatchup(form: RoundForm) {
-        this._roundService.count(form.number).then((res: number) => {
-            if (res < 1) {
-                return this._roundService.addRound(new Round(form.number))
-            }
-        }).then(() => {
+        let round: Round = new Round(form.number)
+        this._roundService.updateRoundIfNotExistAdd(round).then(() => {
 
         })
         console.log(form.homeTeam)
