@@ -1,6 +1,8 @@
 import { databaseInjector } from '../bootstrap'
 import { DatabaseService } from '../services/database.service'
 import { Fixture } from './fixture'
+import { RoundConfig } from './round_config'
+import { Collection } from '../services/collection'
 import * as Promise from 'bluebird'
 
 export class Round extends (databaseInjector.get(DatabaseService) as DatabaseService).Model<Round> {
@@ -30,10 +32,22 @@ export class Round extends (databaseInjector.get(DatabaseService) as DatabaseSer
     }
     setFixture(value: Fixture) { this.set('fixture_id', value.id) }
 
+    getRoundConfigs(): Promise<Collection<RoundConfig>> {
+        return this.fetch({ withRelated: ['roundConfigs'] }).then((res) => {
+            return res.related('roundConfigs') as Collection<RoundConfig>
+        })
+    }
+
     /**
      * Needed by bookshelf to setup relationship
      */
     protected fixture() {
         return this.belongsTo(Fixture)
+    }
+    /**
+     * Needed by bookshelf to setup relationship
+     */
+    protected roundConfigs(): Collection<RoundConfig> {
+        return this.hasMany(RoundConfig)
     }
 }
