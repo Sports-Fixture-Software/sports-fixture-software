@@ -1,6 +1,8 @@
 import { databaseInjector } from '../bootstrap'
 import { DatabaseService } from '../services/database.service'
 import { League } from './league'
+import { Round } from './round'
+import { Collection } from '../services/collection'
 import * as Promise from 'bluebird'
 
 export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseService).Model<Fixture> {
@@ -40,10 +42,22 @@ export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseS
     }
     setLeague(value: League) { this.set('league_id', value.id) }
 
+    getRounds(): Promise<Collection<Round>> {
+        return this.fetch({ withRelated: ['rounds'] }).then((res) => {
+            return res.related('rounds') as Collection<Round>
+        })
+    }
+
     /**
      * Needed by bookshelf to setup relationship
      */
     protected league() {
         return this.belongsTo(League)
+    }
+    /**
+     * Needed by bookshelf to setup relationship
+     */
+    protected rounds(): Collection<Round> {
+        return this.hasMany(Round)
     }
 }
