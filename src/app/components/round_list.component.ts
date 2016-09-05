@@ -84,7 +84,9 @@ export class RoundListComponent implements OnInit {
             config.setRound(round)
             config.setHomeTeam(form.homeTeam)
             config.setAwayTeam(form.awayTeam)
-            this._matchConfigService.addMatchConfig(config)
+            return this._matchConfigService.addMatchConfig(config)
+        }).catch((err: Error) => {
+            this.createMatchupButton.showError('Error creating match-up', err.message)
         })
     }
 
