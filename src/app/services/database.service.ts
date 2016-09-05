@@ -112,6 +112,18 @@ export class DatabaseService {
                             ('id').inTable('round')
                 })
             }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('matchconfig',
+                    (table) => {
+                        table.increments('id')
+                        table.integer('priority')
+                        table.integer('homeTeam_id').notNullable().references
+                            ('id').inTable('team')
+                        table.integer('awayTeam_id').references
+                            ('id').inTable('team')
+                        table.integer('round_id').notNullable().references
+                            ('id').inTable('round')
+                })
+            }).then((res) => {
                 return this.get().knex.schema.createTableIfNotExists('info',
                     (table) => {
                         table.integer('databaseVersion')
