@@ -6,7 +6,13 @@ import * as Promise from 'bluebird'
 @Injectable()
 export class RoundService {
 
-    updateRoundIfNotExistAdd(round: Round): Promise<Round> {
+    /**
+     * adds a round if the round `number` doesn't exist
+     * updates exist round if the round `number` does exist
+     *
+     * Returns the add or updated `Round`
+     */
+    addUpdateRound(round: Round): Promise<Round> {
         return new Round().where('number', round.number).fetch()
             .then((res: Round) => {
                 if (res) {

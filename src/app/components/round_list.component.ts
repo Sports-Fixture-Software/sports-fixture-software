@@ -78,7 +78,7 @@ export class RoundListComponent implements OnInit {
     createMatchup(form: RoundForm) {
         let round: Round = new Round(form.number)
         round.setFixture(this.fixture)
-        this._roundService.updateRoundIfNotExistAdd(round).then(() => {
+        this._roundService.addUpdateRound(round).then(() => {
         })
     }
 
