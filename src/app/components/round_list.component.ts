@@ -10,7 +10,6 @@ import { Fixture } from '../models/fixture'
 import { League } from '../models/league'
 import { Team } from '../models/team'
 import { Round } from '../models/round'
-import { RoundConfig } from '../models/round_config'
 import { RoundForm } from '../models/round.form'
 import { DaysOfWeek } from '../util/days_of_week'
 import { ButtonPopover } from './button_popover.component'
@@ -80,14 +79,6 @@ export class RoundListComponent implements OnInit {
         let round: Round = new Round(form.number)
         round.setFixture(this.fixture)
         this._roundService.updateRoundIfNotExistAdd(round).then(() => {
-            let value: string = JSON.stringify(
-                {
-                    homeTeam: form.homeTeam.id,
-                    awayTeam: form.awayTeam.id
-                })
-            let roundConfig = new RoundConfig({ key: RoundConfig.keyReservedMatch, value: value })
-            roundConfig.setRound(round)
-            this._roundConfigService.addConfig(roundConfig)
         })
     }
 

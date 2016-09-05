@@ -25,8 +25,6 @@ export class RoundConfig extends (databaseInjector.get(DatabaseService) as Datab
     }
     setRound(value: Round) { this.set('round_id', value.id) }
 
-    static keyReservedMatch: string = "reserved match"
-
     /**
      * Needed by bookshelf to setup relationship
      */
