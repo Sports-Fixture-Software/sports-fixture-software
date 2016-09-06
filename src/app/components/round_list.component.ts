@@ -14,13 +14,14 @@ import { MatchConfig } from '../models/match_config'
 import { RoundForm } from '../models/round.form'
 import { DaysOfWeek } from '../util/days_of_week'
 import { ButtonPopover } from './button_popover.component'
+import { ButtonHidden } from './button_hidden.component'
 import { POPOVER_DIRECTIVES } from 'ng2-popover';
 import * as moment from 'moment'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     providers: [FixtureService, RoundService, MatchConfigService],
-    directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES],
+    directives: [ButtonPopover, ButtonHidden, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES],
     templateUrl: 'round_list.template.html'
 })
 
