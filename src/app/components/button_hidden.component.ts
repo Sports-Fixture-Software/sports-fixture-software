@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, ViewChild, OnInit, OnDestroy, ElementRef, ChangeDetectorRef} from '@angular/core'
-import { PopoverContent } from 'ng2-popover';
+import { Component, Input, Output, EventEmitter, ViewChild, OnInit, OnDestroy, ElementRef } from '@angular/core'
+import { PopoverContent } from 'ng2-popover'
 import { Subscription } from 'rxjs/Subscription'
+declare var jQuery: JQueryStatic;
 
 @Component({
     selector: 'button-hidden',
@@ -13,36 +14,40 @@ export class ButtonHidden implements OnInit, OnDestroy {
     @Output('click') onClickEvent = new EventEmitter<Event>()
     @ViewChild('button') button: ElementRef
 
-    constructor(private _changeref: ChangeDetectorRef) {
-    }
-
     ngOnInit() {
         if (this.popover) {
             this.closeSubscription = this.popover.onCloseFromOutside.subscribe(() => {
                 this.onPopoverClose()
             })
         }
+        if (this.button) {
+            this.buttonJQuery = jQuery(this.button.nativeElement)
+        }
     }
 
     onClick() {
-        this.hidden = false
+        this.buttonJQuery.fadeIn(this.fadeSpeed)
     }
 
     onPopoverClose() {
-        this.hidden = !this.hovering
+        if (this.hovering) {
+            this.buttonJQuery.fadeIn(this.fadeSpeed)
+        } else {
+            this.buttonJQuery.fadeOut(this.fadeSpeed)
+        }
     }
 
     onMouseEnter() {
         this.hovering = true
         if (this.popover.top < 0) {
-            this.hidden = false
+            this.buttonJQuery.fadeIn(this.fadeSpeed)
         }
     }
 
     onMouseLeave() {
         this.hovering = false
         if (this.popover.top < 0) {
-            this.hidden = true
+            this.buttonJQuery.fadeOut(this.fadeSpeed)
         }
     }
 
@@ -52,7 +57,8 @@ export class ButtonHidden implements OnInit, OnDestroy {
         }
     }
 
-    private hidden: boolean = true
+    private buttonJQuery: JQuery
+    private fadeSpeed: number = 200
     private hovering: boolean = false
     private closeSubscription: Subscription
 }
