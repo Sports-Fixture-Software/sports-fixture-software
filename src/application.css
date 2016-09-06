@@ -64,6 +64,10 @@ input[type="date"] {
 h2 { 
     margin-top: 0px;
 }
+.table-min-row>tbody>tr>td {
+    height: 51px;
+    vertical-align: middle;
+}
 .heading-row {
     min-height: 44px;
 }
@@ -75,6 +79,9 @@ h2 {
     padding-top: 20px;
     padding-left: 10px;
     padding-right: 10px;
+}
+[hidden] {
+  display: none;
 }
 
 /**
