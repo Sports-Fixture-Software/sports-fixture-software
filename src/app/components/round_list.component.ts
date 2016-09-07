@@ -113,11 +113,14 @@ export class RoundListComponent implements OnInit {
                 runningDate.add(1, 'week')
             }
             if (index < 0) {
+                let round = new Round(i)
                 if (i == 1) {
-                    this.rounds.splice(~index, 0, new Round({ number: i, startDate: this.fixture.startDate }))
+                    round.startDate = this.fixture.startDate
                 } else {
-                    this.rounds.splice(~index, 0, new Round({ number: i, startDate: moment(runningDate).toDate() }))
+                    round.startDate = runningDate.toDate()
                 }
+                round.setFixture(this.fixture)
+                this.rounds.splice(~index, 0, round)
             }
         }
     }
