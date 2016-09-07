@@ -28,6 +28,7 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      '**/*.ts': ['typescript', 'sourcemap']   // Use karma-sourcemap-loader
     },
 
 
@@ -65,6 +66,27 @@ module.exports = function (config) {
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity
+    concurrency: Infinity,
+
+    typescriptPreprocessor: {
+      // options passed to typescript compiler
+      tsconfigPath: './tsconfig.json', // *obligatory
+      compilerOptions: { // *optional
+        removeComments: false
+      },
+      // Options passed to gulp-sourcemaps to create sourcemaps
+      sourcemapOptions: { includeContent: true, sourceRoot: '/src' },
+      // ignore all files that ends with .d.ts (this files will not be served)
+      ignorePath: function (path) {
+        return /\.d\.ts$/.test(path);
+      },
+      // transforming the filenames
+      // you can pass more than one, they will be execute in order
+      transformPath: [function (path) { // *optional
+        return path.replace(/\.ts$/, '.js');
+      }, function (path) {
+        return path.replace(/[\/\\]test[\/\\]/i, '/'); // remove directory test and change to /
+      }]
+    }
   })
 }
