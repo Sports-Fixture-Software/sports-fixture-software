@@ -46,12 +46,12 @@ export class MatchConfig extends (databaseInjector.get(DatabaseService) as Datab
      * Needed by bookshelf to setup relationship
      */
     protected homeTeam() {
-        return this.hasOne(Team)
+        return this.belongsTo(Team, 'homeTeam_id')
     }
     /**
      * Needed by bookshelf to setup relationship
      */
     protected awayTeam() {
-        return this.hasOne(Team)
+        return this.belongsTo(Team, 'awayTeam_id')
     }
 }
