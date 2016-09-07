@@ -161,14 +161,14 @@ export class RoundListComponent implements OnInit {
                     }
                     count = 0
                     for (let i = this.awayTeams.length - 1; i >= 0; i--) {
-                        if (config.awayTeam_id) { // not the bye
-                            if (this.awayTeams[i].id == config.awayTeam_id ||
-                                this.awayTeams[i].id == config.homeTeam_id) {
-                                this.awayTeams.splice(i, 1)
-                                count++
-                                if (count >= 2) {
-                                    break
-                                }
+                        // don't delete the bye from the away teams
+                        if ((config.awayTeam_id && // not the bye
+                            this.awayTeams[i].id == config.awayTeam_id) ||
+                            this.awayTeams[i].id == config.homeTeam_id) {
+                            this.awayTeams.splice(i, 1)
+                            count++
+                            if (count >= 2) {
+                                break
                             }
                         }
                     }
