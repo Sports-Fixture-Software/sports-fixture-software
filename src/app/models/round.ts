@@ -2,6 +2,7 @@ import { databaseInjector } from '../bootstrap'
 import { DatabaseService } from '../services/database.service'
 import { Fixture } from './fixture'
 import { RoundConfig } from './round_config'
+import { MatchConfig } from './match_config'
 import { Collection } from '../services/collection'
 import * as Promise from 'bluebird'
 
@@ -38,6 +39,18 @@ export class Round extends (databaseInjector.get(DatabaseService) as DatabaseSer
         })
     }
 
+    getMatchConfigs(): Promise<Collection<MatchConfig>> {
+        return this.fetch({ withRelated: ['matchConfigs'] }).then((res) => {
+            if (res) {
+                return res.related('matchConfigs') as Collection<MatchConfig>
+            } else {
+                // res can be null if Round created without saving to the
+                // database
+                return null
+            }
+        })
+    }
+
     /**
      * Needed by bookshelf to setup relationship
      */
@@ -49,5 +62,11 @@ export class Round extends (databaseInjector.get(DatabaseService) as DatabaseSer
      */
     protected roundConfigs(): Collection<RoundConfig> {
         return this.hasMany(RoundConfig)
+    }
+    /**
+     * Needed by bookshelf to setup relationship
+     */
+    protected matchConfigs(): Collection<MatchConfig> {
+        return this.hasMany(MatchConfig)
     }
 }
