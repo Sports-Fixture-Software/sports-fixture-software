@@ -92,6 +92,38 @@ export class DatabaseService {
                             ('id').inTable('league')
                 })
             }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('round',
+                    (table) => {
+                        table.increments('id')
+                        table.integer('number').notNullable()
+                        table.string('name')
+                        table.date('startDate')
+                        table.integer('fixture_id').notNullable().references
+                            ('id').inTable('fixture')
+                })
+            }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('roundconfig',
+                    (table) => {
+                        table.increments('id')
+                        table.integer('priority')
+                        table.string('key').notNullable()
+                        table.string('value')
+                        table.integer('round_id').notNullable().references
+                            ('id').inTable('round')
+                })
+            }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('matchconfig',
+                    (table) => {
+                        table.increments('id')
+                        table.integer('priority')
+                        table.integer('homeTeam_id').notNullable().references
+                            ('id').inTable('team')
+                        table.integer('awayTeam_id').references
+                            ('id').inTable('team')
+                        table.integer('round_id').notNullable().references
+                            ('id').inTable('round')
+                })
+            }).then((res) => {
                 return this.get().knex.schema.createTableIfNotExists('info',
                     (table) => {
                         table.integer('databaseVersion')
@@ -187,7 +219,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
     
-    private _databaseVersion: number = 2
+    private _databaseVersion: number = 3
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null

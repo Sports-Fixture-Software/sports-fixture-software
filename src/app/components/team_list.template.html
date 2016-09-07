@@ -15,8 +15,7 @@
                 </div>
             </div>
         </popover-content>
-        <button #addTeamButton class="btn btn-default" type="button" [popover]="createTeamPopover" popoverPlacement="right" (keyup.enter)="newTeamButton.hideError(); newTeamText.focus()"
-            (mouseup)="newTeamButton.hideError(); newTeamText.focus()">
+        <button #addTeamButton class="btn btn-default" type="button" [popover]="createTeamPopover" popoverPlacement="right" (keyup.enter)="newTeamText.focus()" (mouseup)="newTeamText.focus()">
                 <span class="glyphicon glyphicon-plus"></span>
         </button>
     </div>
