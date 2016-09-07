@@ -58,12 +58,7 @@
             </td>
             <td>
                 <div class="pull-right">
-                    <!--
-                    <button class="btn btn-default" [popover]="createMatchupPopover" popoverPlacement="left-top" (click)="matchupForm.controls['number'].updateValue(round.number)">
-                        <span class="glyphicon glyphicon-plus"></span>
-                    </button>
-                    -->
-                    <button-hidden #openPopover [popover]="createMatchupPopover" popoverPlacement="left-top" (click)="matchupForm.controls['number'].updateValue(round.number)">
+                    <button-hidden #openPopover [popover]="createMatchupPopover" popoverPlacement="left-top" (click)="prepareForm(round.number)">
                         <span class="glyphicon glyphicon-plus"></span>
                     </button-hidden>
                 </div>
