@@ -64,6 +64,13 @@ input[type="date"] {
 h2 { 
     margin-top: 0px;
 }
+select {
+  /* as the content of team selector is dynamically loaded, this stops the
+   * popover dynamically changing size (which looks bad - looks like "jumping"
+   */
+    min-width: 200px;
+    max-width: 200px; 
+}
 .table-min-row>tbody>tr>td {
     height: 51px;
     vertical-align: middle;
