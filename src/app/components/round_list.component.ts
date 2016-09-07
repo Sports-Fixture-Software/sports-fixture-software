@@ -70,7 +70,7 @@ export class RoundListComponent implements OnInit {
     }
 
     prepareForm(round: Round) {
-        let fc = this.matchupForm.controls['number'] as FormControl
+        let fc = this.matchupForm.controls['round'] as FormControl
         fc.updateValue(round)
         this.removeTeamsAsAlreadyReserved(round)
     }
