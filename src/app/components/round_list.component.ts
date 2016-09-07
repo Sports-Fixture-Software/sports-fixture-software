@@ -40,7 +40,7 @@ export class RoundListComponent implements OnInit {
 
     ngOnInit() {
         this.matchupForm = new FormGroup({
-            number: new FormControl('', [<any>Validators.required]),
+            round: new FormControl(),
             homeTeam: new FormControl('', [<any>Validators.required]),
             awayTeam: new FormControl('', [<any>Validators.required])
         }, {}, this.differentTeamsSelectedValidator)
@@ -69,18 +69,16 @@ export class RoundListComponent implements OnInit {
             })
     }
 
-    prepareForm(roundNumber: number) {
+    prepareForm(round: Round) {
         let fc = this.matchupForm.controls['number'] as FormControl
-        fc.updateValue(roundNumber)
-        this.removeTeamsAsAlreadyReserved(roundNumber)
+        fc.updateValue(round)
+        this.removeTeamsAsAlreadyReserved(round)
     }
 
     createMatchup(form: RoundForm) {
-        let round: Round = new Round(form.number)
-        round.setFixture(this.fixture)
-        this._roundService.addUpdateRound(round).then(() => {
+        this._roundService.addUpdateRound(form.round).then(() => {
             let config = new MatchConfig()
-            config.setRound(round)
+            config.setRound(form.round)
             config.setHomeTeam(form.homeTeam)
             config.setAwayTeam(form.awayTeam)
             let fc = this.matchupForm.controls['homeTeam'] as FormControl
@@ -141,53 +139,44 @@ export class RoundListComponent implements OnInit {
         return ~m
     }
 
-    private removeTeamsAsAlreadyReserved(roundNumber: number) {
-        let round: Round = null
-        for (let r of this.rounds) {
-            if (r.number == roundNumber) {
-                round = r
-                break
-            }
-        }
-        if (round) {
-            round.getMatchConfigs().then((configs) => {
-                this.homeTeams = this.homeTeamsAll.slice(0) //copy
-                this.awayTeams = this.awayTeamsAll.slice(0) //copy
-                if (configs) {
-                    configs.each((config) => {
-                        let count = 0
-                        for (let i = this.homeTeams.length - 1; i >= 0; i--) {
-                            if (this.homeTeams[i].id == config.homeTeam_id ||
-                                this.homeTeams[i].id == config.awayTeam_id) {
-                                this.homeTeams.splice(i, 1)
+    private removeTeamsAsAlreadyReserved(round: Round) {
+        round.getMatchConfigs().then((configs) => {
+            this.homeTeams = this.homeTeamsAll.slice(0) //copy
+            this.awayTeams = this.awayTeamsAll.slice(0) //copy
+            if (configs) {
+                configs.each((config) => {
+                    let count = 0
+                    for (let i = this.homeTeams.length - 1; i >= 0; i--) {
+                        if (this.homeTeams[i].id == config.homeTeam_id ||
+                            this.homeTeams[i].id == config.awayTeam_id) {
+                            this.homeTeams.splice(i, 1)
+                            count++
+                            if (count >= 2) {
+                                break
+                            }
+                        }
+                    }
+                    count = 0
+                    for (let i = this.awayTeams.length - 1; i >= 0; i--) {
+                        if (config.awayTeam_id) { // not the bye
+                            if (this.awayTeams[i].id == config.awayTeam_id ||
+                                this.awayTeams[i].id == config.homeTeam_id) {
+                                this.awayTeams.splice(i, 1)
                                 count++
                                 if (count >= 2) {
                                     break
                                 }
                             }
                         }
-                        count = 0
-                        for (let i = this.awayTeams.length - 1; i >= 0; i--) {
-                            if (config.awayTeam_id) { // not the bye
-                                if (this.awayTeams[i].id == config.awayTeam_id ||
-                                    this.awayTeams[i].id == config.homeTeam_id) {
-                                    this.awayTeams.splice(i, 1)
-                                    count++
-                                    if (count >= 2) {
-                                        break
-                                    }
-                                }
-                            }
-                        }
-                    })
-                }
-                this._changeref.detectChanges()
-                let fc = this.matchupForm.controls['homeTeam'] as FormControl
-                fc.updateValue(null)
-                fc = this.matchupForm.controls['awayTeam'] as FormControl
-                fc.updateValue(null)
-            })
-        }
+                    }
+                })
+            }
+            this._changeref.detectChanges()
+            let fc = this.matchupForm.controls['homeTeam'] as FormControl
+            fc.updateValue(null)
+            fc = this.matchupForm.controls['awayTeam'] as FormControl
+            fc.updateValue(null)
+        })
     }
 
     /**
