@@ -14,6 +14,10 @@ export class MatchConfig extends (databaseInjector.get(DatabaseService) as Datab
 
     get priority(): number { return this.get('priority') }
     set priority(value: number) { this.set('priority', value) }
+    get homeTeam_id(): number { return this.get('homeTeam_id') }
+    set homeTeam_id(value: number) { this.set('homeTeam_id', value) }
+    get awayTeam_id(): number { return this.get('awayTeam_id') }
+    set awayTeam_id(value: number) { this.set('awayTeam_id', value) }
 
     getRound(): Promise<Round> {
         return this.fetch({ withRelated: ['round'] }).then((res) => {
