@@ -1,7 +1,8 @@
 import { Team } from './team'
+import { Round } from './round'
 
 export interface RoundForm {
-    number: number,
+    round: Round,
     homeTeam: Team,
     awayTeam: Team
 }
