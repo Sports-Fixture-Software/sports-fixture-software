@@ -101,7 +101,8 @@ export class RoundListComponent implements OnInit {
 
     /**
      * Fills in the "gaps" in rounds. The database may already have some rounds
-     * because of entered constraints. Fill in any gaps with new `Round`.
+     * because of entered constraints - constraints need a parent `Round`. Fill
+     * in any gaps with new `Round`s.
      */
     private fillInRounds() {
         let runningDate = moment(this.fixture.startDate)
@@ -130,6 +131,17 @@ export class RoundListComponent implements OnInit {
         }
     }
 
+    /**
+     * binary search `theArray`, looking for `element`.
+     *
+     * `theArray` must be sorted. `compare` is a binary compare function that
+     * returns < 0 if arg1 < arg2, returns 0 if arg1 == arg2, and returns > 0
+     * if arg1 > arg2.
+     *
+     * Returns the index if found. Returns < 0 if not found. If not found,
+     * returns the bitwise compliment of the index to insert the `element` if
+     * maintaining a sorted array.
+     */
     private binarySearch(theArray: any[], element: any, compare: Function): number {
         let m = 0;
         let n = theArray.length - 1;
@@ -147,6 +159,12 @@ export class RoundListComponent implements OnInit {
         return ~m
     }
 
+    /**
+     * Remove teams from the drop-down home and away teams list.
+     *
+     * If the user has reserved a match-up, remove from the list so the user
+     * can't reserve the same team again on the same round.
+     */
     private removeTeamsAsAlreadyReserved(round: Round) {
         round.getMatchConfigs().then((configs) => {
             this.homeTeams = this.homeTeamsAll.slice(0) //copy
