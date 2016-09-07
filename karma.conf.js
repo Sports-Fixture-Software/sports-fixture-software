@@ -15,8 +15,7 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'src/*.js',
-      'test/**/*.js'
+      'test/**/*.ts'
     ],
 
 
@@ -28,7 +27,10 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      '**/*.ts': ['typescript', 'sourcemap']   // Use karma-sourcemap-loader
+      'test/**/*.ts': ['typescript']
+    },
+    client: {
+      useIframe: false
     },
 
 
@@ -69,24 +71,20 @@ module.exports = function (config) {
     concurrency: Infinity,
 
     typescriptPreprocessor: {
-      // options passed to typescript compiler
-      tsconfigPath: './tsconfig.json', // *obligatory
-      compilerOptions: { // *optional
-        removeComments: false
+      // options passed to the typescript compiler 
+      options: {
+        sourceMap: false, // (optional) Generates corresponding .map file. 
+        target: 'ES5', // (optional) Specify ECMAScript target version: 'ES3' (default), or 'ES5' 
+        module: 'amd', // (optional) Specify module code generation: 'commonjs' or 'amd' 
+        noImplicitAny: true, // (optional) Warn on expressions and declarations with an implied 'any' type. 
+        noResolve: true, // (optional) Skip resolution and preprocessing. 
+        removeComments: true, // (optional) Do not emit comments to output. 
+        concatenateOutput: false // (optional) Concatenate and emit output to single file. By default true if module option is omited, otherwise false. 
       },
-      // Options passed to gulp-sourcemaps to create sourcemaps
-      sourcemapOptions: { includeContent: true, sourceRoot: '/src' },
-      // ignore all files that ends with .d.ts (this files will not be served)
-      ignorePath: function (path) {
-        return /\.d\.ts$/.test(path);
-      },
-      // transforming the filenames
-      // you can pass more than one, they will be execute in order
-      transformPath: [function (path) { // *optional
+      // transforming the filenames 
+      transformPath: function (path) {
         return path.replace(/\.ts$/, '.js');
-      }, function (path) {
-        return path.replace(/[\/\\]test[\/\\]/i, '/'); // remove directory test and change to /
-      }]
+      }
     }
   })
 }
