@@ -31,6 +31,10 @@
 </popover-content>
 
 <h2>Round List</h2>
+<div *ngIf="error" class="alert alert-danger" role="alert" style="min-width:250px">
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+    <span class="sr-only">Error</span>{{ error?.message }}
+</div>
 <table class="table table-striped table-min-row">
     <colgroup>
         <col class="col-xs-1">

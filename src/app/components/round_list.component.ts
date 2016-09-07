@@ -37,6 +37,7 @@ export class RoundListComponent implements OnInit {
     @ViewChild('createMatchupButton') createMatchupButton: ButtonPopover
     @ViewChild('createMatchupPopover') createMatchupPopover: PopoverContent
     matchupForm: FormGroup
+    error: Error
 
     ngOnInit() {
         this.matchupForm = new FormGroup({
@@ -64,6 +65,10 @@ export class RoundListComponent implements OnInit {
                     this.awayTeamsAll.push(new Team('Bye'))
                     this.homeTeams = this.homeTeamsAll.slice(0) //copy
                     this.awayTeams = this.homeTeamsAll.slice(0) //copy
+                    this._changeref.detectChanges()
+                }).catch((err: Error) => {
+                    let detail = err ? err.message : ''
+                    this.error = new Error(`Error loading rounds: ${detail}`)
                     this._changeref.detectChanges()
                 })
             })
@@ -146,6 +151,7 @@ export class RoundListComponent implements OnInit {
         round.getMatchConfigs().then((configs) => {
             this.homeTeams = this.homeTeamsAll.slice(0) //copy
             this.awayTeams = this.awayTeamsAll.slice(0) //copy
+            // config null if .getMatchConfigs() fails. If fails, show all teams
             if (configs) {
                 configs.each((config) => {
                     let count = 0
