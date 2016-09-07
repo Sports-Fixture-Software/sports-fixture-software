@@ -13,6 +13,7 @@ import { Round } from '../models/round'
 import { MatchConfig } from '../models/match_config'
 import { RoundForm } from '../models/round.form'
 import { DaysOfWeek } from '../util/days_of_week'
+import { Search } from '../util/search'
 import { ButtonPopover } from './button_popover.component'
 import { ButtonHidden } from './button_hidden.component'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
@@ -112,7 +113,7 @@ export class RoundListComponent implements OnInit {
             runningDate.add(DaysOfWeek.Saturday - runningDate.day(), 'day')
         }
         for (let i = 1; i <= this.getNumberOfRounds(this.fixture.startDate, this.fixture.endDate); i++) {
-            let index = this.binarySearch(this.rounds, i, (a: number, b: Round) => {
+            let index = Search.binarySearch(this.rounds, i, (a: number, b: Round) => {
                 return a - b.number
             })
             if (i > 1) {
@@ -129,34 +130,6 @@ export class RoundListComponent implements OnInit {
                 this.rounds.splice(~index, 0, round)
             }
         }
-    }
-
-    /**
-     * binary search `theArray`, looking for `element`.
-     *
-     * `theArray` must be sorted. `compare` is a binary compare function that
-     * returns < 0 if arg1 < arg2, returns 0 if arg1 == arg2, and returns > 0
-     * if arg1 > arg2.
-     *
-     * Returns the index if found. Returns < 0 if not found. If not found,
-     * returns the bitwise compliment of the index to insert the `element` if
-     * maintaining a sorted array.
-     */
-    private binarySearch(theArray: any[], element: any, compare: Function): number {
-        let m = 0;
-        let n = theArray.length - 1;
-        while (m <= n) {
-            let k = (n + m) >> 1;
-            let cmp = compare(element, theArray[k]);
-            if (cmp > 0) {
-                m = k + 1;
-            } else if (cmp < 0) {
-                n = k - 1;
-            } else {
-                return k;
-            }
-        }
-        return ~m
     }
 
     /**
