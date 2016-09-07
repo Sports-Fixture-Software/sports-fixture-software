@@ -15,7 +15,7 @@ import { RoundForm } from '../models/round.form'
 import { DaysOfWeek } from '../util/days_of_week'
 import { ButtonPopover } from './button_popover.component'
 import { ButtonHidden } from './button_hidden.component'
-import { POPOVER_DIRECTIVES } from 'ng2-popover';
+import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
 import * as moment from 'moment'
 
 @Component({
@@ -35,6 +35,7 @@ export class RoundListComponent implements OnInit {
     }
 
     @ViewChild('createMatchupButton') createMatchupButton: ButtonPopover
+    @ViewChild('createMatchupPopover') createMatchupPopover: PopoverContent
     matchupForm: FormGroup
 
     ngOnInit() {
@@ -49,32 +50,29 @@ export class RoundListComponent implements OnInit {
                 let id = +params['id'];
                 this._fixtureService.getFixture(id).then((f) => {
                     this.fixture = f
-                    let runningDate = moment(f.startDate)
-                    if (runningDate.day() == DaysOfWeek.Sunday) {
-                        runningDate.subtract(1, 'day')
-                    } else if (runningDate.day() < DaysOfWeek.Saturday) {
-                        runningDate.add(DaysOfWeek.Saturday - runningDate.day(), 'day')
-                    }
-                    for (let i = 1; i <= this.getNumberOfRounds(f.startDate, f.endDate); i++) {
-                        if (i == 1) {
-                            this.rounds.push(new Round({ number: i, startDate: f.startDate }))
-                        } else {
-                            runningDate.add(1, 'week')
-                            this.rounds.push(new Round({ number: i, startDate: moment(runningDate).toDate() }))
-                        }
-                    }
-                    this._changeref.detectChanges()
-                    return f
-                }).then((fixture: Fixture) => {
-                    return fixture.getLeague()
+                    return this._fixtureService.getRoundsAndConfig(f)
+                }).then((rounds: Collection<Round>) => {
+                    this.rounds = rounds.toArray()
+                    this.fillInRounds()
+                }).then(() => {
+                    return this.fixture.getLeague()
                 }).then((league: League) => {
                     return league.getTeams()
                 }).then((teams: Collection<Team>) => {
-                    this.homeTeams = teams.toArray()
-                    this.awayTeams = teams.toArray()
-                    this.awayTeams.push(new Team('Bye'))
+                    this.homeTeamsAll = teams.toArray()
+                    this.awayTeamsAll = teams.toArray()
+                    this.awayTeamsAll.push(new Team('Bye'))
+                    this.homeTeams = this.homeTeamsAll.slice(0) //copy
+                    this.awayTeams = this.homeTeamsAll.slice(0) //copy
+                    this._changeref.detectChanges()
                 })
             })
+    }
+
+    prepareForm(roundNumber: number) {
+        let fc = this.matchupForm.controls['number'] as FormControl
+        fc.updateValue(roundNumber)
+        this.removeTeamsAsAlreadyReserved(roundNumber)
     }
 
     createMatchup(form: RoundForm) {
@@ -85,10 +83,111 @@ export class RoundListComponent implements OnInit {
             config.setRound(round)
             config.setHomeTeam(form.homeTeam)
             config.setAwayTeam(form.awayTeam)
+            let fc = this.matchupForm.controls['homeTeam'] as FormControl
+            fc.updateValue(null)
+            fc = this.matchupForm.controls['awayTeam'] as FormControl
+            fc.updateValue(null)
             return this._matchConfigService.addMatchConfig(config)
+        }).then(() => {
+            this.createMatchupPopover.hide()
+            this._changeref.detectChanges()
         }).catch((err: Error) => {
             this.createMatchupButton.showError('Error creating match-up', err.message)
         })
+    }
+
+    /**
+     * Fills in the "gaps" in rounds. The database may already have some rounds
+     * because of entered constraints. Fill in any gaps with new `Round`.
+     */
+    private fillInRounds() {
+        let runningDate = moment(this.fixture.startDate)
+        if (runningDate.day() == DaysOfWeek.Sunday) {
+            runningDate.subtract(1, 'day')
+        } else if (runningDate.day() < DaysOfWeek.Saturday) {
+            runningDate.add(DaysOfWeek.Saturday - runningDate.day(), 'day')
+        }
+        for (let i = 1; i <= this.getNumberOfRounds(this.fixture.startDate, this.fixture.endDate); i++) {
+            let index = this.binarySearch(this.rounds, i, (a: number, b: Round) => {
+                return a - b.number
+            })
+            if (i > 1) {
+                runningDate.add(1, 'week')
+            }
+            if (index < 0) {
+                if (i == 1) {
+                    this.rounds.splice(~index, 0, new Round({ number: i, startDate: this.fixture.startDate }))
+                } else {
+                    this.rounds.splice(~index, 0, new Round({ number: i, startDate: moment(runningDate).toDate() }))
+                }
+            }
+        }
+    }
+
+    private binarySearch(theArray: any[], element: any, compare: Function): number {
+        let m = 0;
+        let n = theArray.length - 1;
+        while (m <= n) {
+            let k = (n + m) >> 1;
+            let cmp = compare(element, theArray[k]);
+            if (cmp > 0) {
+                m = k + 1;
+            } else if (cmp < 0) {
+                n = k - 1;
+            } else {
+                return k;
+            }
+        }
+        return ~m
+    }
+
+    private removeTeamsAsAlreadyReserved(roundNumber: number) {
+        let round: Round = null
+        for (let r of this.rounds) {
+            if (r.number == roundNumber) {
+                round = r
+                break
+            }
+        }
+        if (round) {
+            round.getMatchConfigs().then((configs) => {
+                this.homeTeams = this.homeTeamsAll.slice(0) //copy
+                this.awayTeams = this.awayTeamsAll.slice(0) //copy
+                if (configs) {
+                    configs.each((config) => {
+                        let count = 0
+                        for (let i = this.homeTeams.length - 1; i >= 0; i--) {
+                            if (this.homeTeams[i].id == config.homeTeam_id ||
+                                this.homeTeams[i].id == config.awayTeam_id) {
+                                this.homeTeams.splice(i, 1)
+                                count++
+                                if (count >= 2) {
+                                    break
+                                }
+                            }
+                        }
+                        count = 0
+                        for (let i = this.awayTeams.length - 1; i >= 0; i--) {
+                            if (config.awayTeam_id) { // not the bye
+                                if (this.awayTeams[i].id == config.awayTeam_id ||
+                                    this.awayTeams[i].id == config.homeTeam_id) {
+                                    this.awayTeams.splice(i, 1)
+                                    count++
+                                    if (count >= 2) {
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                    })
+                }
+                this._changeref.detectChanges()
+                let fc = this.matchupForm.controls['homeTeam'] as FormControl
+                fc.updateValue(null)
+                fc = this.matchupForm.controls['awayTeam'] as FormControl
+                fc.updateValue(null)
+            })
+        }
     }
 
     /**
@@ -142,6 +241,8 @@ export class RoundListComponent implements OnInit {
     private initComplete: boolean = false
     private rounds: Round[] = []
     private homeTeams: Team[]
+    private homeTeamsAll: Team[]
     private awayTeams: Team[]
+    private awayTeamsAll: Team[]
     private fixture: Fixture
 }
