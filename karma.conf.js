@@ -1,11 +1,14 @@
 // Karma configuration
-// Generated on Wed Sep 07 2016 20:46:18 GMT+0930 (Cen. Australia Standard Time)
+// Generated on Wed Jul 15 2015 09:44:02 GMT+0200 (Romance Daylight Time)
+'use strict';
 
-module.exports = function (config) {
+var argv = require('yargs').argv;
+
+module.exports = function(config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: '',
+    basePath: './',
 
 
     // frameworks to use
@@ -15,24 +18,59 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'test/**/*.ts'
+      // Polyfills.
+      'node_modules/core-js/client/shim.min.js',
+
+      // System.js for module loading
+      'node_modules/systemjs/dist/system.src.js',
+
+      // Zone.js dependencies
+      'node_modules/zone.js/dist/zone.js',
+      'node_modules/zone.js/dist/sync-test.js',
+      'node_modules/zone.js/dist/async-test.js',
+      'node_modules/zone.js/dist/fake-async-test.js',
+      'node_modules/zone.js/dist/proxy.js','node_modules/zone.js/dist/proxy-zone.js',
+     'node_modules/zone.js/dist/jasmine-patch.js',
+
+      // RxJs.
+      { pattern: 'node_modules/rxjs/**/*.js', included: false, watched: false },
+      { pattern: 'node_modules/rxjs/**/*.js.map', included: false, watched: false },
+      { pattern: 'node_modules/@angular/**/*.js.map', included: false, watched: false },
+
+      // paths loaded via module imports
+      // Angular itself
+      { pattern: 'node_modules/@angular/**/*.js', included: false, watched: true },
+
+      // Advanced seed
+      { pattern: 'node_modules/lodash/**/*.js', included: false, watched: false },
+      { pattern: 'node_modules/ng2-translate/**/*.js', included: false, watched: false },
+      { pattern: 'node_modules/@ngrx/**/*.js', included: false, watched: false },
+      { pattern: 'node_modules/angulartics2/**/*.js', included: false, watched: false },
+      
+      { pattern: 'build/**/*.js', included: false, watched: true },
+      { pattern: 'build/**/*.html', included: false, watched: true, served: true },
+      { pattern: 'build/**/*.css', included: false, watched: true, served: true },
+      { pattern: 'node_modules/systemjs/dist/system-polyfills.js', included: false, watched: false }, // PhantomJS2 (and possibly others) might require it
+
+      // suppress annoying 404 warnings for resources, images, etc.
+      { pattern: 'build/assets/**/*', watched: false, included: false, served: true },
+
+      'test-main.js'
     ],
 
+    // must go along with above, suppress annoying 404 warnings.
+    proxies: {
+      '/assets/': '/base/build/assets/'
+    },  
 
     // list of files to exclude
     exclude: [
+      'node_modules/**/*spec.js'
     ],
 
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-      'test/**/*.ts': ['typescript']
-    },
-    client: {
-      useIframe: false
-    },
-
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -59,32 +97,37 @@ module.exports = function (config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Electron'],
+    browsers: [
+      'Electron'
+//      'Chrome'
+    ],
 
+
+    customLaunchers: {
+      Chrome_travis_ci: {
+        base: 'Chrome',
+        flags: ['--no-sandbox']
+      }
+    },
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: false,
 
-    // Concurrency level
-    // how many browser should be started simultaneous
-    concurrency: Infinity,
-
-    typescriptPreprocessor: {
-      // options passed to the typescript compiler 
-      options: {
-        sourceMap: false, // (optional) Generates corresponding .map file. 
-        target: 'ES5', // (optional) Specify ECMAScript target version: 'ES3' (default), or 'ES5' 
-        module: 'amd', // (optional) Specify module code generation: 'commonjs' or 'amd' 
-        noImplicitAny: true, // (optional) Warn on expressions and declarations with an implied 'any' type. 
-        noResolve: true, // (optional) Skip resolution and preprocessing. 
-        removeComments: true, // (optional) Do not emit comments to output. 
-        concatenateOutput: false // (optional) Concatenate and emit output to single file. By default true if module option is omited, otherwise false. 
-      },
-      // transforming the filenames 
-      transformPath: function (path) {
-        return path.replace(/\.ts$/, '.js');
-      }
+    // Passing command line arguments to tests
+    client: {
+      files: argv.files
     }
-  })
-}
+  });
+
+  if (process.env.APPVEYOR) {
+    config.browsers = ['IE'];
+    config.singleRun = true;
+    config.browserNoActivityTimeout = 90000; // Note: default value (10000) is not enough
+  }
+
+  if (process.env.TRAVIS || process.env.CIRCLECI) {
+    config.browsers = ['Chrome_travis_ci'];
+    config.singleRun = true;
+  }
+};
