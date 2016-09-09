@@ -27,14 +27,10 @@ System.config({
   defaultJSExtensions: true,
   paths: {
     'lodash': 'node_modules/lodash/index.js',
-    // 'ng2-translate/*': 'node_modules/ng2-translate/*.js',
-    // 'angulartics2': 'node_modules/angulartics2/index.js',
-    // 'angulartics2/*': 'node_modules/angulartics2/*.js'
   },
   map: {
     'rxjs': 'node_modules/rxjs',
     '@angular': 'node_modules/@angular',
-    '@ngrx': 'node_modules/@ngrx'
   },
   packages: {
     '@angular/common': {
@@ -66,14 +62,6 @@ System.config({
       defaultExtension: 'js'
     },
     '@angular/router': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@ngrx/core': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@ngrx/store': {
       main: 'index.js',
       defaultExtension: 'js'
     },
