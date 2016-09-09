@@ -8,7 +8,7 @@ const livereload = require('gulp-livereload');
 const runElectron = require("gulp-run-electron");
 const rebuildElectron = require('electron-rebuild');
 const electron = require("electron-prebuilt");
-
+const karamServer = require('karma').Server;
 const tscConfig = require('./tsconfig.json');
 
 /**
@@ -111,6 +111,18 @@ gulp.task('run', ['build'], function() {
         .pipe(runElectron());
 })
 
+/**
+ * Run test once and exit
+ */
+gulp.task('unittest:runner', function (done) {
+    new karamServer({
+        configFile: __dirname + '/karma.conf.js',
+        singleRun: true
+    }, done).start();
+});
+
 gulp.task('watch', ['build:watch', 'run'])
 gulp.task('build', ['copy:assets', 'install', 'rebuild', 'compile']);
 gulp.task('default', ['build']);
+gulp.task('unittest', ['build', 'unittest:runner'])
+gulp.task('test', ['unittest'])
