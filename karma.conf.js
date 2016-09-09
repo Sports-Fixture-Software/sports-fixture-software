@@ -26,8 +26,6 @@ module.exports = function (config) {
       'node_modules/zone.js/dist/async-test.js',
       'node_modules/zone.js/dist/fake-async-test.js',
       'node_modules/zone.js/dist/proxy.js',
-      // proxy-zone exists in zone.js for some operating systems
-      'node_modules/zone.js/dist/proxy-zone.js',
       'node_modules/zone.js/dist/jasmine-patch.js',
 
       // RxJs.
