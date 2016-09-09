@@ -9,7 +9,9 @@
     "start": "gulp run",
     "watch": "gulp watch",
     "clean": "gulp clean",
-    "postinstall": "typings install"
+    "postinstall": "typings install",
+    "test" : "gulp test",
+    "unittest" : "gulp unittest"
   },
   "repository": {
     "type": "git",
