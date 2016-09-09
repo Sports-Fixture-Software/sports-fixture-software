@@ -31,7 +31,8 @@ System.config({
   map: {
     'rxjs': 'node_modules/rxjs',
     '@angular': 'node_modules/@angular',
-    'bookshelf': 'node_modules/bookshelf'
+    'bookshelf': 'node_modules/bookshelf',
+    'knex': 'node_modules/knex'
   },
   packages: {
     '@angular/common': {
@@ -70,6 +71,10 @@ System.config({
       defaultExtension: 'js'
     },
     'bookshelf': {
+      main: 'index.js',
+      defaultExtension: 'js'
+    },
+    'knex': {
       main: 'index.js',
       defaultExtension: 'js'
     },

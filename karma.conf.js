@@ -40,6 +40,7 @@ module.exports = function (config) {
       { pattern: 'node_modules/@angular/**/*.js', included: false, watched: true },
 
       { pattern: 'node_modules/bookshelf/**/*.js', included: false, watched: true },
+      { pattern: 'node_modules/knex/**/*.js', included: false, watched: true },
       { pattern: 'node_modules/lodash/**/*.js', included: false, watched: false },
 
       { pattern: 'build/**/*.js', included: false, watched: true },
