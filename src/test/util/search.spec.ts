@@ -1,4 +1,4 @@
-import { Search } from './search'
+import { Search } from '../../app/util/search'
 
 export function main() {
     describe('binary search', () => {
