@@ -1,20 +1,16 @@
-// Karma configuration
-// Generated on Wed Jul 15 2015 09:44:02 GMT+0200 (Romance Daylight Time)
 'use strict';
 
 var argv = require('yargs').argv;
 
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: './',
 
-
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine'],
-
 
     // list of files / patterns to load in the browser
     files: [
@@ -29,8 +25,10 @@ module.exports = function(config) {
       'node_modules/zone.js/dist/sync-test.js',
       'node_modules/zone.js/dist/async-test.js',
       'node_modules/zone.js/dist/fake-async-test.js',
-      'node_modules/zone.js/dist/proxy.js','node_modules/zone.js/dist/proxy-zone.js',
-     'node_modules/zone.js/dist/jasmine-patch.js',
+      'node_modules/zone.js/dist/proxy.js',
+      // proxy-zone exists in zone.js for some operating systems
+      'node_modules/zone.js/dist/proxy-zone.js',
+      'node_modules/zone.js/dist/jasmine-patch.js',
 
       // RxJs.
       { pattern: 'node_modules/rxjs/**/*.js', included: false, watched: false },
@@ -41,67 +39,44 @@ module.exports = function(config) {
       // Angular itself
       { pattern: 'node_modules/@angular/**/*.js', included: false, watched: true },
 
-      // Advanced seed
       { pattern: 'node_modules/lodash/**/*.js', included: false, watched: false },
-      { pattern: 'node_modules/ng2-translate/**/*.js', included: false, watched: false },
-      { pattern: 'node_modules/@ngrx/**/*.js', included: false, watched: false },
-      { pattern: 'node_modules/angulartics2/**/*.js', included: false, watched: false },
-      
+
       { pattern: 'build/**/*.js', included: false, watched: true },
       { pattern: 'build/**/*.html', included: false, watched: true, served: true },
       { pattern: 'build/**/*.css', included: false, watched: true, served: true },
       { pattern: 'node_modules/systemjs/dist/system-polyfills.js', included: false, watched: false }, // PhantomJS2 (and possibly others) might require it
 
-      // suppress annoying 404 warnings for resources, images, etc.
-      { pattern: 'build/assets/**/*', watched: false, included: false, served: true },
-
       'test-main.js'
     ],
-
-    // must go along with above, suppress annoying 404 warnings.
-    proxies: {
-      '/assets/': '/base/build/assets/'
-    },  
 
     // list of files to exclude
     exclude: [
       'node_modules/**/*spec.js'
     ],
 
-
-    // preprocess matching files before serving them to the browser
-    // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['progress'],
 
-
     // web server port
     port: 9876,
 
-
     // enable / disable colors in the output (reporters and logs)
     colors: true,
-
 
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_INFO,
 
-
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
-
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: [
       'Electron'
-//      'Chrome'
     ],
-
 
     customLaunchers: {
       Chrome_travis_ci: {
@@ -119,12 +94,6 @@ module.exports = function(config) {
       files: argv.files
     }
   });
-
-  if (process.env.APPVEYOR) {
-    config.browsers = ['IE'];
-    config.singleRun = true;
-    config.browserNoActivityTimeout = 90000; // Note: default value (10000) is not enough
-  }
 
   if (process.env.TRAVIS || process.env.CIRCLECI) {
     config.browsers = ['Chrome_travis_ci'];
