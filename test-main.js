@@ -31,9 +31,25 @@ System.config({
   map: {
     'rxjs': 'node_modules/rxjs',
     '@angular': 'node_modules/@angular',
+    'bluebird': 'node_modules/bluebird',
+    'knex': 'node_modules/knex',
+    // not working
+    'knex/lib/migrate': 'node_modules/knex/lib/migrate',
+    'chalk': 'node_modules/chalk',
+    'babel-runtime': 'node_modules/babel-runtime',
+    'create-error': 'node_modules/create-error',
+    'inflection': 'node_modules/inflection',
+    'inherits': 'node_modules/inherits',
+    'node-uuid': 'node_modules/node-uuid',
+    'pool2': 'node_modules/pool2',
+    'debug': 'node_modules/debug',
     'bookshelf': 'node_modules/bookshelf',
-    'knex': 'node_modules/knex'
+    'events': '@node/events'
   },
+  packageConfigPaths: [
+    'node_modules/knex/package.json',
+    'node_modules/bookshelf/package.json',
+  ],
   packages: {
     '@angular/common': {
       main: 'index.js',
@@ -70,12 +86,52 @@ System.config({
     'rxjs': {
       defaultExtension: 'js'
     },
-    'bookshelf': {
-      main: 'index.js',
+    'bluebird': {
+      main: 'js/release/bluebird.js',
       defaultExtension: 'js'
     },
     'knex': {
+      main: 'knex.js',
+      defaultExtension: 'js'
+    },
+    'knex/lib/migrate': {
       main: 'index.js',
+      defaultExtension: 'js'
+    },
+    'chalk': {
+      main: 'index.js',
+      defaultExtension: 'js'
+    },
+    'babel-runtime': {
+      main: 'core-js.js',
+      defaultExtension: 'js'
+    },
+    'create-error': {
+      main: 'create-error.js',
+      defaultExtension: 'js'
+    },
+    'inflection': {
+      main: 'inflection.min.js',
+      defaultExtension: 'js'
+    },
+    'inherits': {
+      main: 'inherits.js',
+      defaultExtension: 'js'
+    },
+    'node-uuid': {
+      main: 'uuid.js',
+      defaultExtension: 'js'
+    },
+    'pool2': {
+      main: 'index.js',
+      defaultExtension: 'js'
+    },
+    'debug': {
+      main: 'debug.js',
+      defaultExtension: 'js'
+    },
+    'bookshelf': {
+      main: 'bookshelf.js',
       defaultExtension: 'js'
     },
   }

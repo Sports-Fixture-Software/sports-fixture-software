@@ -14,6 +14,7 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'karma-electron-shim.js',
       // Polyfills.
       'node_modules/core-js/client/shim.min.js',
 
@@ -37,8 +38,19 @@ module.exports = function (config) {
       // Angular itself
       { pattern: 'node_modules/@angular/**/*.js', included: false, watched: true },
 
-      { pattern: 'node_modules/bookshelf/**/*.js', included: false, watched: true },
+      { pattern: 'node_modules/bluebird/**/*.js', included: false, watched: true },
+      { pattern: 'node_modules/knex/package.json', included: false, watched: true },
       { pattern: 'node_modules/knex/**/*.js', included: false, watched: true },
+      { pattern: 'node_modules/chalk/**/*.js', included: false, watched: true },
+      { pattern: 'node_modules/babel-runtime/**/*.js', included: false, watched: true },
+      { pattern: 'node_modules/create-error/create-error.js', included: false, watched: true },
+      { pattern: 'node_modules/inflection/inflection.min.js', included: false, watched: true },
+      { pattern: 'node_modules/inherits/inherits.js', included: false, watched: true },
+      { pattern: 'node_modules/node-uuid/uuid.js', included: false, watched: true },
+      { pattern: 'node_modules/pool2/**/*.js', included: false, watched: true },
+      { pattern: 'node_modules/debug/debug.js', included: false, watched: true },
+      { pattern: 'node_modules/bookshelf/package.json', included: false, watched: true },
+      { pattern: 'node_modules/bookshelf/**/*.js', included: false, watched: true },
       { pattern: 'node_modules/lodash/**/*.js', included: false, watched: false },
 
       { pattern: 'build/**/*.js', included: false, watched: true },
