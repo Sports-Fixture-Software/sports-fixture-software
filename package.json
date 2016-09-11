@@ -36,6 +36,7 @@
     "karma-electron-launcher": "^0.1.0",
     "karma-jasmine": "^1.0.2",
     "karma-typescript-preprocessor": "^0.2.1",
+    "node-pre-gyp": "^0.6.30",
     "systemjs": "^0.19.38",
     "typedoc": "^0.4.4",
     "typescript": "^1.8.10",
