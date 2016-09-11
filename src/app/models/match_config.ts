@@ -1,4 +1,4 @@
-import { databaseInjector } from '../bootstrap'
+import { databaseInjector } from '../services/database.injector'
 import { DatabaseService } from '../services/database.service'
 import { Round } from './round'
 import { Team } from './team'
