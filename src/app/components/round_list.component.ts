@@ -92,6 +92,10 @@ export class RoundListComponent implements OnInit {
             fc.updateValue(null)
             return this._matchConfigService.addMatchConfig(config)
         }).then(() => {
+            return this._fixtureService.getRoundsAndConfig(this.fixture)
+        }).then((rounds: Collection<Round>) => {
+            this.rounds = rounds.toArray()
+            this.fillInRounds()
             this.createMatchupPopover.hide()
             this._changeref.detectChanges()
         }).catch((err: Error) => {
