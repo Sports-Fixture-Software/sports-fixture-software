@@ -19,7 +19,9 @@ module.exports = function (config) {
       'node_modules/core-js/client/shim.min.js',
 
       // System.js for module loading
-      'node_modules/systemjs/dist/system.src.js',
+      //'node_modules/systemjs/dist/system.src.js',
+      'jspm_packages/system.js',
+      'jspm.config.js',
 
       // Zone.js dependencies
       'node_modules/zone.js/dist/zone.js',

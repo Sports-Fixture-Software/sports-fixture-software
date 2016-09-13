@@ -17,7 +17,7 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
 // Cancel Karma's synchronous start,
 // we will call `__karma__.start()` later, once all the specs are loaded.
 __karma__.loaded = function() {};
-
+/*
 // Load our SystemJS configuration.
 System.config({
   baseURL: '/base/node_modules'
@@ -305,7 +305,7 @@ System.config({
     },
   }
 });
-
+*/
 // System.import('system-json/json.js').then(function(main) {
 //   return
 Promise.all([
