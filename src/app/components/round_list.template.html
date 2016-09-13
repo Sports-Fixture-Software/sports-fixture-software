@@ -57,6 +57,11 @@
                 {{round.startDate | date}}
             </td>
             <td>
+                <div *ngFor="let config of round.matchConfigsPreLoaded">
+                    {{config.homeTeamPreLoaded.name}} v {{config.awayTeamPreLoaded.name}}
+                </div>
+            </td>
+            <td class="button-col">
                 <div class="pull-right">
                     <button-hidden #openPopover [popover]="createMatchupPopover" popoverPlacement="left-top" (click)="prepareForm(round)">
                         <span class="glyphicon glyphicon-plus"></span>
