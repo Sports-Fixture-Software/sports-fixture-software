@@ -170,44 +170,43 @@ export class RoundListComponent implements OnInit {
      * can't reserve the same team again on the same round.
      */
     private removeTeamsAsAlreadyReserved(round: Round) {
-        round.getMatchConfigs().then((configs) => {
-            this.homeTeams = this.homeTeamsAll.slice(0) //copy
-            this.awayTeams = this.awayTeamsAll.slice(0) //copy
-            // config null if .getMatchConfigs() fails. If fails, show all teams
-            if (configs) {
-                configs.each((config) => {
-                    let count = 0
-                    for (let i = this.homeTeams.length - 1; i >= 0; i--) {
-                        if (this.homeTeams[i].id == config.homeTeam_id ||
-                            this.homeTeams[i].id == config.awayTeam_id) {
-                            this.homeTeams.splice(i, 1)
-                            count++
-                            if (count >= 2) {
-                                break
-                            }
+        let configs = round.matchConfigsPreLoaded
+        this.homeTeams = this.homeTeamsAll.slice(0) //copy
+        this.awayTeams = this.awayTeamsAll.slice(0) //copy
+        // config null if matchConfigsPreLoaded fails. If fails, show all teams
+        if (configs) {
+            for (let config of configs) {
+                let count = 0
+                for (let i = this.homeTeams.length - 1; i >= 0; i--) {
+                    if (this.homeTeams[i].id == config.homeTeam_id ||
+                        this.homeTeams[i].id == config.awayTeam_id) {
+                        this.homeTeams.splice(i, 1)
+                        count++
+                        if (count >= 2) {
+                            break
                         }
                     }
-                    count = 0
-                    for (let i = this.awayTeams.length - 1; i >= 0; i--) {
-                        // don't delete the bye from the away teams
-                        if ((config.awayTeam_id && // not the bye
-                            this.awayTeams[i].id == config.awayTeam_id) ||
-                            this.awayTeams[i].id == config.homeTeam_id) {
-                            this.awayTeams.splice(i, 1)
-                            count++
-                            if (count >= 2) {
-                                break
-                            }
+                }
+                count = 0
+                for (let i = this.awayTeams.length - 1; i >= 0; i--) {
+                    // don't delete the bye from the away teams
+                    if ((config.awayTeam_id && // not the bye
+                        this.awayTeams[i].id == config.awayTeam_id) ||
+                        this.awayTeams[i].id == config.homeTeam_id) {
+                        this.awayTeams.splice(i, 1)
+                        count++
+                        if (count >= 2) {
+                            break
                         }
                     }
-                })
+                }
             }
-            this._changeref.detectChanges()
-            let fc = this.matchupForm.controls['homeTeam'] as FormControl
-            fc.updateValue(null)
-            fc = this.matchupForm.controls['awayTeam'] as FormControl
-            fc.updateValue(null)
-        })
+        }
+        this._changeref.detectChanges()
+        let fc = this.matchupForm.controls['homeTeam'] as FormControl
+        fc.updateValue(null)
+        fc = this.matchupForm.controls['awayTeam'] as FormControl
+        fc.updateValue(null)
     }
 
     /**
