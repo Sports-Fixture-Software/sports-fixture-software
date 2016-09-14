@@ -11,12 +11,13 @@ import { TeamListItem } from './team_list_item.component';
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
 import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { ButtonPopover } from './button_popover.component'
+import { ButtonHidden } from './button_hidden.component'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'team_list.template.html',
     providers: [LeagueService, TeamService],
-    directives: [TeamListItem, ButtonPopover, POPOVER_DIRECTIVES, MODAL_DIRECTIVES]
+    directives: [TeamListItem, ButtonPopover, ButtonHidden, POPOVER_DIRECTIVES, MODAL_DIRECTIVES]
 })
 
 export class TeamListComponent implements OnInit {

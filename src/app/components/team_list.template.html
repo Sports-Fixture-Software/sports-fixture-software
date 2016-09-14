@@ -21,11 +21,22 @@
     </div>
 
     <div class="col-xs-11">
-        <table class="table table-striped table-bordered">
+        <table class="table table-striped table-min-row">
+            <colgroup>
+                <col>
+                <col class="button-col">
+            </colgroup>
             <tbody>
-                <tr *ngFor="let team of teams">
+                <tr *ngFor="let team of teams" (mouseenter)="editPopover.onMouseEnter()" (mouseleave)="editPopover.onMouseLeave()">
                     <td>
                         <team-list-item [team]="team"></team-list-item>
+                    </td>
+                    <td>
+                        <div class="pull-right">
+                            <button-hidden #editPopover [popover]="createTeamPopover" popoverPlacement="left-top">
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </button-hidden>
+                        </div>
                     </td>
                 </tr>
             </tbody>
