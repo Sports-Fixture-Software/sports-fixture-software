@@ -87,6 +87,16 @@ export class RoundListComponent implements OnInit {
         this.enablePopupsForOverflowedElemenets('.matchup-button')
     }
 
+    /**
+     * Prepares the match-up form based on what the user selected.
+     *
+     * There is only one match-up form: the form changes based upon what round
+     * or match-up the user selects.
+     *
+     * `round` the selected round.
+     * `config` (optional) the selected match-up. If not supplied, a new
+     * match-up will be created.
+     */
     prepareForm(round: Round, config?: MatchConfig) {
         let fc = this.matchupForm.controls['round'] as FormControl
         fc.updateValue(round)
@@ -94,17 +104,31 @@ export class RoundListComponent implements OnInit {
         fc.updateValue(config)
         if (config && config.homeTeamPreLoaded) {
             fc = this.matchupForm.controls['homeTeam'] as FormControl
-            fc.updateValue(config.homeTeamPreLoaded)
+            for (let team of this.homeTeamsAll) {
+                if (team.id == config.homeTeamPreLoaded.id) {
+                    fc.updateValue(team)
+                    break
+                }
+            }
         }
         if (config && config.awayTeamPreLoaded) {
             fc = this.matchupForm.controls['awayTeam'] as FormControl
-            fc.updateValue(config.awayTeamPreLoaded)
+            for (let team of this.awayTeamsAll) {
+                if (team.id == config.awayTeamPreLoaded.id) {
+                    fc.updateValue(team)
+                    break
+                }
+            }
         }
         this.removeTeamsAsAlreadyReserved(round,
             config ? config.homeTeamPreLoaded : null,
             config ? config.awayTeamPreLoaded : null)
     }
 
+    /**
+     * create the match-up in the database based on the user's responses to the
+     * match-up form. Clears the form.
+     */
     createMatchup(form: RoundForm) {
         this._roundService.addUpdateRound(form.round).then(() => {
             let config = form.config
