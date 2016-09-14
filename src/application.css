@@ -61,6 +61,21 @@ input[type="date"] {
 .form-s {
     min-width: 200px;
 }
+.inner-stack {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+.trunc {
+    width: 47% !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+table {
+    max-width: 100% !important;
+    table-layout: fixed;
+    word-wrap: break-word;
+}
 h2 { 
     margin-top: 0px;
 }
@@ -74,9 +89,10 @@ select {
 .table-min-row>tbody>tr>td {
     height: 51px;
     vertical-align: middle;
+    word-break:break-all;
 }
 .button-col {
-    min-width: 56px;
+    width: 56px;
 }
 .heading-row {
     min-height: 44px;
