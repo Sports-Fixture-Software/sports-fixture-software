@@ -100,6 +100,11 @@ export class RoundListComponent implements OnInit {
      * match-up will be created.
      */
     prepareForm(round: Round, config?: MatchConfig) {
+        if (config) {
+            this.matchupButtonText = RoundListComponent.EDIT_MATCHUP
+        } else {
+            this.matchupButtonText = RoundListComponent.CREATE_MATCHUP
+        }
         let fc = this.matchupForm.controls['round'] as FormControl
         fc.updateValue(round)
         fc = this.matchupForm.controls['config'] as FormControl
@@ -245,8 +250,8 @@ export class RoundListComponent implements OnInit {
                         !(homeTeam && homeTeam.id == this.homeTeams[i].id))
                         ||
                         (this.homeTeams[i].id == config.awayTeam_id &&
-                        // don't delete the awayTeam as requested
-                        !(awayTeam && awayTeam.id == this.homeTeams[i].id))) {
+                            // don't delete the awayTeam as requested
+                            !(awayTeam && awayTeam.id == this.homeTeams[i].id))) {
                         this.homeTeams.splice(i, 1)
                         count++
                         if (count >= 2) {
@@ -263,8 +268,8 @@ export class RoundListComponent implements OnInit {
                         !(awayTeam && awayTeam.id == this.awayTeams[i].id))
                         ||
                         (this.awayTeams[i].id == config.homeTeam_id &&
-                        // don't delete the homeTeam as requested
-                        !(homeTeam && homeTeam.id == this.awayTeams[i].id))) {
+                            // don't delete the homeTeam as requested
+                            !(homeTeam && homeTeam.id == this.awayTeams[i].id))) {
                         this.awayTeams.splice(i, 1)
                         count++
                         if (count >= 2) {
@@ -352,6 +357,9 @@ export class RoundListComponent implements OnInit {
         })
     }
 
+    private static CREATE_MATCHUP: string = 'Create Match-up'
+    private static EDIT_MATCHUP: string = 'Edit Match-up'
+    private matchupButtonText: string
     private initComplete: boolean = false
     private rounds: Round[] = []
     private homeTeams: Team[]

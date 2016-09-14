@@ -1,4 +1,4 @@
-<popover-content id="createMatchupPopover" #createMatchupPopover title="Create Match-up" [closeOnClickOutside]="true">
+<popover-content id="createMatchupPopover" #createMatchupPopover [title]="matchupButtonText" [closeOnClickOutside]="true">
     <form id="matchupForm" class="form-s" [formGroup]="matchupForm" novalidate (ngSubmit)="createMatchup(matchupForm.value)">
         <div class="form-group">
             <table>
@@ -25,7 +25,9 @@
         </div>
 
         <div class="pull-right">
-            <button-popover #createMatchupButton type="submit" [disabled]="!matchupForm.valid">Create Match-up</button-popover>
+            <button-popover #createMatchupButton type="submit" [disabled]="!matchupForm.valid">
+                {{matchupButtonText}}
+            </button-popover>
         </div>
     </form>
 </popover-content>
