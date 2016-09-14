@@ -45,7 +45,8 @@ export class RoundListComponent implements OnInit {
         this.matchupForm = new FormGroup({
             round: new FormControl(),
             homeTeam: new FormControl('', [<any>Validators.required]),
-            awayTeam: new FormControl('', [<any>Validators.required])
+            awayTeam: new FormControl('', [<any>Validators.required]),
+            config: new FormControl()
         }, {}, this.differentTeamsSelectedValidator)
 
         this._router.routerState.parent(this._route)
@@ -86,21 +87,38 @@ export class RoundListComponent implements OnInit {
         this.enablePopupsForOverflowedElemenets('.matchup-button')
     }
 
-    prepareForm(round: Round) {
+    prepareForm(round: Round, config?: MatchConfig) {
         let fc = this.matchupForm.controls['round'] as FormControl
         fc.updateValue(round)
-        this.removeTeamsAsAlreadyReserved(round)
+        fc = this.matchupForm.controls['config'] as FormControl
+        fc.updateValue(config)
+        if (config && config.homeTeamPreLoaded) {
+            fc = this.matchupForm.controls['homeTeam'] as FormControl
+            fc.updateValue(config.homeTeamPreLoaded)
+        }
+        if (config && config.awayTeamPreLoaded) {
+            fc = this.matchupForm.controls['awayTeam'] as FormControl
+            fc.updateValue(config.awayTeamPreLoaded)
+        }
+        this.removeTeamsAsAlreadyReserved(round,
+            config ? config.homeTeamPreLoaded : null,
+            config ? config.awayTeamPreLoaded : null)
     }
 
     createMatchup(form: RoundForm) {
         this._roundService.addUpdateRound(form.round).then(() => {
-            let config = new MatchConfig()
+            let config = form.config
+            if (!config) {
+                config = new MatchConfig()
+            }
             config.setRound(form.round)
             config.setHomeTeam(form.homeTeam)
             config.setAwayTeam(form.awayTeam)
             let fc = this.matchupForm.controls['homeTeam'] as FormControl
             fc.updateValue(null)
             fc = this.matchupForm.controls['awayTeam'] as FormControl
+            fc.updateValue(null)
+            fc = this.matchupForm.controls['config'] as FormControl
             fc.updateValue(null)
             return this._matchConfigService.addMatchConfig(config)
         }).then(() => {
@@ -180,8 +198,14 @@ export class RoundListComponent implements OnInit {
      *
      * If the user has reserved a match-up, remove from the list so the user
      * can't reserve the same team again on the same round.
+     * 
+     * `round` the round containing the match-ups
+     * `homeTeam` (optional) Do not remove this home team from the home list,
+     *      because the user is editing.
+     * `awayTeam` (optional) Do not remove this away team from the away list,
+     *      because the user is editing.
      */
-    private removeTeamsAsAlreadyReserved(round: Round) {
+    private removeTeamsAsAlreadyReserved(round: Round, homeTeam?: Team, awayTeam?: Team) {
         let configs = round.matchConfigsPreLoaded
         this.homeTeams = this.homeTeamsAll.slice(0) //copy
         this.awayTeams = this.awayTeamsAll.slice(0) //copy
@@ -190,8 +214,13 @@ export class RoundListComponent implements OnInit {
             for (let config of configs) {
                 let count = 0
                 for (let i = this.homeTeams.length - 1; i >= 0; i--) {
-                    if (this.homeTeams[i].id == config.homeTeam_id ||
-                        this.homeTeams[i].id == config.awayTeam_id) {
+                    if ((this.homeTeams[i].id == config.homeTeam_id &&
+                        // don't delete the homeTeam as requested
+                        !(homeTeam && homeTeam.id == this.homeTeams[i].id))
+                        ||
+                        (this.homeTeams[i].id == config.awayTeam_id &&
+                        // don't delete the awayTeam as requested
+                        !(awayTeam && awayTeam.id == this.homeTeams[i].id))) {
                         this.homeTeams.splice(i, 1)
                         count++
                         if (count >= 2) {
@@ -203,8 +232,13 @@ export class RoundListComponent implements OnInit {
                 for (let i = this.awayTeams.length - 1; i >= 0; i--) {
                     // don't delete the bye from the away teams
                     if ((config.awayTeam_id && // not the bye
-                        this.awayTeams[i].id == config.awayTeam_id) ||
-                        this.awayTeams[i].id == config.homeTeam_id) {
+                        this.awayTeams[i].id == config.awayTeam_id &&
+                        // don't delete the awayTeam as requested
+                        !(awayTeam && awayTeam.id == this.awayTeams[i].id))
+                        ||
+                        (this.awayTeams[i].id == config.homeTeam_id &&
+                        // don't delete the homeTeam as requested
+                        !(homeTeam && homeTeam.id == this.awayTeams[i].id))) {
                         this.awayTeams.splice(i, 1)
                         count++
                         if (count >= 2) {
@@ -215,10 +249,14 @@ export class RoundListComponent implements OnInit {
             }
         }
         this._changeref.detectChanges()
-        let fc = this.matchupForm.controls['homeTeam'] as FormControl
-        fc.updateValue(null)
-        fc = this.matchupForm.controls['awayTeam'] as FormControl
-        fc.updateValue(null)
+        if (!homeTeam) {
+            let fc = this.matchupForm.controls['homeTeam'] as FormControl
+            fc.updateValue(null)
+        }
+        if (!awayTeam) {
+            let fc = this.matchupForm.controls['awayTeam'] as FormControl
+            fc.updateValue(null)
+        }
     }
 
     /**
