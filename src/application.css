@@ -75,6 +75,9 @@ select {
     height: 51px;
     vertical-align: middle;
 }
+.button-col {
+    width: 56px;
+}
 .heading-row {
     min-height: 44px;
 }
