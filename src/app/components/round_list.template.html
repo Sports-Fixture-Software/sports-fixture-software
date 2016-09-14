@@ -58,7 +58,9 @@
             </td>
             <td>
                 <div *ngFor="let config of round.matchConfigsPreLoaded">
-                    {{config.homeTeamPreLoaded.name}} v {{config.awayTeamPreLoaded.name}}
+                    {{config.homeTeamPreLoaded.name}}
+                    v
+                    {{config.awayTeamPreLoaded.name == undefined ? 'Bye' : config.awayTeamPreLoaded.name}}
                 </div>
             </td>
             <td class="button-col">
