@@ -86,7 +86,7 @@ export class RoundListComponent implements OnInit {
      * ngFor-on-complete, update this method. 
      */
     onAfterFor() {
-        this.enablePopupsForOverflowedElemenets('.matchup-button')
+        this.enableTooltipForOverflowedElements('.matchup-button')
     }
 
     /**
@@ -340,7 +340,7 @@ export class RoundListComponent implements OnInit {
      * 
      * `selector` is jQuery selector string to select the elements.
      */
-    private enablePopupsForOverflowedElemenets(selector: string) {
+    private enableTooltipForOverflowedElements(selector: string) {
         jQuery(selector).each((index, elem) => {
             let jElem = jQuery(elem)
             if (elem.scrollWidth > jElem.innerWidth()) {
