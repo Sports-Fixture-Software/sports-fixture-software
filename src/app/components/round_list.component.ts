@@ -344,7 +344,10 @@ export class RoundListComponent implements OnInit {
         jQuery(selector).each((index, elem) => {
             let jElem = jQuery(elem)
             if (elem.scrollWidth > jElem.innerWidth()) {
-                jElem.tooltip({delay: { 'show': 1000, 'hide': 100 }})
+                jElem.tooltip({
+                    delay: { 'show': 1000, 'hide': 100 },
+                    trigger: 'hover'
+                })
             }
         })
     }
