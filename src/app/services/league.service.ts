@@ -25,6 +25,10 @@ export class LeagueService {
         return league.save()
     }
 
+    public updateLeague(league: League): Promise<League> {
+        return league.save()
+    }
+
     /**
      * returns an empty League
      */
