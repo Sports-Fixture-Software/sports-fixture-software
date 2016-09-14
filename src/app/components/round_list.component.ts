@@ -65,7 +65,9 @@ export class RoundListComponent implements OnInit {
                 }).then((teams: Collection<Team>) => {
                     this.homeTeamsAll = teams.toArray()
                     this.awayTeamsAll = teams.toArray()
-                    this.awayTeamsAll.push(new Team('Bye'))
+                    let byeTeam = new Team('Bye')
+                    byeTeam.id = null
+                    this.awayTeamsAll.push(byeTeam)
                     this.homeTeams = this.homeTeamsAll.slice(0) //copy
                     this.awayTeams = this.homeTeamsAll.slice(0) //copy
                     this._changeref.detectChanges()
