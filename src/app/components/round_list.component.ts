@@ -17,6 +17,8 @@ import { ButtonPopover } from './button_popover.component'
 import { ButtonHidden } from './button_hidden.component'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
 import * as moment from 'moment'
+import * as twitterBootstrap from 'bootstrap'
+declare var jQuery: JQueryStatic
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -72,6 +74,16 @@ export class RoundListComponent implements OnInit {
                     this._changeref.detectChanges()
                 })
             })
+    }
+
+    /**
+     * Called after ngFor is complete.
+     * 
+     * If, in the future, Angular2 provides native support for
+     * ngFor-on-complete, update this method. 
+     */
+    onAfterFor() {
+        this.enablePopupsForOverflowedElemenets('.matchup-button')
     }
 
     prepareForm(round: Round) {
@@ -255,6 +267,22 @@ export class RoundListComponent implements OnInit {
      */
     private differentTeamsSelectedValidator = ({value}: FormGroup): { [key: string]: any } => {
         return value.homeTeam == value.awayTeam ? { equal: true } : null
+    }
+
+    /**
+     * Enable a popup tooltip for overflowed elements. For example, if the
+     * text is too long for the button, display a tooltip showing the whole
+     * text.
+     * 
+     * `selector` is jQuery selector string to select the elements.
+     */
+    private enablePopupsForOverflowedElemenets(selector: string) {
+        jQuery(selector).each((index, elem) => {
+            let jElem = jQuery(elem)
+            if (elem.scrollWidth > jElem.innerWidth()) {
+                jElem.tooltip({delay: { 'show': 1000, 'hide': 100 }})
+            }
+        })
     }
 
     private initComplete: boolean = false
