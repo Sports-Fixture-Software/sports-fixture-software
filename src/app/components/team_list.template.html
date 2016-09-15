@@ -6,7 +6,7 @@
                     <div class="input-group">
                         <input #newTeamText type="text" class="form-control" placeholder="Team Name..." (keyup.enter)="submitAddTeam(newTeamText.value); newTeamText.value=''; addTeamButton.focus()">
                         <span class="input-group-btn">
-                            <button-popover #newTeamButton
+                            <button-popover #newTeamButton btn-class="btn btn-primary"
                             (click)="submitAddTeam(newTeamText.value); newTeamText.value=''; addTeamButton.focus()">
                                 <span class="glyphicon glyphicon-ok"></span>
                             </button-popover>
