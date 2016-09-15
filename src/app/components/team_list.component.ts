@@ -87,6 +87,7 @@ export class TeamListComponent implements OnInit {
             fc = this.teamForm.controls['name'] as FormControl
             fc.updateValue(null)
         }
+        this._changeref.detectChanges()
     }
 
     createTeam(form: TeamForm) {
