@@ -40,7 +40,8 @@ export class TeamListComponent implements OnInit {
     @ViewChild('createTeamButton') createTeamButton: ButtonPopover
     @ViewChild('addButtonDiv') addButtonDiv: ElementRef
     @ViewChild('teamListDiv') teamListDiv: ElementRef
-    newTeamText: String
+    @ViewChild('newTeamText') newTeamText: ElementRef
+    @ViewChild('addTeamButton') addTeamButton: ElementRef
     teamForm: FormGroup
 
     get teams(): Team[] { return this._teams }
@@ -87,6 +88,7 @@ export class TeamListComponent implements OnInit {
             fc = this.teamForm.controls['name'] as FormControl
             fc.updateValue(null)
         }
+        this.newTeamText.nativeElement.focus()
         this._changeref.detectChanges()
     }
 
@@ -102,6 +104,7 @@ export class TeamListComponent implements OnInit {
             return this.league.getTeams()
         }).then((t) => {
             this.teams = t.toArray()
+            this.addTeamButton.nativeElement.focus()
             this._changeref.detectChanges()
         }).catch((err : Error) => {
             this.createTeamButton.showError('Error creating team', err.message)
