@@ -18,13 +18,6 @@ export class ButtonPopover implements AfterViewInit {
     constructor(private _changeref: ChangeDetectorRef) {
     }
 
-    getMarginBottom(): string {
-        if (this.theType == 'submit') {
-            return '10px'
-        }
-        return ''
-    }
-
     ngAfterViewInit() {
         jQuery(this.button.nativeElement).popover({ html: true }).on('hidden.bs.popover', () => {
             this.state = State.Hidden
