@@ -1,19 +1,18 @@
 <div class="row">
     <div class="col-xs-1">
         <popover-content #createTeamPopover title="Create Team" [closeOnClickOutside]="true">
-            <div style="width: 270px">
-                <div class="input-group" style="width: 100%">
-                    <div class="input-group">
-                        <input #newTeamText type="text" class="form-control" placeholder="Team Name..." (keyup.enter)="submitAddTeam(newTeamText.value); newTeamText.value=''; addTeamButton.focus()">
-                        <span class="input-group-btn">
-                            <button-popover #newTeamButton
-                            (click)="submitAddTeam(newTeamText.value); newTeamText.value=''; addTeamButton.focus()">
-                                <span class="glyphicon glyphicon-ok"></span>
-                            </button-popover>
-                        </span>
-                    </div>
+            <form class="form-s" [formGroup]="teamForm" novalidate (ngSubmit)="createTeam(teamForm.value)">
+                <div class="input-group">
+                    <!-- (keyup.enter)="submitAddTeam(newTeamText.value); newTeamText.value=''; addTeamButton.focus()" -->
+                    <input #newTeamText type="text" class="form-control" placeholder="Team Name…" formControlName="name"/>
+                    <span class="input-group-btn">
+                        <!-- (click)="submitAddTeam(newTeamText.value); newTeamText.value=''; addTeamButton.focus() -->
+                        <button-popover #createTeamButton type="submit">
+                            <span class="glyphicon glyphicon-ok"></span>
+                        </button-popover>
+                    </span>
                 </div>
-            </div>
+            </form>
         </popover-content>
         <button #addTeamButton class="btn btn-default" type="button" [popover]="createTeamPopover" popoverPlacement="right" (keyup.enter)="newTeamText.focus()" (mouseup)="newTeamText.focus()">
                 <span class="glyphicon glyphicon-plus"></span>
@@ -33,7 +32,7 @@
                     </td>
                     <td>
                         <div class="pull-right">
-                            <button-hidden #editPopover [popover]="createTeamPopover" popoverPlacement="left-top">
+                            <button-hidden #editPopover [popover]="createTeamPopover" popoverPlacement="right" (click)="prepareForm(team)">
                                 <span class="glyphicon glyphicon-edit"></span>
                             </button-hidden>
                         </div>

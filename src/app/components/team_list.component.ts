@@ -1,6 +1,9 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'
 import { Router, ActivatedRoute } from '@angular/router'
+import { Validators } from '@angular/common'
+import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
 import { Team } from '../models/team'
+import { TeamForm } from '../models/team.form'
 import { League } from '../models/league'
 import { LeagueService } from '../services/league.service'
 import { TeamService } from '../services/team.service'
@@ -17,7 +20,7 @@ import { ButtonHidden } from './button_hidden.component'
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'team_list.template.html',
     providers: [LeagueService, TeamService],
-    directives: [TeamListItem, ButtonPopover, ButtonHidden, POPOVER_DIRECTIVES, MODAL_DIRECTIVES]
+    directives: [TeamListItem, ButtonPopover, ButtonHidden, POPOVER_DIRECTIVES, MODAL_DIRECTIVES, REACTIVE_FORM_DIRECTIVES]
 })
 
 export class TeamListComponent implements OnInit {
@@ -34,8 +37,9 @@ export class TeamListComponent implements OnInit {
         private _route: ActivatedRoute) {
     }
     @ViewChild('createTeamPopover') createTeamPopover: PopoverContent
-    @ViewChild('newTeamButton') newTeamButton: ButtonPopover
+    @ViewChild('createTeamButton') createTeamButton: ButtonPopover
     newTeamText: String
+    teamForm: FormGroup
 
     get teams(): Team[] { return this._teams }
     set teams(value: Team[]) { this._teams = value }
@@ -53,18 +57,35 @@ export class TeamListComponent implements OnInit {
                     this.teams = t.toArray()
                     this._changeref.detectChanges()
                 })
+                this.teamForm = new FormGroup({
+                    name: new FormControl('', [<any>Validators.required]),
+                    team: new FormControl()
+                })
             })
     }
 
-    submitAddTeam(teamName: string) {
-        let team: Team = new Team(teamName)
+    prepareForm(team: Team) {
+        let fc = this.teamForm.controls['team'] as FormControl
+        fc.updateValue(team)
+        fc = this.teamForm.controls['name'] as FormControl
+        fc.updateValue(team.name)
+    }
+
+    createTeam(form: TeamForm) {
+        let team = form.team
+        if (!team) {
+            team = new Team()
+        }
+        team.name = form.name
         team.setLeague(this.league)
         this._teamService.addTeam(team).then((t) => {
-            this.teams.push(team)
             this.createTeamPopover.hide()
+            return this.league.getTeams()
+        }).then((t) => {
+            this.teams = t.toArray()
             this._changeref.detectChanges()
         }).catch((err : Error) => {
-            this.newTeamButton.showError('Error creating team', err.message)
+            this.createTeamButton.showError('Error creating team', err.message)
             this._changeref.detectChanges()
         })
     }
