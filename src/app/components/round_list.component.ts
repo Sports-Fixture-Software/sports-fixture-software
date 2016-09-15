@@ -177,10 +177,10 @@ export class RoundListComponent implements OnInit {
                 this.createMatchupPopover.hide()
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
-                this.createMatchupButton.showError('Error deleting match-up', err.message)
+                this.deleteMatchupButton.showError('Error deleting match-up', err.message)
             })
         } else {
-            this.createMatchupButton.showError('Error deleting match-up', 'The match-up could not be found')
+            this.deleteMatchupButton.showError('Error deleting match-up', 'The match-up could not be found')
         }
     }
 
