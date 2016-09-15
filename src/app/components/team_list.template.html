@@ -1,25 +1,24 @@
 <div class="row">
-    <div class="col-xs-1">
-        <popover-content #createTeamPopover title="Create Team" [closeOnClickOutside]="true">
+    <div class="col-xs-1" #addButtonDiv>
+        <button #addTeamButton class="btn btn-default" type="button" [popover]="createTeamPopover" popoverPlacement="right" (keyup.enter)="newTeamText.focus()"
+            (mouseup)="newTeamText.focus()" (click)="prepareForm()">
+                <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <popover-content #createTeamPopover [title]="teamButtonText" [closeOnClickOutside]="true">
             <form class="form-s" [formGroup]="teamForm" novalidate (ngSubmit)="createTeam(teamForm.value)">
                 <div class="input-group">
-                    <!-- (keyup.enter)="submitAddTeam(newTeamText.value); newTeamText.value=''; addTeamButton.focus()" -->
-                    <input #newTeamText type="text" class="form-control" placeholder="Team Name…" formControlName="name"/>
+                    <input #newTeamText type="text" class="form-control" placeholder="Team Name…" formControlName="name" />
                     <span class="input-group-btn">
-                        <!-- (click)="submitAddTeam(newTeamText.value); newTeamText.value=''; addTeamButton.focus() -->
-                        <button-popover #createTeamButton type="submit">
+                        <button-popover #createTeamButton type="submit" [disabled]="!teamForm.valid">
                             <span class="glyphicon glyphicon-ok"></span>
-                        </button-popover>
+                    </button-popover>
                     </span>
                 </div>
             </form>
         </popover-content>
-        <button #addTeamButton class="btn btn-default" type="button" [popover]="createTeamPopover" popoverPlacement="right" (keyup.enter)="newTeamText.focus()" (mouseup)="newTeamText.focus()">
-                <span class="glyphicon glyphicon-plus"></span>
-        </button>
     </div>
 
-    <div class="col-xs-11">
+    <div class="col-xs-11" #teamListDiv>
         <table class="table table-striped table-min-row">
             <colgroup>
                 <col>
@@ -32,7 +31,7 @@
                     </td>
                     <td>
                         <div class="pull-right">
-                            <button-hidden #editPopover [popover]="createTeamPopover" popoverPlacement="right" (click)="prepareForm(team)">
+                            <button-hidden #editPopover [popover]="createTeamPopover" popoverPlacement="left" (click)="prepareForm(team)">
                                 <span class="glyphicon glyphicon-edit"></span>
                             </button-hidden>
                         </div>

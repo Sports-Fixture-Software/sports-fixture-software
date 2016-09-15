@@ -38,6 +38,8 @@ export class TeamListComponent implements OnInit {
     }
     @ViewChild('createTeamPopover') createTeamPopover: PopoverContent
     @ViewChild('createTeamButton') createTeamButton: ButtonPopover
+    @ViewChild('addButtonDiv') addButtonDiv: ElementRef
+    @ViewChild('teamListDiv') teamListDiv: ElementRef
     newTeamText: String
     teamForm: FormGroup
 
@@ -64,16 +66,26 @@ export class TeamListComponent implements OnInit {
             })
     }
 
-    prepareForm(team: Team) {
-        let fc = this.teamForm.controls['team'] as FormControl
-        fc.updateValue(team)
-        fc = this.teamForm.controls['name'] as FormControl
-        fc.updateValue(team.name)
     prepareForm(team?: Team) {
         if (team) {
+            // Share the popover between two buttons (add and edit buttons)
+            // ng2-popover supports this, but the positioning gets confused
+            // when the buttons are in separate static containers - which is
+            // the case here (col-xs-?? is a static container). Work around
+            // this limitation by changing the popover's parent. 
+            this.teamListDiv.nativeElement.appendChild(this.createTeamPopover.popoverDiv.nativeElement.parentElement)
             this.teamButtonText = TeamListComponent.EDIT_TEAM
+            let fc = this.teamForm.controls['team'] as FormControl
+            fc.updateValue(team)
+            fc = this.teamForm.controls['name'] as FormControl
+            fc.updateValue(team.name)
         } else {
+            this.addButtonDiv.nativeElement.appendChild(this.createTeamPopover.popoverDiv.nativeElement.parentElement)
             this.teamButtonText = TeamListComponent.CREATE_TEAM
+            let fc = this.teamForm.controls['team'] as FormControl
+            fc.updateValue(null)
+            fc = this.teamForm.controls['name'] as FormControl
+            fc.updateValue(null)
         }
     }
 
