@@ -69,6 +69,12 @@ export class TeamListComponent implements OnInit {
         fc.updateValue(team)
         fc = this.teamForm.controls['name'] as FormControl
         fc.updateValue(team.name)
+    prepareForm(team?: Team) {
+        if (team) {
+            this.teamButtonText = TeamListComponent.EDIT_TEAM
+        } else {
+            this.teamButtonText = TeamListComponent.CREATE_TEAM
+        }
     }
 
     createTeam(form: TeamForm) {
@@ -90,6 +96,9 @@ export class TeamListComponent implements OnInit {
         })
     }
 
+    private static CREATE_TEAM: string = 'Create Team'
+    private static EDIT_TEAM: string = 'Edit Team'
+    private teamButtonText: string
     private _teams: Team[]
     private _league: League
 }
