@@ -37,6 +37,7 @@ export class RoundListComponent implements OnInit {
     }
 
     @ViewChild('createMatchupButton') createMatchupButton: ButtonPopover
+    @ViewChild('deleteMatchupButton') deleteMatchupButton: ButtonPopover
     @ViewChild('createMatchupPopover') createMatchupPopover: PopoverContent
     matchupForm: FormGroup
     error: Error
@@ -101,9 +102,11 @@ export class RoundListComponent implements OnInit {
      */
     prepareForm(round: Round, config?: MatchConfig) {
         if (config) {
+            this.editing = true
             this.matchupButtonText = RoundListComponent.EDIT_MATCHUP
         } else {
             this.matchupButtonText = RoundListComponent.CREATE_MATCHUP
+            this.editing = false
         }
         let fc = this.matchupForm.controls['round'] as FormControl
         fc.updateValue(round)
@@ -162,6 +165,23 @@ export class RoundListComponent implements OnInit {
         }).catch((err: Error) => {
             this.createMatchupButton.showError('Error creating match-up', err.message)
         })
+    }
+
+    deleteMatchup(form: RoundForm) {
+        if (form.config) {
+            this._matchConfigService.deleteMatchConfig(form.config).then(() => {
+                return this._fixtureService.getRoundsAndConfig(this.fixture)
+            }).then((rounds: Collection<Round>) => {
+                this.rounds = rounds.toArray()
+                this.fillInRounds()
+                this.createMatchupPopover.hide()
+                this._changeref.detectChanges()
+            }).catch((err: Error) => {
+                this.createMatchupButton.showError('Error deleting match-up', err.message)
+            })
+        } else {
+            this.createMatchupButton.showError('Error deleting match-up', 'The match-up could not be found')
+        }
     }
 
     /**
@@ -367,4 +387,5 @@ export class RoundListComponent implements OnInit {
     private awayTeams: Team[]
     private awayTeamsAll: Team[]
     private fixture: Fixture
+    private editing: boolean
 }
