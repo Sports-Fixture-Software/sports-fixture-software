@@ -12,9 +12,10 @@ import { Team } from '../models/team'
 import { Round } from '../models/round'
 import { MatchConfig } from '../models/match_config'
 import { RoundForm } from '../models/round.form'
-import { DaysOfWeek } from '../util/days_of_week'
 import { ButtonPopover } from './button_popover.component'
 import { ButtonHidden } from './button_hidden.component'
+import { DateTime } from '../util/date_time'
+import { DaysOfWeek } from '../util/days_of_week'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
 import * as moment from 'moment'
 
@@ -111,7 +112,7 @@ export class RoundListComponent implements OnInit {
         } else if (runningDate.day() < DaysOfWeek.Saturday) {
             runningDate.add(DaysOfWeek.Saturday - runningDate.day(), 'day')
         }
-        for (let i = 1; i <= this.getNumberOfRounds(this.fixture.startDate, this.fixture.endDate); i++) {
+        for (let i = 1; i <= DateTime.getNumberOfRounds(this.fixture.startDate, this.fixture.endDate); i++) {
             let index = this.binarySearch(this.rounds, i, (a: number, b: Round) => {
                 return a - b.number
             })
@@ -204,46 +205,6 @@ export class RoundListComponent implements OnInit {
             fc = this.matchupForm.controls['awayTeam'] as FormControl
             fc.updateValue(null)
         })
-    }
-
-    /**
-     * Return the number of rounds between two dates.
-     * 
-     * The `startDate` can be any day of the week. If `startDate` is a weekend,
-     * the round count will include that weekend, otherwise count starts at
-     * next weekend. 
-     * 
-     * The `endDate` can be any day of the week. If `endDate` is a weekend, the
-     * round count will include that weekend, otherwise count ends at the
-     * previous weekend.
-     * 
-     * If both `startDate` and `endDate` are mid-week in the same week, the
-     * returned round count will be 0.
-     * 
-     * If both `startDate` and `endDate` are on the weeked in the same week, the
-     * returned round count will be 1.
-     * 
-     * If `startDate` is later than `endDate`, returned round count will be 0.
-     */
-    private getNumberOfRounds(startDate: Date, endDate: Date): number {
-        let start = moment(startDate)
-        let end = moment(endDate)
-        if (start.day() == DaysOfWeek.Sunday) {
-            start.subtract(1, 'day')
-        } else if (start.day() < DaysOfWeek.Saturday) {
-            start.add(DaysOfWeek.Saturday - start.day(), 'day')
-        }
-        if (end.day() < DaysOfWeek.Saturday) {
-            end.subtract(end.day() + 1, 'day')
-        }
-        let daysdiff = end.diff(start, 'days')
-        if (daysdiff < 0) {
-            return 0
-        } else if (daysdiff == 0) {
-            return 1
-        } else {
-            return Math.round(daysdiff / 7) + 1
-        }
     }
 
     /**
