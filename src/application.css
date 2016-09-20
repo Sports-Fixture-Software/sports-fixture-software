@@ -155,6 +155,9 @@ table {
     table-layout: fixed;
     word-wrap: break-word;
 }
+.spacer30 {
+    margin-top: 30px;
+}
 h2 { 
     margin-top: 0px;
 }

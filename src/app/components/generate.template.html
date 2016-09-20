@@ -1,0 +1,15 @@
+<h2>Summary</h2>
+<div class="spacer30"></div>
+<p><strong>{{league?.name}}</strong> - 
+    <strong>{{fixture?.name}}</strong>
+</p>
+<p><strong>{{numberOfTeams}}</strong> teams
+    play <strong>{{numberOfRounds}}</strong> rounds
+</p>
+<p>Starting on <strong>{{fixture?.startDate | date}}</strong>
+    ending on <strong>{{fixture?.endDate | date}}</strong>
+</p>
+<div class="spacer30"></div>
+<button type="button" class="btn btn-primary btn-lg btn-block">
+    Generate
+</button>
