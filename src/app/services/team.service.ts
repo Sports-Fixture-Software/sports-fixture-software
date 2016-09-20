@@ -19,7 +19,7 @@ export class TeamService {
         return new Team().where('id', id).fetch()
     }
 
-    public addTeam(team: Team): Promise<Team> {
+    addTeam(team: Team): Promise<Team> {
         return team.save()
     }
 
@@ -28,5 +28,12 @@ export class TeamService {
      */
     deleteTeam(team: Team): Promise<Team> {
         return team.destroy()
+    }
+
+    /**
+     * Count the number of teams in a single league
+     */
+    countTeams(league: League) : Promise<number> {
+        return new Team().where('league_id', league.id).count()
     }
 }

@@ -24,8 +24,11 @@
             </table>
         </div>
 
-        <div class="pull-right">
-            <button-popover #createMatchupButton type="submit" [disabled]="!matchupForm.valid">
+        <div class="pull-right form-footer">
+            <button-popover *ngIf="editing" #deleteMatchupButton btn-class="btn btn-default" type="button" (click)="deleteMatchup(matchupForm.value)">
+                Delete Match-up
+            </button-popover>
+            <button-popover #createMatchupButton btn-class="btn btn-primary" type="submit" [disabled]="!matchupForm.valid">
                 {{matchupButtonText}}
             </button-popover>
         </div>

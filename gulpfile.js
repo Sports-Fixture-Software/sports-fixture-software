@@ -57,6 +57,7 @@ gulp.task('copy:assets', function() {
         'src/**/*.html',
         'src/**/*.css',
         'src/**/*.js',
+        'src/**/*.png'
     ])
     .pipe(gulp.dest('build/'))
     .pipe(livereload());
@@ -88,7 +89,8 @@ gulp.task('build:watch', ['build'], function() {
     gulp.watch([
         'src/**/*.html',
         'src/**/*.css',
-        'src/**/*.js'
+        'src/**/*.js',
+        'src/**/*.png'
     ], ['copy:assets']);
 
     gulp.watch([

@@ -12,17 +12,11 @@ export class ButtonPopover implements AfterViewInit {
     @Input() errorContent: String
     @Input('disabled') disabled: boolean
     @Input('type') theType: String
+    @Input('btn-class') klass: string
     @Output('click') onClick = new EventEmitter<Event>()
     @ViewChild('button') button: ElementRef
 
     constructor(private _changeref: ChangeDetectorRef) {
-    }
-
-    getMarginBottom(): string {
-        if (this.theType == 'submit') {
-            return '10px'
-        }
-        return ''
     }
 
     ngAfterViewInit() {
