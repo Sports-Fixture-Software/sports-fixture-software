@@ -59,7 +59,7 @@ input[type="date"] {
     margin-top: 7px;
 }
 .form-s {
-    min-width: 200px;
+    min-width: 270px;
 }
 .inner-stack {
     padding-top: 2px;
@@ -90,6 +90,9 @@ select {
     height: 51px;
     vertical-align: middle;
     word-break:break-all;
+}
+.button-col {
+    width: 56px;
 }
 .button-col {
     width: 56px;
