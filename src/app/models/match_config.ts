@@ -31,12 +31,18 @@ export class MatchConfig extends (databaseInjector.get(DatabaseService) as Datab
             return res.related('homeTeam') as Team
         })
     }
+    get homeTeamPreLoaded(): Team {
+        return this.related('homeTeam') as Team
+    }
     setHomeTeam(value: Team) { this.set('homeTeam_id', value.id) }
 
     getAwayTeam(): Promise<Team> {
         return this.fetch({ withRelated: ['awayTeam'] }).then((res) => {
             return res.related('awayTeam') as Team
         })
+    }
+    get awayTeamPreLoaded(): Team {
+        return this.related('awayTeam') as Team
     }
     setAwayTeam(value: Team) { this.set('awayTeam_id', value.id) }
 
