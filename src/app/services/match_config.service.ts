@@ -10,4 +10,12 @@ export class MatchConfigService {
         return config.save()
     }
 
+    /**
+     * Deletes a match config from the database
+     *
+     * Returns the deleted match config.
+     */
+    deleteMatchConfig(config: MatchConfig): Promise<MatchConfig> {
+        return config.destroy()
+    }
 }
