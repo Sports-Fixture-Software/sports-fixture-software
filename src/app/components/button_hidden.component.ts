@@ -39,14 +39,14 @@ export class ButtonHidden implements OnInit, OnDestroy {
 
     onMouseEnter() {
         this.hovering = true
-        if (this.popover.top < 0) {
+        if (!this.popoverVisible()) {
             this.buttonJQuery.fadeIn(this.fadeSpeed)
         }
     }
 
     onMouseLeave() {
         this.hovering = false
-        if (this.popover.top < 0) {
+        if (!this.popoverVisible()) {
             this.buttonJQuery.fadeOut(this.fadeSpeed)
         }
     }
@@ -55,6 +55,14 @@ export class ButtonHidden implements OnInit, OnDestroy {
         if (this.closeSubscription) {
             this.closeSubscription.unsubscribe()
         }
+    }
+
+    /**
+     * ng2-popover library doesn't provide a way of detecting if a popover is
+     * visible. It does set top to -1000 when hidden, can use that.
+     */
+    private popoverVisible(): boolean {
+        return this.popover.top > -1000
     }
 
     private buttonJQuery: JQuery
