@@ -14,7 +14,7 @@ export class LeagueService {
      }
 
     getLeagues(): Promise<Collection<League>> {
-        return new League().fetchAll()
+        return new League().where('active', true).fetchAll()
     }
 
     getLeague(id: number): Promise<League> {
@@ -25,11 +25,16 @@ export class LeagueService {
         return league.save()
     }
 
+    public updateLeague(league: League): Promise<League> {
+        return league.save()
+    }
+
     /**
-     * returns an empty League
+     * returns the deleted league
      */
     deleteLeague(league: League): Promise<League> {
-        return league.destroy()
+        league.set('active', false)
+        return league.save()
     }
 
     getInitError(): Error {

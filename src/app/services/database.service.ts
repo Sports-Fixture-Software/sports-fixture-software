@@ -68,6 +68,7 @@ export class DatabaseService {
             (table) => {
                 table.increments('id')
                 table.string('name')
+                table.boolean('active').notNullable().defaultTo(true)
             }).then((res) => {
                 return this.get().knex.schema.createTableIfNotExists('fixture',
                     (table) => {

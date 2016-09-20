@@ -51,6 +51,10 @@ export class Round extends (databaseInjector.get(DatabaseService) as DatabaseSer
             }
         })
     }
+    get matchConfigsPreLoaded(): MatchConfig[] {
+        let col = this.related('matchConfigs') as Collection<MatchConfig>
+        return col.toArray()
+    }
 
     /**
      * Returns the list of matches related to this round.
