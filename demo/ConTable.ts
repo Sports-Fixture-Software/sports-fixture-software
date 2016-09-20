@@ -1,12 +1,11 @@
 /** Constraint table. Keeps track of which games are available in a 3D 
- *  matrix of bitmasks. This has been placed in plotFixture() because it is
- *  not intended for use elsewhere, but it can be moved if needed.
+ *  matrix of bitmasks.
  */
-class ConTable{
+export class ConTable {
     
     private games: number[][][]; //[round][Home Team Index][Away Team Index]
 
-    constructor(private teamsCnt: number){ 
+    constructor(private teamsCount: number){ 
         // Instantiates the round matrices to zero in all entries
         // Table is big enough for a full rotation over all teams.
         this.games = [];
@@ -35,13 +34,12 @@ class ConTable{
      * -1 for an always-illegal matchup (e.g. team or round doesn't exist)
      * 0 for an available matchup
      * >0 for a matchup that has been made unavailable by another matchup.
-     * TODO: Nature of unavailable matchups is down to an enum that I'll make later
      */
     getMask(round: number, home: number, away: number): number {
         // Checking for an illegal matchup
-        if( round > this.teamsCnt-1 || 
-            home > this.teamsCnt    ||
-            away > this.teamsCnt    || 
+        if( round > this.teamsCount-1 || 
+            home > this.teamsCount    ||
+            away > this.teamsCount    || 
             home === away ){
             return -1;
         }
@@ -61,9 +59,9 @@ class ConTable{
      */
     setMask(round: number, home: number, away: number, value: number): boolean {
         // Checking for an illegal matchup
-        if( round > this.teamsCnt-1 || round < 0 ||
-            home > this.teamsCnt    || home < 0  ||
-            away > this.teamsCnt    || away < 0  || 
+        if( round > this.teamsCount-1 || round < 0 ||
+            home > this.teamsCount    || home < 0  ||
+            away > this.teamsCount    || away < 0  || 
             home === away ){
             return false;
         }
@@ -84,7 +82,7 @@ class ConTable{
      */
     sliceRound(round: number): number[][] {
         // Checking for illegal round
-        if( round > this.teamsCnt-1 || round < 0 ){
+        if( round > this.teamsCount-1 || round < 0 ){
             throw { name: 'NotARound', message: 'Round ' + round + ' is not in this conTable'};
         }
 
@@ -93,9 +91,9 @@ class ConTable{
            by reference and not by value. */ 
         var roundMatrix: number[][];
         roundMatrix = [];
-        for(var i: number = 0; i < this.teamsCnt; i++){
+        for(var i: number = 0; i < this.teamsCount; i++){
             roundMatrix[i] = [];
-            for(var j: number = 0; j < this.teamsCnt-1; j++){
+            for(var j: number = 0; j < this.teamsCount-1; j++){
                 roundMatrix[i][j] = this.games[round][i][j];
             }
         }
@@ -119,12 +117,12 @@ class ConTable{
      */
     restoreRound(roundMatrix: number[][], round: number): boolean {
         // Checking for illegal round
-        if( round > this.teamsCnt-1 || round < 0 ){
+        if( round > this.teamsCount-1 || round < 0 ){
             return false;
         }
 
-        for(var i: number = 0; i < this.teamsCnt; i++){
-            for(var j: number = 0; j < this.teamsCnt-1; j++){
+        for(var i: number = 0; i < this.teamsCount; i++){
+            for(var j: number = 0; j < this.teamsCount-1; j++){
                 this.games[round][i][j] = roundMatrix[i][j];
             }
         }
