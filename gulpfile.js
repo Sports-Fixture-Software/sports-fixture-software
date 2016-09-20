@@ -8,7 +8,7 @@ const livereload = require('gulp-livereload');
 const runElectron = require("gulp-run-electron");
 const rebuildElectron = require('electron-rebuild');
 const electron = require("electron-prebuilt");
-
+const jasmine = require('gulp-jasmine');
 const tscConfig = require('./tsconfig.json');
 
 /**
@@ -110,6 +110,12 @@ gulp.task('run', ['build'], function() {
     return gulp.src('build')
         .pipe(runElectron());
 })
+
+gulp.task('unittest:services', () =>
+    gulp.src('spec/test.js')
+        // gulp-jasmine works on filepaths so you can't have any plugins before it 
+        .pipe(jasmine())
+);
 
 gulp.task('watch', ['build:watch', 'run'])
 gulp.task('build', ['copy:assets', 'install', 'rebuild', 'compile']);
