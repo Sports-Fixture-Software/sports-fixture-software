@@ -1,6 +1,85 @@
 /**
 * Global CSS styles go here
 */
+
+/* The below commented stylings have been kept here for later configuration
+   so we don't have to look them up all over again. */
+/*html {
+    background-color: #001450;
+}
+body {
+    background-color: #001450;
+    color: #fff
+}
+.table-striped > tbody > tr:nth-child(2n+1) > td, .table-striped > tbody > tr:nth-child(2n+1) > th {
+    background-color: #ff120d;
+    border: 1px solid #fee000;
+    border-left-color: #646a7b;
+    border-right-color: #646a7b;
+}
+.table-striped > tbody > tr:nth-child(2n) > td, .table-striped > tbody > tr:nth-child(2n) > th {
+    background-color: #dc100b;
+    border: 1px solid #fee000;
+    border-left-color: #646a7b;
+    border-right-color: #646a7b;
+}*/
+
+.btn-default {
+    color: #fff;
+    background-color: #001450;
+    border-color: #fee000;
+}
+.btn-default:hover {
+    color: #fff;
+    background-color: #002eb1;
+    border-color: #fee000;
+}
+.btn-default.focus, .btn-default:focus {
+    color: #fff;
+    background-color: #286090;
+    border-color: #fee000;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #004f78;
+    border-color: #fee000;
+}
+.btn-primary:hover{
+    color: #fff;
+    background-color: #002eb1;
+    border-color: #fff;
+}
+.btn-primary.focus, .btn-primary:focus {
+    color: #fff;
+    background-color: #003a50;
+    border-color: #fff;
+}
+
+.container-fluid>.navbar-header {
+    background-color: #001450;
+}
+.navbar-default {
+    background-color: #001450;
+    border-color: transparent;
+    border-bottom-color: #fee000;
+}
+.navbar-default .navbar-brand, .navbar-default .navbar-brand:focus {
+    color: #fff;
+    vertical-align: inherit;
+}
+.navbar-default .navbar-brand:hover {
+    color: #7692e2;
+    vertical-align: inherit;
+}
+.SANFL-logo-container {
+    padding-left: 40.5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    min-width: 150px;
+}
+
+
 .popover {
     max-width: 500px;
 }
@@ -114,6 +193,7 @@ select {
 [hidden] {
   display: none;
 }
+
 
 /**
 * Sidebar
