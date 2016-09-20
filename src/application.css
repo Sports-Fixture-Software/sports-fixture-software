@@ -1,8 +1,11 @@
 /**
 * Global CSS styles go here
 */
-html {
-    /*background-color: #001450;*/
+
+/* The below commented stylings have been kept here for later configuration
+   so we don't have to look them up all over again. */
+/*html {
+    background-color: #001450;
 }
 body {
     background-color: #001450;
@@ -19,21 +22,40 @@ body {
     border: 1px solid #fee000;
     border-left-color: #646a7b;
     border-right-color: #646a7b;
-}
-.btn-default, .btn-primary {
+}*/
+
+.btn-default {
     color: #fff;
     background-color: #001450;
     border-color: #fee000;
 }
-.btn-default:hover, .btn-primary:hover {
+.btn-default:hover {
     color: #fff;
     background-color: #002eb1;
     border-color: #fee000;
 }
-.btn-primary.focus, .btn-primary:focus {
+.btn-default.focus, .btn-default:focus {
+    color: #fff;
     background-color: #286090;
     border-color: #fee000;
 }
+
+.btn-primary {
+    color: #fff;
+    background-color: #004f78;
+    border-color: #fee000;
+}
+.btn-primary:hover{
+    color: #fff;
+    background-color: #002eb1;
+    border-color: #fff;
+}
+.btn-primary.focus, .btn-primary:focus {
+    color: #fff;
+    background-color: #003a50;
+    border-color: #fff;
+}
+
 .container-fluid>.navbar-header {
     background-color: #001450;
 }
