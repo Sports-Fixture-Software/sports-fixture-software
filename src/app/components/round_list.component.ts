@@ -17,6 +17,8 @@ import { ButtonPopover } from './button_popover.component'
 import { ButtonHidden } from './button_hidden.component'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
 import * as moment from 'moment'
+import * as twitterBootstrap from 'bootstrap'
+declare var jQuery: JQueryStatic
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -43,7 +45,8 @@ export class RoundListComponent implements OnInit {
         this.matchupForm = new FormGroup({
             round: new FormControl(),
             homeTeam: new FormControl('', [<any>Validators.required]),
-            awayTeam: new FormControl('', [<any>Validators.required])
+            awayTeam: new FormControl('', [<any>Validators.required]),
+            config: new FormControl()
         }, {}, this.differentTeamsSelectedValidator)
 
         this._router.routerState.parent(this._route)
@@ -62,7 +65,9 @@ export class RoundListComponent implements OnInit {
                 }).then((teams: Collection<Team>) => {
                     this.homeTeamsAll = teams.toArray()
                     this.awayTeamsAll = teams.toArray()
-                    this.awayTeamsAll.push(new Team('Bye'))
+                    let byeTeam = new Team('Bye')
+                    byeTeam.id = null
+                    this.awayTeamsAll.push(byeTeam)
                     this.homeTeams = this.homeTeamsAll.slice(0) //copy
                     this.awayTeams = this.homeTeamsAll.slice(0) //copy
                     this._changeref.detectChanges()
@@ -74,15 +79,69 @@ export class RoundListComponent implements OnInit {
             })
     }
 
-    prepareForm(round: Round) {
-        let fc = this.matchupForm.controls['round'] as FormControl
-        fc.updateValue(round)
-        this.removeTeamsAsAlreadyReserved(round)
+    /**
+     * Called after ngFor is complete.
+     * 
+     * If, in the future, Angular2 provides native support for
+     * ngFor-on-complete, update this method. 
+     */
+    onAfterFor() {
+        this.enableTooltipForOverflowedElements('.matchup-button')
     }
 
+    /**
+     * Prepares the match-up form based on what the user selected.
+     *
+     * There is only one match-up form: the form changes based upon what round
+     * or match-up the user selects.
+     *
+     * `round` the selected round.
+     * `config` (optional) the selected match-up. If not supplied, a new
+     * match-up will be created.
+     */
+    prepareForm(round: Round, config?: MatchConfig) {
+        if (config) {
+            this.matchupButtonText = RoundListComponent.EDIT_MATCHUP
+        } else {
+            this.matchupButtonText = RoundListComponent.CREATE_MATCHUP
+        }
+        let fc = this.matchupForm.controls['round'] as FormControl
+        fc.updateValue(round)
+        fc = this.matchupForm.controls['config'] as FormControl
+        fc.updateValue(config)
+        if (config && config.homeTeamPreLoaded) {
+            fc = this.matchupForm.controls['homeTeam'] as FormControl
+            for (let team of this.homeTeamsAll) {
+                if (team.id == config.homeTeamPreLoaded.id) {
+                    fc.updateValue(team)
+                    break
+                }
+            }
+        }
+        if (config && config.awayTeamPreLoaded) {
+            fc = this.matchupForm.controls['awayTeam'] as FormControl
+            for (let team of this.awayTeamsAll) {
+                if (team.id == config.awayTeamPreLoaded.id) {
+                    fc.updateValue(team)
+                    break
+                }
+            }
+        }
+        this.removeTeamsAsAlreadyReserved(round,
+            config ? config.homeTeamPreLoaded : null,
+            config ? config.awayTeamPreLoaded : null)
+    }
+
+    /**
+     * create the match-up in the database based on the user's responses to the
+     * match-up form. Clears the form.
+     */
     createMatchup(form: RoundForm) {
         this._roundService.addUpdateRound(form.round).then(() => {
-            let config = new MatchConfig()
+            let config = form.config
+            if (!config) {
+                config = new MatchConfig()
+            }
             config.setRound(form.round)
             config.setHomeTeam(form.homeTeam)
             config.setAwayTeam(form.awayTeam)
@@ -90,8 +149,14 @@ export class RoundListComponent implements OnInit {
             fc.updateValue(null)
             fc = this.matchupForm.controls['awayTeam'] as FormControl
             fc.updateValue(null)
+            fc = this.matchupForm.controls['config'] as FormControl
+            fc.updateValue(null)
             return this._matchConfigService.addMatchConfig(config)
         }).then(() => {
+            return this._fixtureService.getRoundsAndConfig(this.fixture)
+        }).then((rounds: Collection<Round>) => {
+            this.rounds = rounds.toArray()
+            this.fillInRounds()
             this.createMatchupPopover.hide()
             this._changeref.detectChanges()
         }).catch((err: Error) => {
@@ -164,46 +229,65 @@ export class RoundListComponent implements OnInit {
      *
      * If the user has reserved a match-up, remove from the list so the user
      * can't reserve the same team again on the same round.
+     * 
+     * `round` the round containing the match-ups
+     * `homeTeam` (optional) Do not remove this home team from the home list,
+     *      because the user is editing.
+     * `awayTeam` (optional) Do not remove this away team from the away list,
+     *      because the user is editing.
      */
-    private removeTeamsAsAlreadyReserved(round: Round) {
-        round.getMatchConfigs().then((configs) => {
-            this.homeTeams = this.homeTeamsAll.slice(0) //copy
-            this.awayTeams = this.awayTeamsAll.slice(0) //copy
-            // config null if .getMatchConfigs() fails. If fails, show all teams
-            if (configs) {
-                configs.each((config) => {
-                    let count = 0
-                    for (let i = this.homeTeams.length - 1; i >= 0; i--) {
-                        if (this.homeTeams[i].id == config.homeTeam_id ||
-                            this.homeTeams[i].id == config.awayTeam_id) {
-                            this.homeTeams.splice(i, 1)
-                            count++
-                            if (count >= 2) {
-                                break
-                            }
+    private removeTeamsAsAlreadyReserved(round: Round, homeTeam?: Team, awayTeam?: Team) {
+        let configs = round.matchConfigsPreLoaded
+        this.homeTeams = this.homeTeamsAll.slice(0) //copy
+        this.awayTeams = this.awayTeamsAll.slice(0) //copy
+        // config null if matchConfigsPreLoaded fails. If fails, show all teams
+        if (configs) {
+            for (let config of configs) {
+                let count = 0
+                for (let i = this.homeTeams.length - 1; i >= 0; i--) {
+                    if ((this.homeTeams[i].id == config.homeTeam_id &&
+                        // don't delete the homeTeam as requested
+                        !(homeTeam && homeTeam.id == this.homeTeams[i].id))
+                        ||
+                        (this.homeTeams[i].id == config.awayTeam_id &&
+                            // don't delete the awayTeam as requested
+                            !(awayTeam && awayTeam.id == this.homeTeams[i].id))) {
+                        this.homeTeams.splice(i, 1)
+                        count++
+                        if (count >= 2) {
+                            break
                         }
                     }
-                    count = 0
-                    for (let i = this.awayTeams.length - 1; i >= 0; i--) {
-                        // don't delete the bye from the away teams
-                        if ((config.awayTeam_id && // not the bye
-                            this.awayTeams[i].id == config.awayTeam_id) ||
-                            this.awayTeams[i].id == config.homeTeam_id) {
-                            this.awayTeams.splice(i, 1)
-                            count++
-                            if (count >= 2) {
-                                break
-                            }
+                }
+                count = 0
+                for (let i = this.awayTeams.length - 1; i >= 0; i--) {
+                    // don't delete the bye from the away teams
+                    if ((config.awayTeam_id && // not the bye
+                        this.awayTeams[i].id == config.awayTeam_id &&
+                        // don't delete the awayTeam as requested
+                        !(awayTeam && awayTeam.id == this.awayTeams[i].id))
+                        ||
+                        (this.awayTeams[i].id == config.homeTeam_id &&
+                            // don't delete the homeTeam as requested
+                            !(homeTeam && homeTeam.id == this.awayTeams[i].id))) {
+                        this.awayTeams.splice(i, 1)
+                        count++
+                        if (count >= 2) {
+                            break
                         }
                     }
-                })
+                }
             }
-            this._changeref.detectChanges()
+        }
+        this._changeref.detectChanges()
+        if (!homeTeam) {
             let fc = this.matchupForm.controls['homeTeam'] as FormControl
             fc.updateValue(null)
-            fc = this.matchupForm.controls['awayTeam'] as FormControl
+        }
+        if (!awayTeam) {
+            let fc = this.matchupForm.controls['awayTeam'] as FormControl
             fc.updateValue(null)
-        })
+        }
     }
 
     /**
@@ -254,6 +338,28 @@ export class RoundListComponent implements OnInit {
         return value.homeTeam == value.awayTeam ? { equal: true } : null
     }
 
+    /**
+     * Enable a popup tooltip for overflowed elements. For example, if the
+     * text is too long for the button, display a tooltip showing the whole
+     * text.
+     * 
+     * `selector` is jQuery selector string to select the elements.
+     */
+    private enableTooltipForOverflowedElements(selector: string) {
+        jQuery(selector).each((index, elem) => {
+            let jElem = jQuery(elem)
+            if (elem.scrollWidth > jElem.innerWidth()) {
+                jElem.tooltip({
+                    delay: { 'show': 1000, 'hide': 100 },
+                    trigger: 'hover'
+                })
+            }
+        })
+    }
+
+    private static CREATE_MATCHUP: string = 'Create Match-up'
+    private static EDIT_MATCHUP: string = 'Edit Match-up'
+    private matchupButtonText: string
     private initComplete: boolean = false
     private rounds: Round[] = []
     private homeTeams: Team[]
