@@ -1,4 +1,4 @@
-import { databaseInjector } from '../services/database.injector'
+import { databaseInjector } from '../bootstrap'
 import { DatabaseService } from '../services/database.service'
 import { Fixture } from './fixture'
 import { RoundConfig } from './round_config'
