@@ -1,3 +1,44 @@
+
+export interface Match {
+    roundNum: number;
+    homeTeam: number;
+    awayTeam: number;
+}
+
+export interface Team {
+    /** Index is an int between 0 and total number of teams -1. 
+     *  Index = -1 is for global (default) fixture constraints.
+     *  Index = 0 should be reserved for a bye team if there are an odd number
+     *  of teams in the league.
+     */
+    index: number; 
+
+    // Below are constraint variables.
+    // To let a team default to global constraints, set these to -1
+    maxHomeGames: number;
+    minHomeGames: number;
+    maxAwayGames: number;
+    minAwayGames: number;
+    // Other constraint parameters may be added here later. 
+}
+
+/**
+ * MatchState
+ * Enumeration to help with updating matches in the ConTable class.
+ * Match states >= 0 are unavailable in some form or fashion.
+ */
+export enum MatchState {
+    OPEN = 0,                   // Matchup is available
+    HOME_PLAYING_HOME = 1,      // The HOME team in this matchup is in another HOME match this round and is unavailable
+    AWAY_PLAYING_HOME = 1 << 1, // The AWAY team in this matchup is in another HOME match this round and is unavailable
+    AWAY_PLAYING_AWAY = 1 << 2, // The AWAY team in this matchup is in another AWAY match this round and is unavailable
+    HOME_PLAYING_AWAY = 1 << 3, // The HOME team in this matchup is in another AWAY match this round and is unavailable
+    MATCH_SET = 1 << 4,         // This match has already been set in another round in this rotation 
+    RESERVED = 1 << 5           // This match has been set from the start and may not be changed
+}
+
+
+
 /** Constraint table. Keeps track of which games are available in a 3D 
  *  matrix of bitmasks.
  */
@@ -16,7 +57,7 @@ export class ConTable {
                 this.games[i][j] = [];
 
                 /* Away teams are placed back one place to cover unused 
-                   space where home team = away team. */
+                space where home team = away team. */
                 for(var k: number = 0; k < teams-1; k++ ){
                     this.games[i][j][k] = 0;
                 }
@@ -49,7 +90,7 @@ export class ConTable {
     }
 
     /**
-     * setMatch
+     * setMask
      * Sets the bitmask representing the availability of a particular
      * matchup.
      * 
@@ -88,7 +129,7 @@ export class ConTable {
 
         // Copying the round.
         /* Must not be done with slice() as that copies the nested arrays 
-           by reference and not by value. */ 
+        by reference and not by value. */ 
         var roundMatrix: number[][];
         roundMatrix = [];
         for(var i: number = 0; i < this.teamsCount; i++){
