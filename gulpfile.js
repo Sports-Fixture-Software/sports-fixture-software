@@ -9,7 +9,10 @@ const runElectron = require("gulp-run-electron");
 const rebuildElectron = require('electron-rebuild');
 const electron = require("electron-prebuilt");
 const jasmine = require('gulp-jasmine');
+const reporters = require('jasmine-reporters');
 const tscConfig = require('./tsconfig.json');
+const exit = require('gulp-exit');
+const runSequence = require('run-sequence');
 
 /**
  * Removes all build artifacts
@@ -111,12 +114,23 @@ gulp.task('run', ['build'], function() {
         .pipe(runElectron());
 })
 
-gulp.task('unittest:services', () =>
-    gulp.src('spec/test.js')
-        // gulp-jasmine works on filepaths so you can't have any plugins before it 
-        .pipe(jasmine())
-);
+gulp.task('unittest:services', () => {
+    return gulp.src([
+        'build/test/init.js',
+        'build/test/services/**/*.js',
+        'build/test/util/**/*.js'])
+        .pipe(jasmine({
+            reporter: new reporters.TerminalReporter()
+        }
+        )).pipe(exit())
+});
 
 gulp.task('watch', ['build:watch', 'run'])
 gulp.task('build', ['copy:assets', 'install', 'rebuild', 'compile']);
+gulp.task('unittest', () => {
+    runSequence('build', 'unittest:services')
+})
+gulp.task('unittester', ['unittest:services']);
+gulp.task('test', ['unittest']);
+gulp.task('tester', ['unittester']);
 gulp.task('default', ['build']);
