@@ -68,6 +68,7 @@ export class DatabaseService {
             (table) => {
                 table.increments('id')
                 table.string('name')
+                table.boolean('active').notNullable().defaultTo(true)
             }).then((res) => {
                 return this.get().knex.schema.createTableIfNotExists('fixture',
                     (table) => {
@@ -219,7 +220,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
     
-    private _databaseVersion: number = 3
+    private _databaseVersion: number = 4
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null

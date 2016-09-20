@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core'
+import { Component, OnInit, ChangeDetectorRef, ViewChild, NgZone } from '@angular/core'
 import { Validators } from '@angular/common'
 import { ActivatedRoute, Router } from '@angular/router'
 import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
@@ -6,21 +6,24 @@ import { League } from '../models/league'
 import { LeagueService } from '../services/league.service'
 import { ButtonPopover } from './button_popover.component'
 import { LeagueForm } from '../models/league.form'
+import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'league_details.template.html',
-    directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES]
+    directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES]
 })
 
 export class LeagueDetailsComponent implements OnInit {
     constructor(private route: ActivatedRoute,
         private router: Router,
         private leagueService: LeagueService,
-        private changeref: ChangeDetectorRef) {
+        private changeref: ChangeDetectorRef,
+        private zone: NgZone) {
     }
 
     @ViewChild('saveChangesButton') saveChangesButton: ButtonPopover
+    @ViewChild('deleteLeagueButton') deleteLeagueButton: ButtonPopover
     editing: boolean = false
     leagueForm: FormGroup
 
@@ -48,6 +51,18 @@ export class LeagueDetailsComponent implements OnInit {
         this.editing = false
         this.resetForm()
         this.changeref.detectChanges()
+    }
+
+    onDeleteLeague() {
+        this.leagueService.deleteLeague(this.league).then(() => {
+            this.zone.run(() => {
+                this.router.navigate(['league'])
+            })
+        }).catch((err: Error) => {
+            this.deleteLeagueButton.showError('Error deleting league',
+                err.message)
+            this.changeref.detectChanges()
+        })
     }
 
     updateLeague(form: LeagueForm) {

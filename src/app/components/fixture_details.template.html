@@ -1,9 +1,9 @@
 <form [formGroup]="fixtureForm" novalidate (ngSubmit)="updateFixture(fixtureForm.value)">
     <div class="row">
-        <div class="col-md-9 col-xs-7">
+        <div class="col-xs-6">
             <h2>Fixture Details</h2>
         </div>
-        <div class="col-md-3 col-xs-5 heading-row">
+        <div class="col-xs-6 heading-row">
             <div class="pull-right">
                 <button *ngIf="!editing" class="btn btn-primary" (click)="onEditFixture()" type="button">Edit Fixture</button>
                 <button *ngIf="editing" class="btn btn-default button-spacing" type="button" (click)="onRevert()">Revert</button>
