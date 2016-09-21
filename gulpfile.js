@@ -8,8 +8,13 @@ const livereload = require('gulp-livereload');
 const runElectron = require("gulp-run-electron");
 const rebuildElectron = require('electron-rebuild');
 const electron = require("electron-prebuilt");
-
+const jasmine = require('gulp-jasmine');
+const reporters = require('jasmine-reporters');
 const tscConfig = require('./tsconfig.json');
+const exit = require('gulp-exit');
+const runSequence = require('run-sequence');
+const process = require('child_process');
+const path = require('path')
 
 /**
  * Removes all build artifacts
@@ -113,6 +118,44 @@ gulp.task('run', ['build'], function() {
         .pipe(runElectron());
 })
 
+gulp.task('unittest:services', ['copy:test-modules'], () => {
+    return gulp.src([
+        'build/test/init.js',
+        'build/test/services/**/*.js',
+        'build/test/util/**/*.js'])
+        .pipe(jasmine({
+            reporter: new reporters.TerminalReporter()
+        }
+        )).pipe(exit())
+});
+
+/**
+ * Build the binary modules required for running the unit tests.
+ */
+gulp.task('rebuild:test-modules', ['install'], (done) => {
+    return process.exec(path.join('node_modules', '.bin', 'node-pre-gyp')
+        + ' --fallback-to-build install',
+        { cwd: './node_modules/sqlite3' }, (err, stdout, stderr) => {
+        done(err);
+    });
+});
+
+/**
+ * Copy the built test binary modules to the build folder.
+ */
+gulp.task('copy:test-modules', ['rebuild:test-modules'], () => {
+    return gulp.src([
+        'node_modules/sqlite3/lib/binding/node-*/node_sqlite3.node'
+    ])
+    .pipe(gulp.dest('build/node_modules/sqlite3/lib/binding/'));
+})
+
 gulp.task('watch', ['build:watch', 'run'])
 gulp.task('build', ['copy:assets', 'install', 'rebuild', 'compile']);
+gulp.task('unittest', () => {
+    runSequence('build', 'unittest:services')
+})
+gulp.task('unittester', ['unittest:services']);
+gulp.task('test', ['unittest']);
+gulp.task('tester', ['unittester']);
 gulp.task('default', ['build']);
