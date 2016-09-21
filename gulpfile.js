@@ -14,6 +14,7 @@ const tscConfig = require('./tsconfig.json');
 const exit = require('gulp-exit');
 const runSequence = require('run-sequence');
 const process = require('child_process');
+const path = require('path')
 
 /**
  * Removes all build artifacts
@@ -132,7 +133,9 @@ gulp.task('unittest:services', ['copy:test-modules'], () => {
  * Build the binary modules required for running the unit tests.
  */
 gulp.task('rebuild:test-modules', ['install'], (done) => {
-    return process.exec('./node_modules/.bin/node-pre-gyp --fallback-to-build install', {cwd: './node_modules/sqlite3' }, (err, stdout, stderr) => {
+    return process.exec(path.join('node_modules', '.bin', 'node-pre-gyp')
+        + ' --fallback-to-build install',
+        { cwd: './node_modules/sqlite3' }, (err, stdout, stderr) => {
         done(err);
     });
 });
