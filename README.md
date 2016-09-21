@@ -15,6 +15,21 @@ _Note: The first build may appear to hang. This is expected, electron-rebuild ta
 Instead of running `npm start`, run `npm run watch`.
 That will build the app and automatically refresh the electron window when files are changed.
 
+## Testing
+To run all tests:
+
+```
+npm test
+```
+
+To run unit tests:
+
+```bash
+npm run unittest
+``` 
+
+The test results are presented in the terminal.
+
 ## Release
 ```bash
 npm install -g electron-packager
