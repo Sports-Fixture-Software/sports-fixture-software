@@ -1,6 +1,6 @@
 <div class="row">
-    <div class="col-xs-1" #addButtonDiv>
-        <button #addTeamButton class="btn btn-default" type="button" [popover]="createTeamPopover" popoverPlacement="right" (click)="prepareForm()">
+    <div class="col-xs-1 button-grid" #addButtonDiv>
+        <button #addTeamButton class="btn btn-default vert-sep" type="button" [popover]="createTeamPopover" popoverPlacement="right" (click)="prepareForm()">
             <span class="glyphicon glyphicon-plus"></span>
         </button>
         <popover-content #createTeamPopover [title]="teamButtonText" [closeOnClickOutside]="true">
