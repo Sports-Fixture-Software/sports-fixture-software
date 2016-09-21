@@ -13,6 +13,7 @@ const reporters = require('jasmine-reporters');
 const tscConfig = require('./tsconfig.json');
 const exit = require('gulp-exit');
 const runSequence = require('run-sequence');
+const process = require('child_process');
 
 /**
  * Removes all build artifacts
@@ -125,6 +126,15 @@ gulp.task('unittest:services', () => {
             reporter: new reporters.TerminalReporter()
         }
         )).pipe(exit())
+});
+
+/**
+ * Build the binary modules required for running the unit tests.
+ */
+gulp.task('rebuild:test-modules', ['install'], (done) => {
+    return process.exec('./node_modules/.bin/node-pre-gyp --fallback-to-build install', {cwd: './node_modules/sqlite3' }, (err, stdout, stderr) => {
+        done(err);
+    });
 });
 
 gulp.task('watch', ['build:watch', 'run'])
