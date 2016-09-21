@@ -5,9 +5,9 @@
         </div>
         <div class="col-xs-6 heading-row">
             <div class="pull-right">
-                <button *ngIf="!editing" class="btn btn-primary" (click)="onEditFixture()" type="button">Edit Fixture</button>
-                <button *ngIf="editing" class="btn btn-default button-spacing" type="button" (click)="onRevert()">Revert</button>
-                <button-popover #saveChangesButton btn-class="btn btn-primary" *ngIf="editing" type="submit">Save Changes</button-popover>
+                <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditFixture()" type="button">Edit Fixture</button>
+                <button-popover #saveChangesButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" *ngIf="editing" type="submit">Save Changes</button-popover>
+                <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()">Revert</button>
             </div>
         </div>
     </div>
