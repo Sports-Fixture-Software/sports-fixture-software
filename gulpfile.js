@@ -137,6 +137,16 @@ gulp.task('rebuild:test-modules', ['install'], (done) => {
     });
 });
 
+/**
+ * Copy the built test binary modules to the build folder.
+ */
+gulp.task('copy:test-modules', ['rebuild:test-modules'], () => {
+    return gulp.src([
+        'node_modules/sqlite3/lib/binding/node-*/node_sqlite3.node'
+    ])
+    .pipe(gulp.dest('build/node_modules/sqlite3/lib/binding/'));
+})
+
 gulp.task('watch', ['build:watch', 'run'])
 gulp.task('build', ['copy:assets', 'install', 'rebuild', 'compile']);
 gulp.task('unittest', () => {
