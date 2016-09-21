@@ -117,7 +117,7 @@ gulp.task('run', ['build'], function() {
         .pipe(runElectron());
 })
 
-gulp.task('unittest:services', () => {
+gulp.task('unittest:services', ['copy:test-modules'], () => {
     return gulp.src([
         'build/test/init.js',
         'build/test/services/**/*.js',
