@@ -1,0 +1,59 @@
+<form [formGroup]="teamForm" novalidate (ngSubmit)="updateTeam(teamForm.value)">
+    <div class="row">
+        <div class="col-xs-6">
+            <h2>Team Details</h2>
+        </div>
+        <div class="col-xs-6 heading-row">
+            <div class="pull-right">
+                <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditTeam()" type="button">Edit Team</button>
+                <button-popover #saveChangesButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" *ngIf="editing" type="submit">Save Changes</button-popover>
+                <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()">Revert</button>
+            </div>
+        </div>
+    </div>
+    <table class="table table-striped">
+        <colgroup>
+            <col style="width:30px">
+            <col style="width:100px">
+            <col>
+        </colgroup>
+        <tbody>
+            <tr>
+                <td></td>
+                <td>
+                    <div class="form-title"><strong>Name</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro">{{ team?.name }}</div>
+                </td>
+                <td *ngIf="editing">
+                    <input type="text" class="form-control" formControlName="name" />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <div class="form-title"><strong>Home Games</strong></div>
+                </td>
+                <td>Min:</td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro">
+                        5
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input type="text" class="form-control" formControlName="homeGamesMin" />
+                </td>
+                <td>Max:</td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro">
+                        5
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input type="text" class="form-control" formControlName="homeGamesMax" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
