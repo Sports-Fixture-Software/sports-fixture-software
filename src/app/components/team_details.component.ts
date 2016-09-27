@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs/Subscription'
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'team_details.template.html',
+    providers: [TeamService],
     directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES]
 })
 
@@ -28,6 +29,12 @@ export class TeamDetailsComponent implements OnInit {
     ngOnInit() {
         this.teamForm = new FormGroup({
             name: new FormControl('', [<any>Validators.required]),
+            homeGamesMin: new FormControl('', [<any>Validators.required]),
+            homeGamesMax: new FormControl('', [<any>Validators.required]),
+            homeGamesEnabled: new FormControl('', [<any>Validators.required]),
+            awayGamesMin: new FormControl('', [<any>Validators.required]),
+            awayGamesMax: new FormControl('', [<any>Validators.required]),
+            awayGamesEnabled: new FormControl('', [<any>Validators.required]),
         })
         this.router.routerState.parent(this.route)
             .params.forEach(params => {
