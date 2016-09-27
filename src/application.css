@@ -134,6 +134,14 @@ input[type="date"] {
     padding-left: 13px;
     padding-right: 13px; 
 }
+.form-text-small {
+    color: #999;
+    min-height: 34px;
+    padding-bottom: 7px;
+    padding-top: 7px;
+    padding-left: 13px;
+    padding-right: 13px;
+}
 .form-control-ro {
     margin-top: 7px;
 }
