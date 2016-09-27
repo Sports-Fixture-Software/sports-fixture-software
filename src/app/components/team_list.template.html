@@ -1,14 +1,14 @@
 <div class="row">
     <div class="col-xs-1" #addButtonDiv>
         <button #addTeamButton class="btn btn-default" type="button" [popover]="createTeamPopover" popoverPlacement="right" (click)="prepareForm()">
-                <span class="glyphicon glyphicon-plus"></span>
+            <span class="glyphicon glyphicon-plus"></span>
         </button>
         <popover-content #createTeamPopover [title]="teamButtonText" [closeOnClickOutside]="true">
             <form class="form-s" [formGroup]="teamForm" novalidate (ngSubmit)="createTeam(teamForm.value)">
                 <div class="input-group">
                     <input #newTeamText type="text" class="form-control" placeholder="Team Name…" formControlName="name" />
                     <span class="input-group-btn">
-                        <button-popover #createTeamButton type="submit" [disabled]="!teamForm.valid">
+                        <button-popover #createTeamButton type="submit" btn-class="btn btn-primary" [disabled]="!teamForm.valid">
                             <span class="glyphicon glyphicon-ok"></span>
                     </button-popover>
                     </span>

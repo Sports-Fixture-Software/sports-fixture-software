@@ -2,6 +2,7 @@ import { databaseInjector } from '../bootstrap'
 import { DatabaseService } from '../services/database.service'
 import { Fixture } from './fixture'
 import { RoundConfig } from './round_config'
+import { Match } from './match'
 import { MatchConfig } from './match_config'
 import { Collection } from '../services/collection'
 import * as Promise from 'bluebird'
@@ -56,6 +57,36 @@ export class Round extends (databaseInjector.get(DatabaseService) as DatabaseSer
     }
 
     /**
+     * Returns the list of matches related to this round.
+     */
+    getMatches(): Promise<Collection<Match>> {
+        return this.fetch({ withRelated: ['matches'] }).then((res) => {
+            if (res) {
+                return res.related('matches') as Collection<Match>
+            } else {
+                // res can be null if Round created without saving to the
+                // database
+                return null
+            }
+        })
+    }
+
+    /**
+     * Returns the list of *loaded* matches related to this round. The matches
+     * are loaded via eager loading, see `FixtureService`
+     * `getRoundsAndMatches()`.
+     * Returns an empty array, if matches haven't been loaded.
+     */
+    get matchesPreLoaded(): Match[] {
+        let matches = this.related('matches') as Collection<Match>
+        if (matches) {
+            return matches.toArray()
+        } else {
+            return []
+        }
+    }
+
+    /**
      * Needed by bookshelf to setup relationship
      */
     protected fixture() {
@@ -66,6 +97,12 @@ export class Round extends (databaseInjector.get(DatabaseService) as DatabaseSer
      */
     protected roundConfigs(): Collection<RoundConfig> {
         return this.hasMany(RoundConfig)
+    }
+    /**
+     * Needed by bookshelf to setup relationship
+     */
+    protected matches(): Collection<Match> {
+        return this.hasMany(Match)
     }
     /**
      * Needed by bookshelf to setup relationship

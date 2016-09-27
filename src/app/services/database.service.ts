@@ -68,6 +68,7 @@ export class DatabaseService {
             (table) => {
                 table.increments('id')
                 table.string('name')
+                table.boolean('active').notNullable().defaultTo(true)
             }).then((res) => {
                 return this.get().knex.schema.createTableIfNotExists('fixture',
                     (table) => {
@@ -116,6 +117,17 @@ export class DatabaseService {
                     (table) => {
                         table.increments('id')
                         table.integer('priority')
+                        table.integer('homeTeam_id').notNullable().references
+                            ('id').inTable('team')
+                        table.integer('awayTeam_id').references
+                            ('id').inTable('team')
+                        table.integer('round_id').notNullable().references
+                            ('id').inTable('round')
+                })
+            }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('match',
+                    (table) => {
+                        table.increments('id')
                         table.integer('homeTeam_id').notNullable().references
                             ('id').inTable('team')
                         table.integer('awayTeam_id').references
@@ -219,7 +231,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
     
-    private _databaseVersion: number = 3
+    private _databaseVersion: number = 5
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null
