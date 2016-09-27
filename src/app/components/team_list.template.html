@@ -24,16 +24,9 @@
                 <col class="button-col">
             </colgroup>
             <tbody>
-                <tr *ngFor="let team of teams" (mouseenter)="editPopover.onMouseEnter()" (mouseleave)="editPopover.onMouseLeave()">
+                <tr *ngFor="let team of teams" (click)="navigateToTeam(team)">
                     <td>
                         <team-list-item [team]="team"></team-list-item>
-                    </td>
-                    <td>
-                        <div class="pull-right">
-                            <button-hidden #editPopover [popover]="createTeamPopover" popoverPlacement="left" (click)="prepareForm(team)">
-                                <span class="glyphicon glyphicon-edit"></span>
-                            </button-hidden>
-                        </div>
                     </td>
                 </tr>
             </tbody>
