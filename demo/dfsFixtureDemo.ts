@@ -22,23 +22,27 @@ import { Match, Team, MatchState, ConTable } from './FixtureConstraints';
  * 
  * Throws Errors:
  * 'Odd number of teams...' if there is an odd number of teams.
- * 
+ * 'Reserved Matches clash with basic constraints...' One or more of the 
+ *   reserved matches breaks rotation, or tries to play one team twice in one 
+ *   round, or tries to play a team against itself.
  */
-function plotFixture( teams: Team[], resvdMatches: Match[], globalCon: Team ): Match[] {
+function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: Team ): Match[] {
     
 
     // Checking for odd number of teams
     if( teams.length % 2 != 1 ){
-        throw new Error('Odd number of teams in the teams parameter. Add or remove a bye to make it even.');
+        throw new Error('Odd number of teams in the teams parameter. Add a bye to make it even.');
     }
 
     // Creating and populating matrix that stores the matchup states.
     var matchupState: ConTable = new ConTable( teams.length );
+    var successFlag: boolean = true;
 
     for( let match of resvdMatches ){
-        // CHANGE setMask TO A NEW APPLICATION FUNCTION THAT DOES THE CASCADES AND CHECKS ON THE CONTABLE
-        matchupState.setMask(match.roundNum, match.homeTeam, match.awayTeam, MatchState.RESERVED );
-
+        successFlag = matchupState.setMatch(match, (MatchState.MATCH_SET & MatchState.RESERVED));
+        if( !successFlag ){
+            throw new Error('Reserved Matches clash with basic constraints in this rotation.');
+        }
     }
 
 }

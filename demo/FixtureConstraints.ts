@@ -34,7 +34,8 @@ export enum MatchState {
     AWAY_PLAYING_AWAY = 1 << 2, // The AWAY team in this matchup is in another AWAY match this round and is unavailable
     HOME_PLAYING_AWAY = 1 << 3, // The HOME team in this matchup is in another AWAY match this round and is unavailable
     MATCH_SET = 1 << 4,         // This match has already been set in another round in this rotation 
-    RESERVED = 1 << 5           // This match has been set from the start and may not be changed
+    RESERVED = 1 << 5,          // This match has been set from the start and may not be changed
+    ILLEGAL = 1 << 6            // Matchup cannot be used (negative team/round number, etc.)
 }
 
 
@@ -50,16 +51,18 @@ export class ConTable {
         // Instantiates the round matrices to zero in all entries
         // Table is big enough for a full rotation over all teams.
         this.games = [];
-        for(var i: number = 0; i < teams-1; i++ ){
+        for(var i: number = 0; i < teamsCount-1; i++ ){ // Round
             this.games[i] = [];
 
-            for(var j: number = 0; j < teams; j++ ){
+            for(var j: number = 0; j < teamsCount; j++ ){ // Home
                 this.games[i][j] = [];
 
-                /* Away teams are placed back one place to cover unused 
-                space where home team = away team. */
-                for(var k: number = 0; k < teams-1; k++ ){
-                    this.games[i][j][k] = 0;
+                for(var k: number = 0; k < teamsCount; k++ ){ // Away
+                    if( k === j ){
+                        this.games[i][j][k] = MatchState.ILLEGAL;    
+                    } else {
+                        this.games[i][j][k] = MatchState.OPEN;
+                    }
                 }
             }
 
@@ -71,22 +74,22 @@ export class ConTable {
      * Gets the bitmask representing the availability of a particular 
      * matchup. 
      * 
-     * Returns:
-     * -1 for an always-illegal matchup (e.g. team or round doesn't exist)
-     * 0 for an available matchup
+     * Returns from the MatchState enum:
+     * MatchState.ILLEGAL for an always-illegal matchup (e.g. team or round doesn't exist)
+     * MatchState.OPEN for an available matchup
      * >0 for a matchup that has been made unavailable by another matchup.
      */
-    getMask(round: number, home: number, away: number): number {
+    getMask(match: Match): number {
         // Checking for an illegal matchup
-        if( round > this.teamsCount-1 || 
-            home > this.teamsCount    ||
-            away > this.teamsCount    || 
-            home === away ){
-            return -1;
+        if( match.roundNum > this.teamsCount || 
+            match.homeTeam > this.teamsCount ||
+            match.awayTeam > this.teamsCount || 
+            match.homeTeam === match.awayTeam ){
+            return MatchState.ILLEGAL;
         }
 
         // Retrieving bitmask from tables
-        return this.games[round][home][away-1];
+        return this.games[match.roundNum][match.homeTeam][match.awayTeam];
     }
 
     /**
@@ -98,16 +101,58 @@ export class ConTable {
      * false for an always-illegal matchup (e.g. team or round doesn't exist)
      * true for a successful update
      */
-    setMask(round: number, home: number, away: number, value: number): boolean {
+    setMask(match: Match, value: number): boolean {
         // Checking for an illegal matchup
-        if( round > this.teamsCount-1 || round < 0 ||
-            home > this.teamsCount    || home < 0  ||
-            away > this.teamsCount    || away < 0  || 
-            home === away ){
+        if( match.roundNum > this.teamsCount || 
+            match.homeTeam > this.teamsCount ||
+            match.awayTeam > this.teamsCount || 
+            match.homeTeam === match.awayTeam ){
             return false;
         }
 
-        this.games[round][home][away-1] = value;
+        this.games[match.roundNum][match.homeTeam][match.awayTeam] = value;
+        return true;
+    }
+
+    /**
+     * setMatch
+     * Sets the mask of a match to the ConTable and then sets the surrounding
+     * masks appropriately in the round to reflect the match being committed.
+     * Use this and not setMask to commit matches.
+     * 
+     * This function does not sanity check. Beyond checking that the match is 
+     * availableMake sure that you have sliced the round before calling this 
+     * function in case you need to roll back.
+     * 
+     * Returns:
+     * false for an always-illegal matchup (e.g. team or round doesn't exist
+     * or the match is not available to set onto.)
+     * true for a successful update
+     */
+    setMatch(match: Match, state: number = MatchState.MATCH_SET): boolean {
+        // Checking for an illegal matchup
+        if( this.games[match.roundNum][match.homeTeam][match.awayTeam] > MatchState.OPEN ||
+            match.roundNum > this.teamsCount || 
+            match.homeTeam > this.teamsCount ||
+            match.awayTeam > this.teamsCount || 
+            match.homeTeam === match.awayTeam ){
+            return false;
+        }
+
+        // Setting this match in the fixture
+        for(var i: number = 0; i < this.teamsCount-1; i++){
+            this.games[i][match.homeTeam][match.awayTeam] = state;
+        }
+
+        // Informing the rest of the possible matches in the round of the set match.
+        for(var i: number = 0; i < this.teamsCount; i++){
+            this.games[match.roundNum][i][match.awayTeam] &= MatchState.AWAY_PLAYING_AWAY;
+            this.games[match.roundNum][i][match.homeTeam] &= MatchState.AWAY_PLAYING_HOME;
+            this.games[match.roundNum][match.awayTeam][i] &= MatchState.HOME_PLAYING_AWAY;
+            this.games[match.roundNum][match.homeTeam][i] &= MatchState.HOME_PLAYING_HOME;
+        }
+
+        return true;
     }
 
     /**
@@ -119,12 +164,12 @@ export class ConTable {
      * A copy by value of games[round]
      * 
      * Throws:
-     * NotARound: Round does not exist
+     * Round X is not in conTable (does not exist)
      */
     sliceRound(round: number): number[][] {
         // Checking for illegal round
-        if( round > this.teamsCount-1 || round < 0 ){
-            throw { name: 'NotARound', message: 'Round ' + round + ' is not in this conTable'};
+        if( round > this.teamsCount || round < 0 ){
+            throw new Error('Round ' + round + ' is not in this conTable');
         }
 
         // Copying the round.
@@ -134,7 +179,7 @@ export class ConTable {
         roundMatrix = [];
         for(var i: number = 0; i < this.teamsCount; i++){
             roundMatrix[i] = [];
-            for(var j: number = 0; j < this.teamsCount-1; j++){
+            for(var j: number = 0; j < this.teamsCount; j++){
                 roundMatrix[i][j] = this.games[round][i][j];
             }
         }
@@ -158,12 +203,12 @@ export class ConTable {
      */
     restoreRound(roundMatrix: number[][], round: number): boolean {
         // Checking for illegal round
-        if( round > this.teamsCount-1 || round < 0 ){
+        if( round > this.teamsCount || round < 0 ){
             return false;
         }
 
         for(var i: number = 0; i < this.teamsCount; i++){
-            for(var j: number = 0; j < this.teamsCount-1; j++){
+            for(var j: number = 0; j < this.teamsCount; j++){
                 this.games[round][i][j] = roundMatrix[i][j];
             }
         }
