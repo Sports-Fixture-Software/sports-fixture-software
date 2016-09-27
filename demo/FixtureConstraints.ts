@@ -33,9 +33,14 @@ export enum MatchState {
     AWAY_PLAYING_HOME = 1 << 1, // The AWAY team in this matchup is in another HOME match this round and is unavailable
     AWAY_PLAYING_AWAY = 1 << 2, // The AWAY team in this matchup is in another AWAY match this round and is unavailable
     HOME_PLAYING_AWAY = 1 << 3, // The HOME team in this matchup is in another AWAY match this round and is unavailable
-    MATCH_SET = 1 << 4,         // This match has already been set in another round in this rotation 
+    MATCH_SET = 1 << 4,         // This match has already been set in this rotation, perhaps in another round 
     RESERVED = 1 << 5,          // This match has been set from the start and may not be changed
-    ILLEGAL = 1 << 6            // Matchup cannot be used (negative team/round number, etc.)
+    ILLEGAL = 1 << 6,           // Matchup cannot be used (negative team/round number, etc.)
+    NOT_SET = 0xFFFF^MATCH_SET, // Inverse bitmasks. Used for clearing matches from a ConTable.
+    NOT_HPH = 0xFFFF^HOME_PLAYING_HOME,
+    NOT_APH = 0xFFFF^AWAY_PLAYING_HOME,
+    NOT_APA = 0xFFFF^AWAY_PLAYING_AWAY,
+    NOT_HPA = 0xFFFF^HOME_PLAYING_AWAY
 }
 
 
@@ -81,9 +86,9 @@ export class ConTable {
      */
     getMask(match: Match): number {
         // Checking for an illegal matchup
-        if( match.roundNum > this.teamsCount || 
-            match.homeTeam > this.teamsCount ||
-            match.awayTeam > this.teamsCount || 
+        if( match.roundNum > this.teamsCount || match.roundNum < 0 ||
+            match.homeTeam > this.teamsCount || match.homeTeam < 0 ||
+            match.awayTeam > this.teamsCount || match.awayTeam < 0 ||
             match.homeTeam === match.awayTeam ){
             return MatchState.ILLEGAL;
         }
@@ -103,10 +108,7 @@ export class ConTable {
      */
     setMask(match: Match, value: number): boolean {
         // Checking for an illegal matchup
-        if( match.roundNum > this.teamsCount || 
-            match.homeTeam > this.teamsCount ||
-            match.awayTeam > this.teamsCount || 
-            match.homeTeam === match.awayTeam ){
+        if( this.getMask(match) === MatchState.ILLEGAL ){
             return false;
         }
 
@@ -131,11 +133,8 @@ export class ConTable {
      */
     setMatch(match: Match, state: number = MatchState.MATCH_SET): boolean {
         // Checking for an illegal matchup
-        if( this.games[match.roundNum][match.homeTeam][match.awayTeam] > MatchState.OPEN ||
-            match.roundNum > this.teamsCount || 
-            match.homeTeam > this.teamsCount ||
-            match.awayTeam > this.teamsCount || 
-            match.homeTeam === match.awayTeam ){
+        if( this.getMask(match) === MatchState.ILLEGAL ||
+            this.getMask(match) > MatchState.OPEN  ){
             return false;
         }
 
@@ -156,9 +155,43 @@ export class ConTable {
     }
 
     /**
+     * clearMatch
+     * Removes the provide match from the ConTable, including its influence on
+     * surrounding cells. Does NOT alter the RESERVED and ILLEGAL matchsets
+     * 
+     * Returns:
+     * True if match successfully cleared
+     * False if the match specified does not have the MATCH_SET state or if 
+     *    match is illegal.
+     */
+    clearMatch(match: Match): boolean {
+        // Checking for an illegal matchup
+        if( this.getMask(match) === MatchState.ILLEGAL ||
+            this.getMask(match) === MatchState.OPEN ){
+            return false;
+        }
+        
+        // Clearing this match in the fixture
+        for(var i: number = 0; i < this.teamsCount-1; i++){
+            this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
+        }
+
+        // Informing the rest of the possible matches in the round of the cleared match.
+        for(var i: number = 0; i < this.teamsCount; i++){
+            this.games[match.roundNum][i][match.awayTeam] &= MatchState.NOT_APA;
+            this.games[match.roundNum][i][match.homeTeam] &= MatchState.NOT_APH;
+            this.games[match.roundNum][match.awayTeam][i] &= MatchState.NOT_HPA;
+            this.games[match.roundNum][match.homeTeam][i] &= MatchState.NOT_HPH;
+        }
+        
+        return true;
+    }
+
+    /**
      * sliceRound
      * Provides a copy of the selected round matrix for restoring if a 
-     * branch of the search tree is rejected.
+     * branch of the search tree is rejected. 
+     * (Does not backtrack MATCH_SET states in all rounds.)
      * 
      * Returns:
      * A copy by value of games[round]
@@ -196,6 +229,8 @@ export class ConTable {
      * This does not sanity check. ONLY input rounds generated from the 
      * sliceRound() function, otherwise the whole state machine could screw
      * up.
+     * 
+     * (Does not backtrack MATCH_SET states in all rounds.)
      * 
      * Returns:
      * true if setting successful
