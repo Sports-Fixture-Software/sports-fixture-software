@@ -14,7 +14,7 @@
     <table class="table table-striped">
         <colgroup>
             <col style="width:30px">
-            <col style="width:100px">
+            <col style="width:140px">
             <col>
         </colgroup>
         <tbody>
@@ -23,35 +23,75 @@
                 <td>
                     <div class="form-title"><strong>Name</strong></div>
                 </td>
-                <td *ngIf="!editing">
-                    <div class="form-title-ro">{{ team?.name }}</div>
+                <td *ngIf="!editing" colspan="4">
+                    <div class="form-title-ro">Adelaide</div>
                 </td>
-                <td *ngIf="editing">
+                <td *ngIf="editing"  colspan="4">
                     <input type="text" class="form-control" formControlName="name" />
                 </td>
             </tr>
             <tr>
-                <td></td>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" formControlName="homeGamesEnabled" />
+                    </div>
+                </td>
                 <td>
                     <div class="form-title"><strong>Home Games</strong></div>
                 </td>
-                <td>Min:</td>
                 <td *ngIf="!editing">
-                    <div class="form-title-ro">
+                    <div class="form-title-ro pull-right">
                         5
                     </div>
                 </td>
                 <td *ngIf="editing">
                     <input type="text" class="form-control" formControlName="homeGamesMin" />
                 </td>
-                <td>Max:</td>
+                <td>
+                    <div class="form-text-small">(min)</div>
+                </td>
                 <td *ngIf="!editing">
-                    <div class="form-title-ro">
-                        5
+                    <div class="form-title-ro  pull-right">
+                        10
                     </div>
                 </td>
                 <td *ngIf="editing">
                     <input type="text" class="form-control" formControlName="homeGamesMax" />
+                </td>
+                <td>
+                    <div class="form-text-small">(max)</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" formControlName="awayGamesEnabled" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-title"><strong>Away Games</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro pull-right">
+                        5
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input type="text" class="form-control" formControlName="awayGamesMin" />
+                </td>
+                <td>
+                    <div class="form-text-small">(min)</div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro pull-right">
+                        10
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input type="text" class="form-control" formControlName="awayGamesMax" />
+                </td>
+                <td>
+                    <div class="form-text-small">(max)</div>
                 </td>
             </tr>
         </tbody>
