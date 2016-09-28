@@ -40,7 +40,7 @@ export class FixtureListComponent implements OnInit {
                 let id = +params['id'];
                 this._leagueService.getLeague(id).then((l) => {
                     this.league = l
-                    return l.getFixtures()
+                    return this._fixtureService.getFixtures(l)
                 }).then((f) => {
                     this.fixtures = f.toArray()
                     this._changeref.detectChanges()

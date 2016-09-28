@@ -8,11 +8,20 @@ import * as Promise from 'bluebird'
 @Injectable()
 export class FixtureService {
 
-    getFixtures(leagueId?: number): Promise<Collection<Fixture>> {
-        if (leagueId) {
-            return new Fixture().where('league_id', leagueId).fetchAll()
+    getFixtures(league?: League): Promise<Collection<Fixture>> {
+        if (league) {
+            return league.fetch({
+                withRelated: [
+                    {
+                        'fixtures' : (qb) => {
+                            return qb.where('active', true)
+                        }
+                    }]
+            }).then((res) => {
+                return res.related('fixtures') as Collection<Fixture>
+            })
         } else {
-            return new Fixture().fetchAll()
+            return new Fixture().where('active', true).fetchAll()
         }
     }
 
@@ -86,9 +95,10 @@ export class FixtureService {
     }
 
     /**
-     * returns an empty Fixture
+     * returns the deleted ixture
      */
     deleteFixture(fixture: Fixture): Promise<Fixture> {
-        return fixture.destroy()
+        fixture.set('active', false)
+        return fixture.save()
     }
 }
