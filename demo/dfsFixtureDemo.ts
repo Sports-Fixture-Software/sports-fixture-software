@@ -30,7 +30,7 @@ import { Match, Constraint, Team, MatchState, ConTable } from './FixtureConstrai
  *   constraints made a solution impossible without this function picking up on
  *   it. 
  */
-function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: Team ): Match[] {
+export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: Team ): Match[] {
     
     /**
      * fillFrom
@@ -109,12 +109,12 @@ function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: T
                             // Checking constraints
                             var awayCnsnt: Constraint = teams[currentMatch.awayTeam].constraintsSatisfied(table,currentMatch);
                             if( awayCnsnt !== Constraint.SATISFIED ){
-                                // Learn from broken constraint
+                                // Learn from broken constraint (WHEN IMPLEMENTED)
                             }
 
                             var homeCnsnt: Constraint = teams[currentMatch.homeTeam].constraintsSatisfied(table,currentMatch);
                             if( homeCnsnt !== Constraint.SATISFIED ){
-                                // Learn from broken constraint
+                                // Learn from broken constraint (WHEN IMPLEMENTED)
                             }
 
                             // Our match will work now if all team constraints are satisfied. 
