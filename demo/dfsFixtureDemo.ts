@@ -25,18 +25,22 @@ import { Match, Team, MatchState, ConTable } from './FixtureConstraints';
  * 'Reserved Matches clash with basic constraints...' One or more of the 
  *   reserved matches breaks rotation, or tries to play one team twice in one 
  *   round, or tries to play a team against itself.
+ * 'Solution could not be found...' The function ran through the entire 
+ *   solution space and could not find a solution. This is most likely because 
+ *   constraints made a solution impossible without this function picking up on
+ *   it. 
  */
 function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: Team ): Match[] {
     
     /**
      * fillFrom
-     * Fills out the given ConTable by DFS and backtracking. Starts at the 
-     * given round and fills out the entire rotation. Obeys the constraints of 
+     * Fills out the given ConTable by DFS and backtracking. Finds a match and
+     * recurses until the entire rotation is filled. Obeys the constraints of 
      * the teams supplied in the Team array. This _might_ take a while to run.
      * 
-     * The prefilled match count is to help the function keep track of the 
-     * number of games set so far. If there have been manual matchups before
-     * calling fillFrom, the number of them must be supplied in crntMatchCount.
+     * The crntMatchCount is to help the function keep track of the number of 
+     * games set so far. If there have been manual matchups before calling 
+     * fillFrom, the number of them MUST be supplied in crntMatchCount.
      * 
      * MUTATES THE CONTABLE. SAVE IT BEFORE CALLING IF YOU WANT TO TRY ANOTHER 
      * WAY.
@@ -49,7 +53,7 @@ function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: T
      * "Starting round is out of bounds..." startingRnd must be between 0 and 
      *    the number of teams -1.
      */
-    function fillFrom( startingRnd: number, table: ConTable, teams: Team[], crntMatchCount: number ): Match[]{
+    function fillFrom( startingRnd: number, table: ConTable, teams: Team[], crntMatchCount: number ): boolean {
         // Sanity checking starting round.
         var teamsCount: number = teams.length;
         var roundCount: number = teamsCount - 1;
@@ -57,43 +61,45 @@ function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: T
             throw new Error("Starting round is out of bounds for this rotation.");
         }
 
-        // Iterating over rounds while failing, recursing where succeeding.
         var currentMatch: Match;
         currentMatch.roundNum = startingRnd;
         currentMatch.homeTeam = Math.floor(Math.random() * (teamsCount));
         currentMatch.awayTeam = Math.floor(Math.random() * (teamsCount));
-        var matchCount: number = crntMatchCount;
-        var storedRoundState: number[][];
         var mask: number;
+        var matchFound: boolean = false;
+        
+        // Iterating over rounds while failing, recursing where succeeding.
         for( var i: number = 0; i < roundCount; i++ ){
 
             // Home teams, iterating until we can recurse.
             for( var j: number = 0; j < teamsCount; j++ ){
                 mask = table.getMask(currentMatch);
 
-                switch( mask ){
-                case MatchState.HOME_PLAYING_AWAY:
-                case MatchState.HOME_PLAYING_HOME:
-                    // Home team not available, go to the next one
-                    break;
-                default: // Home team available.
-
+                // Checking if home team is available.
+                if( (mask & MatchState.HOME_PLAYING_AWAY) === 0 &&
+                    (mask & MatchState.HOME_PLAYING_HOME) === 0 ){
+                    
                     // Away teams, iterating until we can recurse.
                     for( var k: number = 0; k < teamsCount; k++ ){
                         mask = table.getMask(currentMatch);
 
-                        switch( mask ){
-                        case MatchState.ILLEGAL:
-                        case MatchState.RESERVED:
-                        case MatchState.MATCH_SET:
-                        case MatchState.AWAY_PLAYING_AWAY:
-                        case MatchState.AWAY_PLAYING_HOME:
-                            // Away team not available, go to the next one
-                            break;
-                        default: // Away team and home team available: Match found
-                            
-                            // TODO: Committing and/or backtracking the match 
+                        // Checking if away team is available.
+                        if( (mask & MatchState.ILLEGAL)           === 0 &&
+                            (mask & MatchState.RESERVED)          === 0 &&
+                            (mask & MatchState.MATCH_SET)         === 0 &&
+                            (mask & MatchState.AWAY_PLAYING_AWAY) === 0 &&
+                            (mask & MatchState.AWAY_PLAYING_HOME) === 0 ){
+                        
+                            // Away team and home team available: Match found
+                            // Checking constraints
 
+                            // Committing and/or backtracking the match 
+                            // RECURSE HERE, matchcount + 1
+                            matchFound = fillFrom( currentMatch.roundNum, table, teams, crntMatchCount+1 );
+
+                        }
+
+                        if( matchFound ){
                             break;
                         }
 
@@ -103,6 +109,9 @@ function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: T
                             currentMatch.awayTeam = 0;
                         }
                     }
+                }
+
+                if( matchFound ){
                     break;
                 }
 
@@ -114,13 +123,25 @@ function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: T
                 
             }
 
-        }
-        // Round recursion. If complete, slice and fill from next round.
-        
-        // Randomly determine which away and home teams to start on.
+            if( matchFound ){
+                break;
+            }
 
-        // Iterate through those teams until a free match is found
-        // If complete, slice and recurse to next round?
+            // Go to the next round
+            currentMatch.homeTeam++;
+            if( currentMatch.roundNum >= roundCount ){
+                currentMatch.roundNum = 0;
+            }
+
+        }
+
+        // Checking if the conTable is fully set.
+        if( crntMatchCount === (roundCount*(teamsCount/2))) ){
+            // If so, we can go up the recursion stack with success 
+            matchFound = true;
+        }
+
+        return matchFound;
     }
     
     // Checking for odd number of teams
@@ -141,7 +162,13 @@ function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: T
 
     // Populate the rest of the ConTable, starting from a random round
     var startRound: number = Math.floor(Math.random() * (teams.length));
-    var finalMatches: Match[] = this.fillFrom(startRound, matchupState, teams);
-    
-    // Return the match list in round order  
+    var finalMatches: Match[] = resvdMatches.slice();
+    if( this.fillFrom(startRound, matchupState, teams, finalMatches) ){
+        
+        // SEARCH finalMatches BY ROUND ORDER
+        
+        return finalMatches;
+    }
+
+    throw new Error("Solution could not be found in the search space.");
 }
