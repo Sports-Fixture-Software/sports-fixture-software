@@ -1,5 +1,5 @@
 <popover-content id="createMatchupPopover" #createMatchupPopover [title]="matchupButtonText" [closeOnClickOutside]="true">
-    <form id="matchupForm" class="form-s" [formGroup]="matchupForm" novalidate (ngSubmit)="createMatchup(matchupForm.value)">
+    <form id="matchupForm" class="form-l" [formGroup]="matchupForm" novalidate (ngSubmit)="createMatchup(matchupForm.value)">
         <div class="form-group">
             <table>
                 <tr>
@@ -25,11 +25,11 @@
         </div>
 
         <div class="pull-right form-footer">
-            <button-popover *ngIf="editing" #deleteMatchupButton btn-class="btn btn-default" type="button" (click)="deleteMatchup(matchupForm.value)">
-                Delete Match-up
-            </button-popover>
-            <button-popover #createMatchupButton btn-class="btn btn-primary" type="submit" [disabled]="!matchupForm.valid">
+            <button-popover #createMatchupButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" type="submit" [disabled]="!matchupForm.valid">
                 {{matchupButtonText}}
+            </button-popover>
+            <button-popover *ngIf="editing" #deleteMatchupButton btn-class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="deleteMatchup(matchupForm.value)">
+                Delete Match-up
             </button-popover>
         </div>
     </form>
@@ -42,14 +42,14 @@
 </div>
 <table class="table table-striped table-min-row">
     <colgroup>
-        <col style="width:70px">
-        <col style="width:105px">
+        <col style="width:12%">
+        <col style="width:19%">
         <col>
         <col class="button-col">
     </colgroup>
     <thead>
         <tr>
-            <th>Round</th>
+            <th class="oversize-header">Round</th>
             <th>Date</th>
             <th colspan="2">Match-ups</th>
         </tr>
