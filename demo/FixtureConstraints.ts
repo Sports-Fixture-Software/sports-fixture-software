@@ -5,21 +5,61 @@ export interface Match {
     awayTeam: number;
 }
 
+/**
+ * PLACEHOLDER FOR THE CONSTRAINT ENUMERATION THAT COMES WITH THE CONSTRAINT
+ * FUNCTION FACTORY TO BE DEVELOPED LATER ON. 
+ */
+export enum Constraint {
+    SATISFIED = 0,
+    MAX_HOME = 1,
+    MIN_HOME = 2,
+    MAX_AWAY = 3,
+    MIN_AWAY = 4,
+    MAX_CONSEC_HOME = 5,
+    MAX_CONSEC_AWAY = 6
+}
+
+/**
+ * FixtureInterface
+ * Interface to retrieve matches from a fixture representation. Used primarily
+ * for constraint checking.
+ */
+export interface FixtureInterface {
+    /**
+     * getHomeTeamVs
+     * Returns the index of the home team vs. awayTeam on the given round.
+     * Returns -1 if a game where the awayTeam is playing does not exist on the
+     *   given round.
+     */
+    getHomeTeamVs( round: number, awayTeam: number ): number;
+
+    /**
+     * getAwayTeamVs
+     * Returns the index of the away team vs. homeTeam on the given round.
+     * Returns -1 if a game where the homeTeam is playing does not exist on the
+     *   given round.
+     */
+    getAwayTeamVs( round: number, homeTeam: number ): number;
+}
+
+/**
+ * Team
+ * Interface to represent a team in a fixture to allow the fixture to check
+ * against the team's constraints.
+ */
 export interface Team {
-    /** Index is an int between 0 and total number of teams -1. 
-     *  Index = -1 is for global (default) fixture constraints.
-     *  Index = 0 should be reserved for a bye team if there are an odd number
-     *  of teams in the league.
+    /** Index is an int between 0 and total number of teams - 1.
+     *  This is used to help reference teams in a fixture and to check their
+     *  constraints.
      */
     index: number; 
 
-    // Below are constraint variables.
-    // To let a team default to global constraints, set these to -1
-    maxHomeGames: number;
-    minHomeGames: number;
-    maxAwayGames: number;
-    minAwayGames: number;
-    // Other constraint parameters may be added here later. 
+    /** 
+     * constraintsSatisfied 
+     * Returns the constraint that is broken by placing the proposedMatch into 
+     * the fixture. Returns the value Constraint.SATISFIED if none are broken.
+     */   
+    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match ): Constraint; 
 }
 
 /**
@@ -43,12 +83,10 @@ export enum MatchState {
     NOT_HPA = 0xFFFF^HOME_PLAYING_AWAY
 }
 
-
-
 /** Constraint table. Keeps track of which games are available in a 3D 
  *  matrix of bitmasks.
  */
-export class ConTable {
+export class ConTable implements FixtureInterface {
     
     private games: number[][][]; //[round][Home Team Index][Away Team Index]
 
@@ -73,6 +111,28 @@ export class ConTable {
 
         }
     }
+
+    // INTERFACE FUNCTIONS
+    getHomeTeamVs( round: number, awayTeam: number ): number {
+        for( var i: number = 0; i < this.teamsCount; i++ ){
+            if( (this.games[round][i][awayTeam] & MatchState.MATCH_SET) === MatchState.MATCH_SET ){
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    getAwayTeamVs( round: number, homeTeam: number ): number {
+        for( var i: number = 0; i < this.teamsCount; i++ ){
+            if( (this.games[round][homeTeam][i] & MatchState.MATCH_SET) === MatchState.MATCH_SET ){
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
 
     /**
      * getMask
@@ -133,8 +193,7 @@ export class ConTable {
      */
     setMatch(match: Match, state: number = MatchState.MATCH_SET): boolean {
         // Checking for an illegal matchup
-        if( this.getMask(match) === MatchState.ILLEGAL ||
-            this.getMask(match) > MatchState.OPEN  ){
+        if( this.getMask(match) !== MatchState.OPEN  ){
             return false;
         }
 
@@ -157,7 +216,7 @@ export class ConTable {
     /**
      * clearMatch
      * Removes the provide match from the ConTable, including its influence on
-     * surrounding cells. Does NOT alter the RESERVED and ILLEGAL matchsets
+     * surrounding cells. Does NOT alter the RESERVED and ILLEGAL matchstates.
      * 
      * Returns:
      * True if match successfully cleared
@@ -183,7 +242,7 @@ export class ConTable {
             this.games[match.roundNum][match.awayTeam][i] &= MatchState.NOT_HPA;
             this.games[match.roundNum][match.homeTeam][i] &= MatchState.NOT_HPH;
         }
-        
+
         return true;
     }
 
