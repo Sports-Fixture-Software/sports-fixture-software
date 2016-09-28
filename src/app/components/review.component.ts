@@ -5,6 +5,7 @@ import { Collection } from '../services/collection'
 import { Fixture } from '../models/fixture'
 import { Round } from '../models/round'
 import * as electron from 'electron' 
+import * as fs from 'fs'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -40,7 +41,7 @@ export class ReviewComponent implements OnInit {
     }
 
     onSaveFixture() {
-        electron.remote.dialog.showSaveDialog(
+        new Promise((resolve, reject) => { electron.remote.dialog.showSaveDialog(
             {
                 title: "Save Fixture",
                 buttonLabel: "Save Fixture",
@@ -48,9 +49,18 @@ export class ReviewComponent implements OnInit {
                     { name: 'CSV', extensions: ['csv'] },
                     { name: 'All Files', extensions: ['*'] }
                 ]
-            }, () => {
-
+            }, (res : string[]) => {
+                if (res) {
+                    return resolve(res)
+                } else {
+                    return reject(new Error("Unable to save the fixture to that location"))
+                }
             })
+        }).then((res: string[]) => {
+            if (res && res.length > 0) {
+                fs.createWriteStream(res[0])
+            }
+        })
     }
 
     private rounds: Round[] = []
