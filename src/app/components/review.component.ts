@@ -4,6 +4,7 @@ import { FixtureService } from '../services/fixture.service'
 import { Collection } from '../services/collection'
 import { Fixture } from '../models/fixture'
 import { Round } from '../models/round'
+import * as electron from 'electron' 
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -35,6 +36,20 @@ export class ReviewComponent implements OnInit {
                     this.error = new Error(`Error loading rounds: ${detail}`)
                     this._changeref.detectChanges()
                 })
+            })
+    }
+
+    onSaveFixture() {
+        electron.remote.dialog.showSaveDialog(
+            {
+                title: "Save Fixture",
+                buttonLabel: "Save Fixture",
+                filters: [
+                    { name: 'CSV', extensions: ['csv'] },
+                    { name: 'All Files', extensions: ['*'] }
+                ]
+            }, () => {
+
             })
     }
 
