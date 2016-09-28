@@ -120,9 +120,6 @@ body {
     border-left-color: #fff;
     border-right-width: 0;
 }
-input[type="date"] {
-    min-width:150px;
-}
 .form-title {
     padding-top: 7px;
     padding-bottom: 7px;
@@ -138,7 +135,14 @@ input[type="date"] {
     margin-top: 7px;
 }
 .form-s {
-    min-width: 270px;
+    width: 35vw;
+    /* max-width set because ng2-popover has a hard-coded max-width of 500 */
+    max-width: 460px;
+}
+.form-l {
+    width: 48vw;
+    /* max-width set because ng2-popover has a hard-coded max-width of 500 */
+    max-width: 460px;
 }
 .inner-stack {
     padding-top: 2px;
@@ -146,6 +150,11 @@ input[type="date"] {
 }
 .trunc {
     width: 47% !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.oversize-header {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -161,12 +170,11 @@ table {
 h2 { 
     margin-top: 0px;
 }
-select {
-  /* as the content of team selector is dynamically loaded, this stops the
-   * popover dynamically changing size (which looks bad - looks like "jumping"
-   */
-    min-width: 200px;
-    max-width: 200px; 
+.vert-sep {
+    margin-bottom: 10px;
+}
+.horiz-sep {
+    margin-left: 10px;
 }
 .vert-sep {
     margin-bottom: 10px;
@@ -179,17 +187,14 @@ select {
     vertical-align: middle;
     word-break:break-all;
 }
-.button-col {
-    width: 56px;
+.button-grid {
+    min-width: 44px;
 }
 .button-col {
     width: 56px;
 }
 .heading-row {
     min-height: 44px;
-}
-.button-spacing {
-    margin-right: 10px;
 }
 .form-centre {
     padding-top: 20px;

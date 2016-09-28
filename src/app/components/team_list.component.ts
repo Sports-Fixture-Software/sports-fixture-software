@@ -87,8 +87,8 @@ export class TeamListComponent implements OnInit {
             fc.updateValue(null)
             fc = this.teamForm.controls['name'] as FormControl
             fc.updateValue(null)
+            this.newTeamText.nativeElement.focus()
         }
-        this.newTeamText.nativeElement.focus()
         this._changeref.detectChanges()
     }
 
