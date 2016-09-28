@@ -1,4 +1,4 @@
-import { Match, Team, MatchState, ConTable } from './FixtureConstraints';
+import { Match, Constraint, Team, MatchState, ConTable } from './FixtureConstraints';
 
 /**
  * plotFixture
@@ -90,53 +90,67 @@ function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: T
                             (mask & MatchState.AWAY_PLAYING_AWAY) === 0 &&
                             (mask & MatchState.AWAY_PLAYING_HOME) === 0 ){
                         
-                            // Away team and home team available: Match found
+                            // Away team and home team available: Match found.
                             // Checking constraints
+                            var cnsntBroken: Constraint = teams[currentMatch.awayTeam].constraintsSatisfied(table,currentMatch);
+                            if( cnsntBroken !== Constraint.SATISFIED ){
+                                // Learn from broken constraint
+                            }
 
-                            // Committing and/or backtracking the match 
-                            // RECURSE HERE, matchcount + 1
-                            matchFound = fillFrom( currentMatch.roundNum, table, teams, crntMatchCount+1 );
+                            var cnsntBroken: Constraint = teams[currentMatch.homeTeam].constraintsSatisfied(table,currentMatch);
+                            if( cnsntBroken !== Constraint.SATISFIED ){
+                                // Learn from broken constraint
+                            } else {
+                                // Set the match up
+                                table.setMatch(currentMatch);
 
+                                // Recurse to set the rest of the table. True if filled, false if no solution. 
+                                matchFound = fillFrom( currentMatch.roundNum, table, teams, crntMatchCount+1 );
+                                
+                                // If this is not the solution, backtrack and keep looking.
+                                if( !matchFound ){
+                                    table.clearMatch(currentMatch);
+                                }
+                            }
                         }
 
                         if( matchFound ){
                             break;
+                        } else {
+                            // Go to next away team
+                            currentMatch.awayTeam++;
+                            if( currentMatch.awayTeam >= teamsCount ){
+                                currentMatch.awayTeam = 0;
+                            }
                         }
 
-                        // Go to next away team
-                        currentMatch.awayTeam++;
-                        if( currentMatch.awayTeam >= teamsCount ){
-                            currentMatch.awayTeam = 0;
-                        }
                     }
                 }
 
                 if( matchFound ){
                     break;
+                } else {
+                    // Go to the next home team
+                    currentMatch.homeTeam++;
+                    if( currentMatch.homeTeam >= teamsCount ){
+                        currentMatch.homeTeam = 0;
+                    }
                 }
-
-                // Go to the next home team
-                currentMatch.homeTeam++;
-                if( currentMatch.homeTeam >= teamsCount ){
-                    currentMatch.homeTeam = 0;
-                }
-                
             }
 
             if( matchFound ){
                 break;
+            } else {
+                // Go to the next round
+                currentMatch.homeTeam++;
+                if( currentMatch.roundNum >= roundCount ){
+                    currentMatch.roundNum = 0;
+                }
             }
-
-            // Go to the next round
-            currentMatch.homeTeam++;
-            if( currentMatch.roundNum >= roundCount ){
-                currentMatch.roundNum = 0;
-            }
-
         }
 
         // Checking if the conTable is fully set.
-        if( crntMatchCount === (roundCount*(teamsCount/2))) ){
+        if( crntMatchCount === (roundCount*(teamsCount/2)) ){
             // If so, we can go up the recursion stack with success 
             matchFound = true;
         }
