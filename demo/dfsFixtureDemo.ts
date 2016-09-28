@@ -38,12 +38,27 @@ function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: T
      * recurses until the entire rotation is filled. Obeys the constraints of 
      * the teams supplied in the Team array. This _might_ take a while to run.
      * 
-     * The crntMatchCount is to help the function keep track of the number of 
-     * games set so far. If there have been manual matchups before calling 
-     * fillFrom, the number of them MUST be supplied in crntMatchCount.
+     * This also mutates a bunch of its paramers, so pay attention:
      * 
-     * MUTATES THE CONTABLE. SAVE IT BEFORE CALLING IF YOU WANT TO TRY ANOTHER 
-     * WAY.
+     * Params:
+     * startingRnd is the first round that the function should look for open 
+     *   matches. The function will keep going through rounds until it finds an 
+     *   open match, but this can be changed for a different starting point. 
+     *   Starting closer to clusters of reserved matches may increase speed 
+     *   slightly.
+     * table is the ConTable to be filled. It must have the reserved matches 
+     *   already added to it with its setMatch method. The mutation of filling 
+     *   the ConTable will remain after the function finishes.
+     * teams is an array of Teams that will be referred to for constraint 
+     *   checking.
+     * matches is the array that will be appended with the Matches chosen by 
+     *   the function. Populate this with reserved matches beforehand and 
+     *   sort by round later to have an easier time collating everything. This 
+     *   function will not alter existing contents of this array.
+     * crntMatchCount is to help the function keep track of the number of 
+     *   games set so far. If there have been manual matchups in the table
+     *   parameter before calling fillFrom, the number of them MUST be  
+     *   supplied in crntMatchCount.
      * 
      * Returns:
      * True if the ConTable was successfully filled.
@@ -53,7 +68,7 @@ function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: T
      * "Starting round is out of bounds..." startingRnd must be between 0 and 
      *    the number of teams -1.
      */
-    function fillFrom( startingRnd: number, table: ConTable, teams: Team[], crntMatchCount: number ): boolean {
+    function fillFrom( startingRnd: number, table: ConTable, teams: Team[], matches: Match[], crntMatchCount: number ): boolean {
         // Sanity checking starting round.
         var teamsCount: number = teams.length;
         var roundCount: number = teamsCount - 1;
@@ -92,24 +107,29 @@ function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: T
                         
                             // Away team and home team available: Match found.
                             // Checking constraints
-                            var cnsntBroken: Constraint = teams[currentMatch.awayTeam].constraintsSatisfied(table,currentMatch);
-                            if( cnsntBroken !== Constraint.SATISFIED ){
+                            var awayCnsnt: Constraint = teams[currentMatch.awayTeam].constraintsSatisfied(table,currentMatch);
+                            if( awayCnsnt !== Constraint.SATISFIED ){
                                 // Learn from broken constraint
                             }
 
-                            var cnsntBroken: Constraint = teams[currentMatch.homeTeam].constraintsSatisfied(table,currentMatch);
-                            if( cnsntBroken !== Constraint.SATISFIED ){
+                            var homeCnsnt: Constraint = teams[currentMatch.homeTeam].constraintsSatisfied(table,currentMatch);
+                            if( homeCnsnt !== Constraint.SATISFIED ){
                                 // Learn from broken constraint
-                            } else {
+                            }
+
+                            // Our match will work now if all team constraints are satisfied. 
+                            if( homeCnsnt === Constraint.SATISFIED && awayCnsnt === Constraint.SATISFIED ){
                                 // Set the match up
                                 table.setMatch(currentMatch);
 
                                 // Recurse to set the rest of the table. True if filled, false if no solution. 
-                                matchFound = fillFrom( currentMatch.roundNum, table, teams, crntMatchCount+1 );
+                                matchFound = fillFrom( currentMatch.roundNum, table, teams, matches, crntMatchCount+1 );
                                 
-                                // If this is not the solution, backtrack and keep looking.
+                                // If this is not the solution, backtrack and keep looking. Else add to final match set.
                                 if( !matchFound ){
                                     table.clearMatch(currentMatch);
+                                } else {
+                                    matches.push(currentMatch);
                                 }
                             }
                         }
@@ -177,9 +197,9 @@ function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: T
     // Populate the rest of the ConTable, starting from a random round
     var startRound: number = Math.floor(Math.random() * (teams.length));
     var finalMatches: Match[] = resvdMatches.slice();
-    if( this.fillFrom(startRound, matchupState, teams, finalMatches) ){
+    if( this.fillFrom(startRound, matchupState, teams, finalMatches, resvdMatches.length ) ){
         
-        // SEARCH finalMatches BY ROUND ORDER
+        // SORT finalMatches BY ROUND ORDER
         
         return finalMatches;
     }
