@@ -4,7 +4,9 @@ import { FixtureService } from '../services/fixture.service'
 import { Collection } from '../services/collection'
 import { Fixture } from '../models/fixture'
 import { Round } from '../models/round'
-import * as electron from 'electron' 
+import { FileFolder } from '../util/file_folder'
+import { ExportTo } from '../util/export_to'
+import * as electron from 'electron'
 import * as fs from 'fs'
 
 @Component({
@@ -41,28 +43,48 @@ export class ReviewComponent implements OnInit {
     }
 
     onSaveFixture() {
-        new Promise((resolve, reject) => { electron.remote.dialog.showSaveDialog(
-            {
-                title: "Save Fixture",
-                buttonLabel: "Save Fixture",
-                filters: [
-                    { name: 'CSV', extensions: ['csv'] },
-                    { name: 'All Files', extensions: ['*'] }
-                ]
-            }, (res : string[]) => {
-                if (res) {
-                    return resolve(res)
-                } else {
-                    return reject(new Error("Unable to save the fixture to that location"))
-                }
-            })
-        }).then((res: string[]) => {
-            if (res && res.length > 0) {
-                fs.createWriteStream(res[0])
+        this.showSaveDialog().then((res: string) => {
+            return FileFolder.createWriteStream(res)
+        }).then((stream: fs.WriteStream) => {
+            ExportTo.CSV(stream, this.rounds)
+            stream.end()
+            stream.close()
+        }).catch((err: Error) => {
+            if (err instanceof UserCancelled) {
+                // ignore
+            } else {
+                console.log(err)
             }
+        })
+    }
+
+    /**
+     * Shows the save as dialog.
+     *
+     * Returns a string of the selected file.
+     */
+    private showSaveDialog(): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            electron.remote.dialog.showSaveDialog(
+                {
+                    title: "Save Fixture",
+                    buttonLabel: "Save Fixture",
+                    filters: [
+                        { name: 'CSV', extensions: ['csv'] },
+                        { name: 'All Files', extensions: ['*'] }
+                    ]
+                }, (res: string) => {
+                    if (res) {
+                        return resolve(res)
+                    } else {
+                        return reject(new UserCancelled())
+                    }
+                })
         })
     }
 
     private rounds: Round[] = []
     private fixture: Fixture
 }
+
+class UserCancelled extends Error { }
