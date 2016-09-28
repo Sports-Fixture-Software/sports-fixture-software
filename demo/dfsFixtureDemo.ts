@@ -13,8 +13,6 @@ import { Match, Constraint, Team, MatchState, ConTable } from './FixtureConstrai
  *               have an even number of elements (even teams or odd teams + bye)
  * resvdMatches: Match[] The matches that are already locked in before 
  *                       generation begins. Order not needed.
- * globalCon: Team[] The constraints that apply to EVERY team if their Team
- *                   interface members are not specified.
  * 
  * Returns:
  * Match[] A complete and legal fixture. Ordering is not guaranteed. Sort by 
@@ -30,7 +28,7 @@ import { Match, Constraint, Team, MatchState, ConTable } from './FixtureConstrai
  *   constraints made a solution impossible without this function picking up on
  *   it. 
  */
-export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globalCon: Team ): Match[] {
+export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Match[] {
     
     /**
      * fillFrom
@@ -80,7 +78,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globa
         currentMatch.roundNum = startingRnd;
         currentMatch.homeTeam = Math.floor(Math.random() * (teamsCount));
         currentMatch.awayTeam = Math.floor(Math.random() * (teamsCount));
-        var mask: number;
+        var mask: number = table.getMask(currentMatch);
         var matchFound: boolean = false;
         
         // Iterating over rounds while failing, recursing where succeeding.
@@ -88,24 +86,22 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globa
 
             // Home teams, iterating until we can recurse.
             for( var j: number = 0; j < teamsCount; j++ ){
-                mask = table.getMask(currentMatch);
 
-                // Checking if home team is available.
+                // Checking if the home team is available.
                 if( (mask & MatchState.HOME_PLAYING_AWAY) === 0 &&
                     (mask & MatchState.HOME_PLAYING_HOME) === 0 ){
                     
                     // Away teams, iterating until we can recurse.
                     for( var k: number = 0; k < teamsCount; k++ ){
-                        mask = table.getMask(currentMatch);
 
-                        // Checking if away team is available.
+                        // Checking if the away team is available.
                         if( (mask & MatchState.ILLEGAL)           === 0 &&
                             (mask & MatchState.RESERVED)          === 0 &&
                             (mask & MatchState.MATCH_SET)         === 0 &&
                             (mask & MatchState.AWAY_PLAYING_AWAY) === 0 &&
                             (mask & MatchState.AWAY_PLAYING_HOME) === 0 ){
-                        
                             // Away team and home team available: Match found.
+                            
                             // Checking constraints
                             var awayCnsnt: Constraint = teams[currentMatch.awayTeam].constraintsSatisfied(table,currentMatch);
                             if( awayCnsnt !== Constraint.SATISFIED ){
@@ -137,11 +133,12 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globa
                         if( matchFound ){
                             break;
                         } else {
-                            // Go to next away team
+                            // Go to next *away team*
                             currentMatch.awayTeam++;
                             if( currentMatch.awayTeam >= teamsCount ){
                                 currentMatch.awayTeam = 0;
                             }
+                            mask = table.getMask(currentMatch);
                         }
 
                     }
@@ -150,26 +147,28 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], globa
                 if( matchFound ){
                     break;
                 } else {
-                    // Go to the next home team
+                    // Go to the next *home team*
                     currentMatch.homeTeam++;
                     if( currentMatch.homeTeam >= teamsCount ){
                         currentMatch.homeTeam = 0;
                     }
+                    mask = table.getMask(currentMatch);
                 }
             }
 
             if( matchFound ){
                 break;
             } else {
-                // Go to the next round
-                currentMatch.homeTeam++;
+                // Go to the next *round*
+                currentMatch.roundNum++;
                 if( currentMatch.roundNum >= roundCount ){
                     currentMatch.roundNum = 0;
                 }
+                mask = table.getMask(currentMatch);
             }
         }
 
-        // Checking if the conTable is fully set.
+        // Checking if the conTable is fully filled. (Only true at bottom of recursion tree.)
         if( crntMatchCount === (roundCount*(teamsCount/2)) ){
             // If so, we can go up the recursion stack with success 
             matchFound = true;

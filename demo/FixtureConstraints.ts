@@ -1,8 +1,9 @@
 
-export interface Match {
-    roundNum: number;
-    homeTeam: number;
-    awayTeam: number;
+export class Match {
+    constructor( 
+        public roundNum: number,
+        public homeTeam: number,
+        public awayTeam: number ){}
 }
 
 /**
