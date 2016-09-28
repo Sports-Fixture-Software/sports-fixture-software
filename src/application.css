@@ -176,6 +176,12 @@ h2 {
 .horiz-sep {
     margin-left: 10px;
 }
+.vert-sep {
+    margin-bottom: 10px;
+}
+.horiz-sep {
+    margin-left: 10px;
+}
 .table-min-row>tbody>tr>td {
     height: 51px;
     vertical-align: middle;

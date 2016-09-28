@@ -4,8 +4,25 @@
             <h2>Fixture Details</h2>
         </div>
         <div class="col-xs-6 heading-row">
+
+            <popover-content #deleteFixturePopover title="Delete Fixture" [closeOnClickOutside]="true">
+                <div class="alert alert-danger" role="alert" style="min-width:250px">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span class="sr-only">Delete Fixture</span> Permanently delete fixture {{fixture?.name}}?
+                </div>
+                <div class="pull-right form-footer">
+                    <button class="btn btn-default horiz-sep" type="button" (click)="deleteFixturePopover.hide()">
+                        Cancel
+                    </button>
+                    <button-popover #deleteFixtureButton btn-class="btn btn-primary" type="button" (click)="onDeleteFixture()">
+                        Delete Fixture
+                    </button-popover>
+                </div>
+            </popover-content>
+
             <div class="pull-right">
                 <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditFixture()" type="button">Edit Fixture</button>
+                <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteFixturePopover" popoverPlacement="bottom">Delete Fixture</button>
                 <button-popover #saveChangesButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" *ngIf="editing" type="submit">Save Changes</button-popover>
                 <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()">Revert</button>
             </div>
