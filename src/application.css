@@ -152,6 +152,9 @@ body {
     /* max-width set because ng2-popover has a hard-coded max-width of 500 */
     max-width: 460px;
 }
+.form-number {
+    text-align: right;
+}
 .inner-stack {
     padding-top: 2px;
     padding-bottom: 2px;
