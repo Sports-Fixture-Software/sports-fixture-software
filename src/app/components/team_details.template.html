@@ -24,7 +24,7 @@
                     <div class="form-title"><strong>Name</strong></div>
                 </td>
                 <td *ngIf="!editing" colspan="4">
-                    <div class="form-title-ro">Adelaide</div>
+                    <div class="form-title-ro">{{ team?.name }}</div>
                 </td>
                 <td *ngIf="editing"  colspan="4">
                     <input type="text" class="form-control" formControlName="name" />
@@ -41,22 +41,22 @@
                 </td>
                 <td *ngIf="!editing">
                     <div class="form-title-ro pull-right">
-                        5
+                        {{ team?.teamConfigPreLoaded?.homeGamesMin }}
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="text" class="form-control" formControlName="homeGamesMin" />
+                    <input type="text" class="form-control form-number" formControlName="homeGamesMin" />
                 </td>
                 <td>
                     <div class="form-text-small">(min)</div>
                 </td>
                 <td *ngIf="!editing">
-                    <div class="form-title-ro  pull-right">
-                        10
+                    <div class="form-title-ro pull-right">
+                        {{ team?.teamConfigPreLoaded?.homeGamesMax }}
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="text" class="form-control" formControlName="homeGamesMax" />
+                    <input type="text" class="form-control form-number" formControlName="homeGamesMax" />
                 </td>
                 <td>
                     <div class="form-text-small">(max)</div>
@@ -73,22 +73,22 @@
                 </td>
                 <td *ngIf="!editing">
                     <div class="form-title-ro pull-right">
-                        5
+                        {{ team?.teamConfigPreLoaded?.awayGamesMin }}
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="text" class="form-control" formControlName="awayGamesMin" />
+                    <input type="text" class="form-control form-number" formControlName="awayGamesMin" />
                 </td>
                 <td>
                     <div class="form-text-small">(min)</div>
                 </td>
                 <td *ngIf="!editing">
                     <div class="form-title-ro pull-right">
-                        10
+                        {{ team?.teamConfigPreLoaded?.awayGamesMax }}
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="text" class="form-control" formControlName="awayGamesMax" />
+                    <input type="text" class="form-control form-number" formControlName="awayGamesMax" />
                 </td>
                 <td>
                     <div class="form-text-small">(max)</div>
