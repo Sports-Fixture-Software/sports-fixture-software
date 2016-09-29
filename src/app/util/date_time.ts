@@ -21,7 +21,7 @@ export class DateTime {
      * 
      * If `startDate` is later than `endDate`, returned round count will be 0.
      */
-    static getNumberOfRounds(startDate: Date, endDate: Date): number {
+    static getNumberOfRounds(startDate: moment.Moment, endDate: moment.Moment): number {
         let start = moment(startDate)
         let end = moment(endDate)
         if (start.day() == DaysOfWeek.Sunday) {
