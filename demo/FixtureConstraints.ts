@@ -91,12 +91,14 @@ export enum MatchState {
 export class ConTable implements FixtureInterface {
     
     private games: number[][][]; //[round][Home Team Index][Away Team Index]
+    private roundCount: number;
 
     constructor(private teamsCount: number){ 
+        this.roundCount = teamsCount-1;
         // Instantiates the round matrices to zero in all entries
         // Table is big enough for a full rotation over all teams.
-        this.games = new Array(teamsCount-1);
-        for(var i: number = 0; i < teamsCount-1; i++ ){ // Round
+        this.games = new Array(this.roundCount);
+        for(var i: number = 0; i < this.roundCount; i++ ){ // Round
             this.games[i] = new Array(teamsCount);
 
             for(var j: number = 0; j < teamsCount; j++ ){ // Home
@@ -116,20 +118,30 @@ export class ConTable implements FixtureInterface {
 
     // INTERFACE FUNCTIONS
     getHomeTeamVs( round: number, awayTeam: number ): number {
-        for( var i: number = 0; i < this.teamsCount; i++ ){
-            if( (this.games[round][i][awayTeam] & MatchState.MATCH_SET) === MatchState.MATCH_SET ){
-                return i;
+        if( !(round >= this.roundCount    || round < 0    ||
+              awayTeam >= this.teamsCount || awayTeam < 0)){
+            
+            for( var i: number = 0; i < this.teamsCount; i++ ){
+                if( (this.games[round][i][awayTeam] & MatchState.MATCH_SET) === MatchState.MATCH_SET ){
+                    return i;
+                }
             }
+        
         }
 
         return -1;
     }
 
     getAwayTeamVs( round: number, homeTeam: number ): number {
-        for( var i: number = 0; i < this.teamsCount; i++ ){
-            if( (this.games[round][homeTeam][i] & MatchState.MATCH_SET) === MatchState.MATCH_SET ){
-                return i;
+        if( !(round >= this.roundCount    || round < 0    ||
+              homeTeam >= this.teamsCount || homeTeam < 0)){
+            
+            for( var i: number = 0; i < this.teamsCount; i++ ){
+                if( (this.games[round][homeTeam][i] & MatchState.MATCH_SET) === MatchState.MATCH_SET ){
+                    return i;
+                }
             }
+
         }
 
         return -1;
@@ -148,9 +160,9 @@ export class ConTable implements FixtureInterface {
      */
     getMask(match: Match): number {
         // Checking for an illegal matchup
-        if( match.roundNum > this.teamsCount || match.roundNum < 0 ||
-            match.homeTeam > this.teamsCount || match.homeTeam < 0 ||
-            match.awayTeam > this.teamsCount || match.awayTeam < 0 ||
+        if( match.roundNum >= this.roundCount || match.roundNum < 0 ||
+            match.homeTeam >= this.teamsCount || match.homeTeam < 0 ||
+            match.awayTeam >= this.teamsCount || match.awayTeam < 0 ||
             match.homeTeam === match.awayTeam ){
             return MatchState.ILLEGAL;
         }
@@ -195,13 +207,14 @@ export class ConTable implements FixtureInterface {
      */
     setMatch(match: Match, state: number = MatchState.MATCH_SET): boolean {
         // Checking for an illegal matchup
-        if( this.getMask(match) !== MatchState.OPEN  ){
+        if( this.getMask(match) !== MatchState.OPEN ){
             return false;
         }
         
         // Setting this match in the fixture
-        for(var i: number = 0; i < this.teamsCount-1; i++){
-            this.games[i][match.homeTeam][match.awayTeam] = state;
+        for(var i: number = 0; i < this.roundCount; i++){
+            this.games[i][match.homeTeam][match.awayTeam] |= state;
+            this.games[i][match.awayTeam][match.homeTeam] |= state;
         }
 
         // Informing the rest of the possible matches in the round of the set match.
@@ -235,6 +248,7 @@ export class ConTable implements FixtureInterface {
         // Clearing this match in the fixture
         for(var i: number = 0; i < this.teamsCount-1; i++){
             this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
+            this.games[i][match.awayTeam][match.homeTeam] &= MatchState.NOT_SET;
         }
 
         // Informing the rest of the possible matches in the round of the cleared match.

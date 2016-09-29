@@ -13,6 +13,8 @@ import { Match, Constraint, Team, MatchState, ConTable } from './FixtureConstrai
  *               teams or odd teams + bye)
  * resvdMatches: Match[] The matches that are already locked in before 
  *                       generation begins. Order not needed.
+ * verbose: boolean Set to true if you want the function to post progress to 
+ *                  the console.
  * 
  * Returns:
  * Match[] A complete and legal fixture. Ordering is not guaranteed. Sort by 
@@ -32,8 +34,10 @@ import { Match, Constraint, Team, MatchState, ConTable } from './FixtureConstrai
  * fillfrom() errors
  * ConTable.x() errors 
  */
-export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Match[] {
+export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbose: boolean = false ): Match[] {
     
+    var permCounter: number = 1;
+
     /**
      * fillFrom
      * Fills out the given ConTable by DFS and backtracking. Finds a match and
@@ -95,20 +99,20 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
         );
         var mask: number = table.getMask(currentMatch);
         var matchFound: boolean = false;
-        
+
         // Iterating over rounds while failing, recursing where succeeding.
         for( var i: number = 0; i < roundCount; i++ ){
-
+            
             // Home teams, iterating until we can recurse.
             for( var j: number = 0; j < teamsCount; j++ ){
-
+                
                 // Checking if the home team is available.
                 if( (mask & MatchState.HOME_PLAYING_AWAY) === 0 &&
                     (mask & MatchState.HOME_PLAYING_HOME) === 0 ){
                     
                     // Away teams, iterating until we can recurse.
                     for( var k: number = 0; k < teamsCount; k++ ){
-
+                        
                         // Checking if the away team is available.
                         if( mask === MatchState.OPEN ){
                             // Away team and home team available: Match found.
@@ -129,7 +133,16 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
                                 // Set the match up
                                 table.setMatch(currentMatch);
                                 
+                                if( verbose && crntMatchCount <= 6 ){
+                                    console.log("Search Level " + crntMatchCount + " out of " + (roundCount * (teamsCount/2)) + " (Showing further levels slows the program down)");
+                                    console.log("Set match " + currentMatch.roundNum + ", H" + currentMatch.homeTeam + ", A" + currentMatch.awayTeam);
+                                }
+
                                 // Recurse to set the rest of the table. True if filled, false if no solution. 
+                                if( verbose ) {
+                                    permCounter++;
+                                }
+                                
                                 matchFound = fillFrom( currentMatch.roundNum, table, teams, matches, crntMatchCount+1 );
                                 
                                 // If this is not the solution, backtrack and keep looking. Else add to final match set.
@@ -202,8 +215,8 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
     var matchupState: ConTable = new ConTable( teams.length );
     var successFlag: boolean = true;
 
-    for( let match of resvdMatches ){
-        successFlag = matchupState.setMatch(match, (MatchState.MATCH_SET & MatchState.RESERVED));
+    for( var i: number = 0; i < resvdMatches.length; i++ ){
+        successFlag = matchupState.setMatch(resvdMatches[i], (MatchState.MATCH_SET | MatchState.RESERVED));
         if( !successFlag ){
             throw new Error('Reserved Matches clash with basic constraints in this rotation.');
         }
@@ -213,9 +226,17 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
     var startRound: number = Math.floor(Math.random() * (teams.length-1));
     var finalMatches: Match[] = resvdMatches.slice();
     if( fillFrom(startRound, matchupState, teams, finalMatches, resvdMatches.length ) ){
+        if( verbose ){
+            console.log("Solution found after " + permCounter + " permutations.")
+        }
+        
         // Sorting finalMatches by round and returning
         finalMatches.sort(function(a: Match, b: Match): number {return a.roundNum-b.roundNum});
         return finalMatches;
+    }
+
+    if( verbose ){
+        console.log("No solution found after " + permCounter + " permutations.")
     }
 
     throw new Error("Solution could not be found in the search space.");
