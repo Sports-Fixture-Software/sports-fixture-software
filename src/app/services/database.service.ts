@@ -136,6 +136,18 @@ export class DatabaseService {
                             ('id').inTable('round')
                 })
             }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('teamconfig',
+                    (table) => {
+                        table.increments('id')
+                        table.integer('priority')
+                        table.integer('homeGamesMin')
+                        table.integer('homeGamesMax')
+                        table.integer('awayGamesMin')
+                        table.integer('awayGamesMax')
+                        table.integer('team_id').notNullable().references
+                            ('id').inTable('team')
+                })
+            }).then((res) => {
                 return this.get().knex.schema.createTableIfNotExists('info',
                     (table) => {
                         table.integer('databaseVersion')
@@ -205,6 +217,9 @@ export class DatabaseService {
             { name: 'Sturt U18', league_id: 3},
             { name: 'West U18', league_id: 3},
         ]
+        let teamConfigs = [
+            { homeGamesMin: 0, homeGamesMax: 0, team_id: 1 }
+        ]
         return Promise.each(leagues, (val) => {
             return this.get().knex('league').insert(val)
         }).then((res) => {
@@ -214,6 +229,10 @@ export class DatabaseService {
         }).then((res) => {
             return Promise.each(teams, (val) => {
                 return this.get().knex('team').insert(val)
+            })
+        }).then((res) => {
+            return Promise.each(teamConfigs, (val) => {
+                return this.get().knex('teamconfig').insert(val)
             })
         })
     }
@@ -231,7 +250,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
     
-    private _databaseVersion: number = 5
+    private _databaseVersion: number = 7
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null
