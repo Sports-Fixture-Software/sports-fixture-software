@@ -33,7 +33,7 @@
                 {{round.number}}
             </td>
             <td>
-                {{round.startDate | date}}
+                {{round.startDate?.format('ll')}}
             </td>
             <td>
                 <div *ngFor="let config of round.matchesPreLoaded">
