@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, } from '@angular/core'
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { FixtureService } from '../services/fixture.service'
 import { Collection } from '../services/collection'
@@ -6,13 +6,15 @@ import { Fixture } from '../models/fixture'
 import { Round } from '../models/round'
 import { FileFolder } from '../util/file_folder'
 import { ExportTo } from '../util/export_to'
+import { ButtonPopover } from './button_popover.component'
 import * as electron from 'electron'
 import * as fs from 'fs'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     providers: [FixtureService],
-    templateUrl: 'review.template.html'
+    templateUrl: 'review.template.html',
+    directives: [ButtonPopover]
 })
 
 export class ReviewComponent implements OnInit {
@@ -22,6 +24,7 @@ export class ReviewComponent implements OnInit {
         private _route: ActivatedRoute) {
     }
 
+    @ViewChild('saveFixtureButton') saveFixtureButton: ButtonPopover
     error: Error
 
     ngOnInit() {
@@ -42,6 +45,10 @@ export class ReviewComponent implements OnInit {
             })
     }
 
+    /**
+     * Show a Save As dialog and write the CSV. Errors are displayed as a
+     * popover to the Save Fixture button.
+     */
     onSaveFixture() {
         this.showSaveDialog().then((res: string) => {
             return FileFolder.createWriteStream(res)
@@ -51,15 +58,17 @@ export class ReviewComponent implements OnInit {
             stream.close()
         }).catch((err: Error) => {
             if (err instanceof UserCancelled) {
-                // ignore
+                // don't show error - the user cancelled
             } else {
-                console.log(err)
+                this.saveFixtureButton.showError('Error saving fixture', err.message)
+                this._changeref.detectChanges()
             }
         })
     }
 
     /**
-     * Shows the save as dialog.
+     * Shows the Save As dialog. The Save As dialog checks if the file exists
+     * and asks if to overwrite. The Save As dialog checks for write permission.
      *
      * Returns a string of the selected file.
      */
@@ -70,7 +79,7 @@ export class ReviewComponent implements OnInit {
                     title: "Save Fixture",
                     buttonLabel: "Save Fixture",
                     filters: [
-                        { name: 'CSV', extensions: ['csv'] },
+                        { name: 'Comma-Separated Values (CSV)', extensions: ['csv'] },
                         { name: 'All Files', extensions: ['*'] }
                     ]
                 }, (res: string) => {
