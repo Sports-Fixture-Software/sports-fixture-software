@@ -8,6 +8,7 @@ import { ButtonPopover } from './button_popover.component'
 import { FixtureForm } from '../models/fixture.form'
 import { Subscription } from 'rxjs/Subscription'
 import { POPOVER_DIRECTIVES } from 'ng2-popover'
+import * as moment from 'moment'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -92,7 +93,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
      *  If the user enters a date, check the box to enable. If the user is
      *  entering a date, it is assumed they want it used
      */
-    onStartDateChange(value : Date) {
+    onStartDateChange(value: string) {
         if (value) {
             let fc = this.fixtureForm.controls['startDateEnabled'] as FormControl
             fc.updateValue(true, {emitEvent : false})
@@ -113,7 +114,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
      *  If the user enters a date, check the box to enable. If the user is
      *  entering a date, it is assumed they want it used
      */
-    onEndDateChange(value : Date) {
+    onEndDateChange(value: string) {
         if (value) {
             let fc = this.fixtureForm.controls['endDateEnabled'] as FormControl
             fc.updateValue(true, {emitEvent : false})
@@ -135,8 +136,8 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             let fc = this.fixtureForm.controls['endDateEnabled'] as FormControl
             fc.updateValue(false, {emitEvent : false})
         }
-        this.fixture.startDate = form.startDate
-        this.fixture.endDate = form.endDate
+        this.fixture.startDate = moment(form.startDate, 'YYYY-MM-DD')
+        this.fixture.endDate = moment(form.endDate, 'YYYY-MM-DD')
         this.fixtureService.updateFixture(this.fixture).then((f) => {
             this.editing = false
             this.changeref.detectChanges()
@@ -152,7 +153,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
         fc = this.fixtureForm.controls['description'] as FormControl
         fc.updateValue(this.fixture.description)
         fc = this.fixtureForm.controls['startDate'] as FormControl
-        fc.updateValue(this.fixture.startDate)
+        fc.updateValue(this.fixture.startDate.format('YYYY-MM-DD'))
         if (!this.listeners.startDate) {
             this.listeners.startDate = fc.valueChanges.subscribe((evt) => {
                 this.onStartDateChange(evt)
@@ -166,7 +167,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             })
         }
         fc = this.fixtureForm.controls['endDate'] as FormControl
-        fc.updateValue(this.fixture.endDate)
+        fc.updateValue(this.fixture.endDate.format('YYYY-MM-DD'))
         if (!this.listeners.endDate) {
             this.listeners.endDate = fc.valueChanges.subscribe((evt) => {
                 this.onEndDateChange(evt)
