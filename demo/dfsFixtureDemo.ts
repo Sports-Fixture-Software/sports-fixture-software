@@ -9,8 +9,8 @@ import { Match, Constraint, Team, MatchState, ConTable } from './FixtureConstrai
  * 
  * Params:
  * teams: Team[] The teams playing in the season fixture. These must implement
- *               the Team interface. Does NOT include team of index -1. Must 
- *               have an even number of elements (even teams or odd teams + bye)
+ *               the Team interface. Must have an even number of elements (even   
+ *               teams or odd teams + bye)
  * resvdMatches: Match[] The matches that are already locked in before 
  *                       generation begins. Order not needed.
  * 
@@ -26,7 +26,9 @@ import { Match, Constraint, Team, MatchState, ConTable } from './FixtureConstrai
  * 'Solution could not be found...' The function ran through the entire 
  *   solution space and could not find a solution. This is most likely because 
  *   constraints made a solution impossible without this function picking up on
- *   it. 
+ *   it.
+ * fillfrom() errors
+ * ConTable.x() errors 
  */
 export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Match[] {
     
@@ -65,6 +67,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
      * Throws:
      * "Starting round is out of bounds..." startingRnd must be between 0 and 
      *    the number of teams -1.
+     * ConTable.x() errors
      */
     function fillFrom( startingRnd: number, table: ConTable, teams: Team[], matches: Match[], crntMatchCount: number ): boolean {
         // Sanity checking starting round.
@@ -103,12 +106,12 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
                             // Away team and home team available: Match found.
                             
                             // Checking constraints
-                            var awayCnsnt: Constraint = teams[currentMatch.awayTeam].constraintsSatisfied(table,currentMatch);
+                            var awayCnsnt: Constraint = teams[currentMatch.awayTeam].constraintsSatisfied(table,currentMatch,false);
                             if( awayCnsnt !== Constraint.SATISFIED ){
                                 // Learn from broken constraint (WHEN IMPLEMENTED)
                             }
 
-                            var homeCnsnt: Constraint = teams[currentMatch.homeTeam].constraintsSatisfied(table,currentMatch);
+                            var homeCnsnt: Constraint = teams[currentMatch.homeTeam].constraintsSatisfied(table,currentMatch,true);
                             if( homeCnsnt !== Constraint.SATISFIED ){
                                 // Learn from broken constraint (WHEN IMPLEMENTED)
                             }
@@ -193,13 +196,12 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
         }
     }
 
-    // Populate the rest of the ConTable, starting from a random round
+    // Populate the rest of the ConTable with fillFrom, starting from a random round
     var startRound: number = Math.floor(Math.random() * (teams.length));
     var finalMatches: Match[] = resvdMatches.slice();
     if( this.fillFrom(startRound, matchupState, teams, finalMatches, resvdMatches.length ) ){
-        
-        // SORT finalMatches BY ROUND ORDER
-        
+        // Sorting finalMatches by round and returning
+        finalMatches.sort(function(a: Match, b: Match): number {return a.roundNum-b.roundNum});
         return finalMatches;
     }
 

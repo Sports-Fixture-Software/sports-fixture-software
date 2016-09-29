@@ -7,86 +7,82 @@ import { Match, Constraint, FixtureInterface, Team } from './FixtureConstraints'
  */
 
 // TEAM IMPLEMENTATION CLASSES W. DUMMY CONSTRAINTS
+
+// No special constraints
 class TestTeamNoConstraints implements Team {
     
-    constructor( public index: number ){}
+    constructor(){}
 
-    // HASHMAP TO STORE TEAM LEVEL CONSTRAINTS
-    // HASHMAP TO STORE FIXTURE LEVEL CONSTRAINTS
-    // HASHMAP TO STORE LEAGUE LEVEL CONSTRAINTS
-
-    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match ): Constraint {
-        // Run through hashmaps to check that constraints are satisfied
-
+    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match, home: boolean ): Constraint {
         return Constraint.SATISFIED;
-    } 
+    }
 }
 
-class TestTeamMaxHome implements Team {
+// Maximum home games per rotation
+/*class TestTeamMaxHome implements Team {
     
-    constructor( public index: number ){}
+    constructor(){}
 
     // HASHMAP TO STORE TEAM LEVEL CONSTRAINTS
     // HASHMAP TO STORE FIXTURE LEVEL CONSTRAINTS
     // HASHMAP TO STORE LEAGUE LEVEL CONSTRAINTS
 
-    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match ): Constraint {
+    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match, home: boolean ): Constraint {
         // Run through hashmaps to check that constraints are satisfied
 
         return Constraint.SATISFIED;
     } 
-}
+}*/
 
-class TestTeamMinAway implements Team {
+// Minimum away games per rotation
+/*class TestTeamMinAway implements Team {
     
-    constructor( public index: number ){}
+    constructor(){}
 
     // HASHMAP TO STORE TEAM LEVEL CONSTRAINTS
     // HASHMAP TO STORE FIXTURE LEVEL CONSTRAINTS
     // HASHMAP TO STORE LEAGUE LEVEL CONSTRAINTS
 
-    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match ): Constraint {
+    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match, home: boolean ): Constraint {
         // Run through hashmaps to check that constraints are satisfied
 
         return Constraint.SATISFIED;
     } 
-}
+}*/
 
-class TestTeamMaxConsecAwayAndHome implements Team {
+// Maximum consecutive home and away games per rotation
+/*class TestTeamMaxConsecAwayAndHome implements Team {
     
-    constructor( public index: number ){}
+    constructor(){}
 
     // HASHMAP TO STORE TEAM LEVEL CONSTRAINTS
     // HASHMAP TO STORE FIXTURE LEVEL CONSTRAINTS
     // HASHMAP TO STORE LEAGUE LEVEL CONSTRAINTS
 
-    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match ): Constraint {
+    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match, home: boolean ): Constraint {
         // Run through hashmaps to check that constraints are satisfied
 
         return Constraint.SATISFIED;
     } 
-}
+}*/
 
 // DRIVER TO TEST THE plotFixtureRotation FUNCTION
 
-var testTeams: TestTeam[] = {
-    // POPULATE WITH A VARIETY OF DUMMY TEAMS WITH DIFFERENT CONSTRAINTS
-    // MAKE SURE THAT INDICES ARE CORRECT
-}
+var testTeams: Team[] = [
+    new TestTeamNoConstraints(), new TestTeamNoConstraints(), new TestTeamNoConstraints(),
+    new TestTeamNoConstraints(), new TestTeamNoConstraints(), new TestTeamNoConstraints()
+]
 
 var reservedMatches: Match[] = [
-    new Match(0,0,1),
-    new Match(1,0,2)
+    /*new Match(0,0,1),
+    new Match(1,0,2)*/
 ]
 
 console.log("DFS TESTING...");
 
 var testFixture: Match[];
-try {
-    testFixture = plotFixtureRotation( testTeams, reservedMatches );
-} catch (e){
-    console.log("ERROR: " + e./* WHAT'S THE MEMBER OF AN ERROR? MSG? MESSAGE? TOSTRING? */);
-}
+
+testFixture = plotFixtureRotation( testTeams, reservedMatches );
 
 console.log("Printing fixture:");
 

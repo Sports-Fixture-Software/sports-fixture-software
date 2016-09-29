@@ -49,18 +49,19 @@ export interface FixtureInterface {
  * against the team's constraints.
  */
 export interface Team {
-    /** Index is an int between 0 and total number of teams - 1.
-     *  This is used to help reference teams in a fixture and to check their
-     *  constraints.
-     */
-    index: number; 
-
     /** 
      * constraintsSatisfied 
      * Returns the constraint that is broken by placing the proposedMatch into 
      * the fixture. Returns the value Constraint.SATISFIED if none are broken.
+     * 
+     * params:
+     * fixture - The fixture in a state before the proposedMatch is applied
+     * proposedMatch - The match that is being checked for constraints in the 
+     *   given fixture
+     * home - true if the team being tested is the home team in proposedMatch, 
+     *   false if it is the away team in proposedMatch. 
      */   
-    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match ): Constraint; 
+    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match, home: boolean ): Constraint; 
 }
 
 /**
