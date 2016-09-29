@@ -23,12 +23,6 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
     get name(): string { return this.get('name') }
     set name(value: string) { this.set('name', value) }
 
-    getFixtures(): Promise<Collection<Fixture>> {
-        return this.fetch({ withRelated: ['fixtures'] }).then((res) => {
-            return res.related('fixtures') as Collection<Fixture>
-        })
-    }
-
     getTeams(): Promise<Collection<Team>> {
         return this.fetch({ withRelated: ['teams']}).then((res) => {
             return res.related('teams') as Collection<Team>
