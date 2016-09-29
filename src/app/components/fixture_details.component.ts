@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild } from '@angular/core'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, NgZone } from '@angular/core'
 import { Validators } from '@angular/common'
 import { ActivatedRoute, Router } from '@angular/router'
 import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
@@ -7,21 +7,24 @@ import { FixtureService } from '../services/fixture.service'
 import { ButtonPopover } from './button_popover.component'
 import { FixtureForm } from '../models/fixture.form'
 import { Subscription } from 'rxjs/Subscription'
+import { POPOVER_DIRECTIVES } from 'ng2-popover'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'fixture_details.template.html',
-    directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES]
+    directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES]
 })
 
 export class FixtureDetailsComponent implements OnInit, OnDestroy {
     constructor(private route: ActivatedRoute,
         private router: Router,
         private fixtureService: FixtureService,
-        private changeref: ChangeDetectorRef) {
+        private changeref: ChangeDetectorRef,
+        private zone: NgZone) {
     }
 
     @ViewChild('saveChangesButton') saveChangesButton: ButtonPopover
+    @ViewChild('deleteFixtureButton') deleteFixtureButton: ButtonPopover
     editing: boolean = false
     fixtureForm: FormGroup
 
@@ -61,6 +64,18 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
         this.editing = false
         this.resetForm()
         this.changeref.detectChanges()
+    }
+
+    onDeleteFixture() {
+        this.fixtureService.deleteFixture(this.fixture).then(() => {
+            this.zone.run(() => {
+                this.router.navigate(['league'])
+            })
+        }).catch((err: Error) => {
+            this.deleteFixtureButton.showError('Error deleting fixture',
+                err.message)
+            this.changeref.detectChanges()
+        })
     }
 
     /**

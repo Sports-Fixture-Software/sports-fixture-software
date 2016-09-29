@@ -14,7 +14,7 @@
 </modal>
 
 <div class="row">
-    <div class="col-xs-1">
+    <div class="col-xs-1 button-grid">
         <popover-content #createLeagePopover title="Create League" [closeOnClickOutside]="true">
             <div style="width: 270px">
                 <div class="input-group" style="width: 100%">
@@ -27,7 +27,7 @@
                 </div>
             </div>
         </popover-content>
-        <button class="btn btn-default" [popover]="createLeagePopover" [popoverCloseOnClickOutside]="true" popoverPlacement="right">
+        <button class="btn btn-default vert-sep" [popover]="createLeagePopover" [popoverCloseOnClickOutside]="true" popoverPlacement="right">
                 <span class="glyphicon glyphicon-plus"></span>
         </button>
     </div>

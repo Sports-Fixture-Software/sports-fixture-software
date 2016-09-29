@@ -11,28 +11,28 @@
                     <span class="sr-only">Delete League</span> Permanently delete league {{league?.name}}?
                 </div>
                 <div class="pull-right form-footer">
-                    <button class="btn btn-default button-spacing" type="button" (click)="deleteLeaguePopover.hide()">
+                    <button class="btn btn-default horiz-sep" type="button" (click)="deleteLeaguePopover.hide()">
                         Cancel
                     </button>
-                    <button-popover #deleteLeagueButton type="button" (click)="onDeleteLeague()">
+                    <button-popover #deleteLeagueButton btn-class="btn btn-primary" type="button" (click)="onDeleteLeague()">
                         Delete League
                     </button-popover>
                 </div>
             </popover-content>
 
             <div class="pull-right">
-                <button *ngIf="!editing" class="btn btn-default button-spacing" type="button" [popover]="deleteLeaguePopover" popoverPlacement="bottom">Delete League</button>
-                <button *ngIf="!editing" class="btn btn-primary" (click)="onEditLeague()" type="button">Edit League</button>
-                <button *ngIf="editing" class="btn btn-default button-spacing" type="button" (click)="onRevert()">Revert</button>
-                <button-popover #saveChangesButton *ngIf="editing" type="submit" [disabled]="!leagueForm.valid">Save Changes</button-popover>
+                <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditLeague()" type="button">Edit League</button>
+                <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteLeaguePopover" popoverPlacement="bottom">Delete League</button>
+                <button-popover #saveChangesButton *ngIf="editing" btn-class="btn btn-primary horiz-sep vert-sep pull-right" type="submit" [disabled]="!leagueForm.valid">Save Changes</button-popover>
+                <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()">Revert</button>
             </div>
         </div>
     </div>
     <table class="table table-striped">
         <colgroup>
-            <col class="col-xs-1">
-            <col class="col-xs-2">
-            <col class="col-xs-9">
+            <col style="width:10px">
+            <col style="width:60px">
+            <col>
         </colgroup>
         <tbody>
             <tr>
