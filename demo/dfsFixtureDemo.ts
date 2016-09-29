@@ -19,6 +19,8 @@ import { Match, Constraint, Team, MatchState, ConTable } from './FixtureConstrai
  *         round number for ease of plotting.
  * 
  * Throws Errors:
+ * 'At least two teams are required to make a fixture.' 1 or 0 teams were in 
+ *   teams parameter array.
  * 'Odd number of teams...' if there is an odd number of teams.
  * 'Reserved Matches clash with basic constraints...' One or more of the 
  *   reserved matches breaks rotation, or tries to play one team twice in one 
@@ -67,6 +69,9 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
      * Throws:
      * "Starting round is out of bounds..." startingRnd must be between 0 and 
      *    the number of teams -1.
+     * "Max search depth exceeded." The function is recursing more than it has 
+     *    matches to assign. This should not be thrown unless there is a bug in
+     *    this function.
      * ConTable.x() errors
      */
     function fillFrom( startingRnd: number, table: ConTable, teams: Team[], matches: Match[], crntMatchCount: number ): boolean {
@@ -76,11 +81,18 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
         if( startingRnd > roundCount || startingRnd < 0 ){
             throw new Error("Starting round is out of bounds for this rotation.");
         }
-
-        var currentMatch: Match;
-        currentMatch.roundNum = startingRnd;
-        currentMatch.homeTeam = Math.floor(Math.random() * (teamsCount));
-        currentMatch.awayTeam = Math.floor(Math.random() * (teamsCount));
+        
+        // Checking if we are recursing past our limit. This should not happen.
+        if( crntMatchCount > roundCount * (teamsCount/2) ){
+            throw new Error("Max search depth exceeded.");
+        }
+        
+        // We start by trying a random home and away team
+        var currentMatch: Match = new Match( 
+            startingRnd,
+            Math.floor(Math.random() * (teamsCount)),
+            Math.floor(Math.random() * (teamsCount))
+        );
         var mask: number = table.getMask(currentMatch);
         var matchFound: boolean = false;
         
@@ -98,11 +110,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
                     for( var k: number = 0; k < teamsCount; k++ ){
 
                         // Checking if the away team is available.
-                        if( (mask & MatchState.ILLEGAL)           === 0 &&
-                            (mask & MatchState.RESERVED)          === 0 &&
-                            (mask & MatchState.MATCH_SET)         === 0 &&
-                            (mask & MatchState.AWAY_PLAYING_AWAY) === 0 &&
-                            (mask & MatchState.AWAY_PLAYING_HOME) === 0 ){
+                        if( mask === MatchState.OPEN ){
                             // Away team and home team available: Match found.
                             
                             // Checking constraints
@@ -120,7 +128,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
                             if( homeCnsnt === Constraint.SATISFIED && awayCnsnt === Constraint.SATISFIED ){
                                 // Set the match up
                                 table.setMatch(currentMatch);
-
+                                
                                 // Recurse to set the rest of the table. True if filled, false if no solution. 
                                 matchFound = fillFrom( currentMatch.roundNum, table, teams, matches, crntMatchCount+1 );
                                 
@@ -180,8 +188,13 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
         return matchFound;
     }
     
+    // Checking for lack of teams
+    if( teams.length < 2 ){
+        throw new Error('At least two teams are required to make a fixture.');
+    }
+
     // Checking for odd number of teams
-    if( teams.length % 2 != 1 ){
+    if( teams.length % 2 != 0 ){
         throw new Error('Odd number of teams in the teams parameter. Add a bye to make it even.');
     }
 
@@ -197,9 +210,9 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[] ): Mat
     }
 
     // Populate the rest of the ConTable with fillFrom, starting from a random round
-    var startRound: number = Math.floor(Math.random() * (teams.length));
+    var startRound: number = Math.floor(Math.random() * (teams.length-1));
     var finalMatches: Match[] = resvdMatches.slice();
-    if( this.fillFrom(startRound, matchupState, teams, finalMatches, resvdMatches.length ) ){
+    if( fillFrom(startRound, matchupState, teams, finalMatches, resvdMatches.length ) ){
         // Sorting finalMatches by round and returning
         finalMatches.sort(function(a: Match, b: Match): number {return a.roundNum-b.roundNum});
         return finalMatches;

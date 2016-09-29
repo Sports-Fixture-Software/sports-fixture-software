@@ -95,16 +95,16 @@ export class ConTable implements FixtureInterface {
     constructor(private teamsCount: number){ 
         // Instantiates the round matrices to zero in all entries
         // Table is big enough for a full rotation over all teams.
-        this.games = [];
+        this.games = new Array(teamsCount-1);
         for(var i: number = 0; i < teamsCount-1; i++ ){ // Round
-            this.games[i] = [];
+            this.games[i] = new Array(teamsCount);
 
             for(var j: number = 0; j < teamsCount; j++ ){ // Home
-                this.games[i][j] = [];
+                this.games[i][j] = new Array(teamsCount);
 
                 for(var k: number = 0; k < teamsCount; k++ ){ // Away
                     if( k === j ){
-                        this.games[i][j][k] = MatchState.ILLEGAL;    
+                        this.games[i][j][k] = MatchState.ILLEGAL; 
                     } else {
                         this.games[i][j][k] = MatchState.OPEN;
                     }
@@ -198,7 +198,7 @@ export class ConTable implements FixtureInterface {
         if( this.getMask(match) !== MatchState.OPEN  ){
             return false;
         }
-
+        
         // Setting this match in the fixture
         for(var i: number = 0; i < this.teamsCount-1; i++){
             this.games[i][match.homeTeam][match.awayTeam] = state;
@@ -206,12 +206,12 @@ export class ConTable implements FixtureInterface {
 
         // Informing the rest of the possible matches in the round of the set match.
         for(var i: number = 0; i < this.teamsCount; i++){
-            this.games[match.roundNum][i][match.awayTeam] &= MatchState.AWAY_PLAYING_AWAY;
-            this.games[match.roundNum][i][match.homeTeam] &= MatchState.AWAY_PLAYING_HOME;
-            this.games[match.roundNum][match.awayTeam][i] &= MatchState.HOME_PLAYING_AWAY;
-            this.games[match.roundNum][match.homeTeam][i] &= MatchState.HOME_PLAYING_HOME;
+            this.games[match.roundNum][i][match.awayTeam] |= MatchState.AWAY_PLAYING_AWAY;
+            this.games[match.roundNum][i][match.homeTeam] |= MatchState.AWAY_PLAYING_HOME;
+            this.games[match.roundNum][match.awayTeam][i] |= MatchState.HOME_PLAYING_AWAY;
+            this.games[match.roundNum][match.homeTeam][i] |= MatchState.HOME_PLAYING_HOME;
         }
-
+        
         return true;
     }
 
