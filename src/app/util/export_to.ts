@@ -11,13 +11,10 @@ export class ExportTo {
      */
     static CSV(stream: fs.WriteStream, rounds: Round[]) {
         for (let round of rounds) {
-            stream.write(round.number + ',')
-            let firstline = true
+            stream.write('Round ' + round.number + ',' + this.CSVify(round.startDate.format('YYYY-MM-DD')) + EOL)
             for (let match of round.matchesPreLoaded) {
                 if (match.homeTeamPreLoaded && match.awayTeamPreLoaded) {
-                    let prefix = firstline ? '' : ','
-                    stream.write(prefix + this.CSVify(match.homeTeamPreLoaded.name) + ',' + this.CSVify(match.awayTeamPreLoaded.name) + EOL)
-                    firstline = false
+                    stream.write(this.CSVify(match.homeTeamPreLoaded.name) + ',' + this.CSVify(match.awayTeamPreLoaded.name) + EOL)
                 }
             }
         }
