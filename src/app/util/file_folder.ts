@@ -12,7 +12,9 @@ export class FileFolder {
             if (filename && filename.length > 0) {
                 let stream = fs.createWriteStream(filename)
                 stream.on('open', () => {
-                    stream.cork()
+                    // Cork the stream (buffer the stream). cork is supported
+                    // by node.js, but not the typings sadly:
+                    (stream as any).cork()
                     return resolve(stream)
                 })
                 stream.on('error', (err: Error) => {
