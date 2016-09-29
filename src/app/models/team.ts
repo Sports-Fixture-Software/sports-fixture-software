@@ -27,6 +27,10 @@ export class Team extends (databaseInjector.get(DatabaseService) as DatabaseServ
     }
     setLeague(value: League) { this.set('league_id', value.id) }
 
+    get teamConfigPreLoaded(): TeamConfig {
+        return this.related('teamConfig') as TeamConfig
+    }
+
     /**
      * Needed by bookshelf to setup relationship
      */
