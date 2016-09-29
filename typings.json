@@ -9,11 +9,11 @@
     "bootstrap": "registry:dt/bootstrap#3.3.5+20160619023404",
     "core-js": "registry:dt/core-js#0.0.0+20160602141332",
     "create-error": "registry:dt/create-error#0.3.1+20160316155526",
-    "electron": "registry:env/electron#0.37.6+20160723033700",
+    "github-electron": "registry:dt/github-electron#1.4.1+20160928142324",
     "jasmine": "registry:dt/jasmine#2.2.0+20160621224255",
     "jquery": "registry:dt/jquery#1.10.0+20160704162008",
     "knex": "registry:dt/knex#0.0.0+20160812170915",
-    "node": "registry:dt/node#6.0.0+20160805072842",
+    "node": "registry:dt/node#6.0.0+20160925070332",
     "sqlite3": "registry:dt/sqlite3#2.2.3+20160724070935"
   }
 }
