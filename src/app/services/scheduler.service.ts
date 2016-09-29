@@ -108,7 +108,7 @@ export class SchedulerService {
                 if (i == 1) {
                     round.startDate = fixture.startDate
                 } else {
-                    round.startDate = runningDate.toDate()
+                    round.startDate = runningDate
                 }
                 round.setFixture(fixture)
                 newRounds.push(this.roundService.addRound(round))
