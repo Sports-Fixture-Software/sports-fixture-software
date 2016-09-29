@@ -233,7 +233,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
     
-    private _databaseVersion: number = 6
+    private _databaseVersion: number = 7
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null
