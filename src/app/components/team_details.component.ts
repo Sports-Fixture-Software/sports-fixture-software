@@ -119,7 +119,6 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
         if (!config) {
             config = new TeamConfig()
             config.setTeam(this.team)
-            this.team.teamConfigPreLoaded = config
         }
         config.homeGamesMin = Number.parseInt(form.homeGamesMin)
         config.homeGamesMin = Number.isInteger(config.homeGamesMin) ? config.homeGamesMin : null
