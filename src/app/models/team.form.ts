@@ -2,11 +2,11 @@ import { Team } from './team'
 
 export interface TeamForm {
     name: string,
-    homeGamesMin: number,
-    homeGamesMax: number,
+    homeGamesMin: string,
+    homeGamesMax: string,
     homeGamesEnabled: boolean,
-    awayGamesMin: number,
-    awayGamesMax: number,
+    awayGamesMin: string,
+    awayGamesMax: string,
     awayGamesEnabled: boolean,
     team: Team
 }
