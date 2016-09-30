@@ -21,6 +21,10 @@ export class TeamConfig extends (databaseInjector.get(DatabaseService) as Databa
     get awayGamesMax(): number { return this.get('awayGamesMax') }
     set awayGamesMax(value: number) { this.set('awayGamesMax', value) }
 
+    setTeam(team: Team) {
+        this.set('team_id', team.id)
+    }
+
     /**
      * Needed by bookshelf to setup relationship
      */
