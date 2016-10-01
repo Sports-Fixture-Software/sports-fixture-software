@@ -45,7 +45,7 @@
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="text" class="form-control form-number" formControlName="homeGamesMin" />
+                    <input #homeGamesMinInput type="text" class="form-control form-number" formControlName="homeGamesMin" />
                 </td>
                 <td>
                     <div class="form-text-small">(min)</div>
@@ -56,7 +56,7 @@
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="text" class="form-control form-number" formControlName="homeGamesMax" />
+                    <input #homeGamesMaxInput type="text" class="form-control form-number" formControlName="homeGamesMax" />
                 </td>
                 <td>
                     <div class="form-text-small">(max)</div>
@@ -77,7 +77,7 @@
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="text" class="form-control form-number" formControlName="awayGamesMin" />
+                    <input #awayGamesMinInput type="text" class="form-control form-number" formControlName="awayGamesMin" />
                 </td>
                 <td>
                     <div class="form-text-small">(min)</div>
@@ -88,7 +88,7 @@
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input type="text" class="form-control form-number" formControlName="awayGamesMax" />
+                    <input #awayGamesMaxInput type="text" class="form-control form-number" formControlName="awayGamesMax" />
                 </td>
                 <td>
                     <div class="form-text-small">(max)</div>
