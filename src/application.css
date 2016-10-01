@@ -155,11 +155,8 @@ body {
 .form-number {
     text-align: right;
 }
-.alert-s {
-    margin-bottom: 0px !important;
-}
 .popover-content-s {
-  display: inline !important;
+  display: inline;
 }
 .inner-stack {
     padding-top: 2px;
@@ -186,6 +183,9 @@ table {
 }
 h2 { 
     margin-top: 0px;
+}
+.alert-popover {
+    margin: 10px;
 }
 .vert-sep {
     margin-bottom: 10px;

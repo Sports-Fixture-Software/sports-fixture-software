@@ -253,7 +253,7 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
     private fieldData: FieldDataType = {} as FieldDataType
     private team: Team
     private listeners: ListenerType = {} as ListenerType
-    private popoverTemplate = '<div class="popover" role="tooltip" style="min-width:200px"><div class="arrow"></div><h3 class="popover-title"></h3><div class="alert alert-s alert-danger" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span><span class="sr-only">Error:</span><div class="popover-content popover-content-s"></div></div></div>'
+    private popoverTemplate = '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="alert alert-danger alert-popover" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span><span class="sr-only">title</span><div class="popover-content popover-content-s"></div></div></div>'
 }
 
 interface ListenerType {
