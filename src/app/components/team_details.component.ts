@@ -9,6 +9,7 @@ import { TeamConfigService } from '../services/team_config.service'
 import { ButtonPopover } from './button_popover.component'
 import { InputPopover } from './input_popover.component'
 import { TeamForm } from '../models/team.form'
+import { Validator } from '../util/validator'
 import { Subscription } from 'rxjs/Subscription'
 
 @Component({
@@ -37,11 +38,11 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.teamForm = new FormGroup({
             name: new FormControl('', [<any>Validators.required]),
-            homeGamesMin: new FormControl('', [this.numberValidator]),
-            homeGamesMax: new FormControl('', [this.numberValidator]),
+            homeGamesMin: new FormControl('', [Validator.wholeNumberOrBlank]),
+            homeGamesMax: new FormControl('', [Validator.wholeNumberOrBlank]),
             homeGamesEnabled: new FormControl(),
-            awayGamesMin: new FormControl('', [this.numberValidator]),
-            awayGamesMax: new FormControl('', [this.numberValidator]),
+            awayGamesMin: new FormControl('', [Validator.wholeNumberOrBlank]),
+            awayGamesMax: new FormControl('', [Validator.wholeNumberOrBlank]),
             awayGamesEnabled: new FormControl(),
         })
         this.route.params.forEach(params => {
@@ -205,22 +206,6 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
                 this.onAwayGamesEnabledChange(evt)
             })
         }
-    }
-
-    /**
-     * Validator to ensure a non-negative whole number number, or blank.
-     */
-    private numberValidator = (control: FormControl): { [key: string]: any } => {
-        if (control.value == null) {
-            return null
-        }
-        if (typeof control.value === 'string' && control.value.trim() == '') {
-            return null
-        }
-        if (Number(control.value) < 0) {
-            return { Negative: true }
-        }
-        return Number.isInteger(Number(control.value)) ? null : { NaN: true }
     }
 
     private team: Team
