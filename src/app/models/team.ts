@@ -1,6 +1,7 @@
 import { databaseInjector } from '../bootstrap'
 import { DatabaseService } from '../services/database.service'
 import { League } from './league'
+import { TeamConfig } from './team_config'
 import * as Promise from 'bluebird'
 
 export class Team extends (databaseInjector.get(DatabaseService) as DatabaseService).Model<Team> {
@@ -26,10 +27,22 @@ export class Team extends (databaseInjector.get(DatabaseService) as DatabaseServ
     }
     setLeague(value: League) { this.set('league_id', value.id) }
 
+    get teamConfigPreLoaded(): TeamConfig {
+        return this.related('teamConfig') as TeamConfig
+    }
+
     /**
      * Needed by bookshelf to setup relationship
      */
     protected league() {
         return this.belongsTo(League)
     }
+
+    /**
+     * Needed by bookshelf to setup relationship
+     */
+    protected teamConfig(): TeamConfig {
+        return this.hasOne(TeamConfig)
+    }
+
 }

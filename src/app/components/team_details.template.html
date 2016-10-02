@@ -1,0 +1,105 @@
+<form [formGroup]="teamForm" novalidate (ngSubmit)="updateTeam(teamForm.value)">
+    <div class="row">
+        <div class="col-xs-6">
+            <h2>Team Details</h2>
+        </div>
+        <div class="col-xs-6 heading-row">
+            <div class="pull-right">
+                <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditTeam()" type="button">Edit Team</button>
+                <button-popover #saveChangesButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" *ngIf="editing" type="submit"
+                    [disabled]="!teamForm.valid">Save Changes</button-popover>
+                <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()">Revert</button>
+            </div>
+        </div>
+    </div>
+    <table class="table table-striped">
+        <colgroup>
+            <col style="width:30px">
+            <col>
+            <col>
+            <col style="width:85px">
+        </colgroup>
+        <tbody>
+            <tr>
+                <td></td>
+                <td>
+                    <div class="form-title"><strong>Name</strong></div>
+                </td>
+                <td *ngIf="!editing" colspan="2">
+                    <div class="form-title-ro">{{ team?.name }}</div>
+                </td>
+                <td *ngIf="editing" colspan="2">
+                    <input type="text" class="form-control" formControlName="name" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2">
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" formControlName="homeGamesEnabled" />
+                    </div>
+                </td>
+                <td rowspan="2">
+                    <div class="form-title"><strong>Home Games</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro pull-right">
+                        {{ team?.teamConfigPreLoaded?.homeGamesMin }}
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input-popover #homeGamesMinInput type="text" [formGroup]="teamForm" input-class="form-control form-number" inputFormControlName="homeGamesMin"></input-popover>
+                </td>
+                <td>
+                    <div class="form-text-small">(min)</div>
+                </td>
+            </tr>
+            <tr>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro pull-right">
+                        {{ team?.teamConfigPreLoaded?.homeGamesMax }}
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input-popover #homeGamesMaxInput type="text" [formGroup]="teamForm" input-class="form-control form-number" inputFormControlName="homeGamesMax"></input-popover>
+                </td>
+                <td>
+                    <div class="form-text-small">(max)</div>
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2">
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" formControlName="awayGamesEnabled" />
+                    </div>
+                </td>
+                <td rowspan="2">
+                    <div class="form-title"><strong>Away Games</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro pull-right">
+                        {{ team?.teamConfigPreLoaded?.awayGamesMin }}
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input-popover #awayGamesMinInput type="text" [formGroup]="teamForm" input-class="form-control form-number" inputFormControlName="awayGamesMin"></input-popover>
+                </td>
+                <td>
+                    <div class="form-text-small">(min)</div>
+                </td>
+            </tr>
+            <tr>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro pull-right">
+                        {{ team?.teamConfigPreLoaded?.awayGamesMax }}
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input-popover #awayGamesMaxInput type="text" [formGroup]="teamForm" input-class="form-control form-number" inputFormControlName="awayGamesMax"></input-popover>
+                </td>
+                <td>
+                    <div class="form-text-small">(max)</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>

@@ -152,6 +152,12 @@ body {
     /* max-width set because ng2-popover has a hard-coded max-width of 500 */
     max-width: 460px;
 }
+.form-number {
+    text-align: right;
+}
+.popover-content-s {
+  display: inline;
+}
 .inner-stack {
     padding-top: 2px;
     padding-bottom: 2px;
@@ -177,6 +183,9 @@ table {
 }
 h2 { 
     margin-top: 0px;
+}
+.alert-popover {
+    margin: 10px;
 }
 .vert-sep {
     margin-bottom: 10px;

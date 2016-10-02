@@ -11,6 +11,7 @@ import { LeagueDetailsComponent } from './components/league_details.component';
 import { RoundListComponent } from './components/round_list.component';
 import { GenerateComponent } from './components/generate.component';
 import { ReviewComponent } from './components/review.component';
+import { TeamDetailsComponent } from './components/team_details.component';
 
 export const routes: RouterConfig = [
   { path: '', redirectTo: 'league', pathMatch: 'full' },
@@ -21,7 +22,12 @@ export const routes: RouterConfig = [
     children: [
       { path: '', redirectTo: 'details', pathMatch: 'full' },
       { path: 'details', component: LeagueDetailsComponent },
-      { path: 'teams', component: TeamListComponent },
+      {
+        path: 'teams', children: [
+          { path: '', component: TeamListComponent },
+          { path: ':id', component: TeamDetailsComponent },
+        ]
+      },
       { path: 'fixtures', component: FixtureListComponent }
     ]
   },
@@ -35,7 +41,7 @@ export const routes: RouterConfig = [
       { path: 'generate', component: GenerateComponent },
       { path: 'review', component: ReviewComponent }
     ]
-  }
+  },
 ];
 
 export const APP_ROUTER_PROVIDERS = [
