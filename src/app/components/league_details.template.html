@@ -63,8 +63,8 @@
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input #consecutiveHomeGamesMaxInput type="text" class="form-control form-number" formControlName="consecutiveHomeGamesMax" />
-                </td>
+                    <input-popover #consecutiveHomeGamesMaxInput type="text" [formGroup]="leagueForm" input-class="form-control form-number" inputFormControlName="consecutiveHomeGamesMax"></input-popover>
+                    </td>
                 <td>
                     <div class="form-text-small">(max)</div>
                 </td>
@@ -84,8 +84,8 @@
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input #consecutiveAwayGamesMaxInput type="text" class="form-control form-number" formControlName="consecutiveAwayGamesMax" />
-                </td>
+                    <input-popover #consecutiveAwayGamesMaxInput type="text" [formGroup]="leagueForm" input-class="form-control form-number" inputFormControlName="consecutiveAwayGamesMax"></input-popover>
+                    </td>
                 <td>
                     <div class="form-text-small">(max)</div>
                 </td>
