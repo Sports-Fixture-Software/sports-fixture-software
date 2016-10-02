@@ -47,7 +47,7 @@
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input #homeGamesMinInput type="text" class="form-control form-number" formControlName="homeGamesMin" />
+                    <input-popover #homeGamesMinInput type="text" [formGroup]="teamForm" input-class="form-control form-number" inputFormControlName="homeGamesMin"></input-popover>
                 </td>
                 <td>
                     <div class="form-text-small">(min)</div>
@@ -60,7 +60,7 @@
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input #homeGamesMaxInput type="text" class="form-control form-number" formControlName="homeGamesMax" />
+                    <input-popover #homeGamesMaxInput type="text" [formGroup]="teamForm" input-class="form-control form-number" inputFormControlName="homeGamesMax"></input-popover>
                 </td>
                 <td>
                     <div class="form-text-small">(max)</div>
@@ -81,7 +81,7 @@
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input #awayGamesMinInput type="text" class="form-control form-number" formControlName="awayGamesMin" />
+                    <input-popover #awayGamesMinInput type="text" [formGroup]="teamForm" input-class="form-control form-number" inputFormControlName="awayGamesMin"></input-popover>
                 </td>
                 <td>
                     <div class="form-text-small">(min)</div>
@@ -94,7 +94,7 @@
                     </div>
                 </td>
                 <td *ngIf="editing">
-                    <input #awayGamesMaxInput type="text" class="form-control form-number" formControlName="awayGamesMax" />
+                    <input-popover #awayGamesMaxInput type="text" [formGroup]="teamForm" input-class="form-control form-number" inputFormControlName="awayGamesMax"></input-popover>
                 </td>
                 <td>
                     <div class="form-text-small">(max)</div>

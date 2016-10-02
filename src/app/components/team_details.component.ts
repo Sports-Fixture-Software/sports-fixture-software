@@ -7,16 +7,15 @@ import { TeamConfig } from '../models/team_config'
 import { TeamService } from '../services/team.service'
 import { TeamConfigService } from '../services/team_config.service'
 import { ButtonPopover } from './button_popover.component'
+import { InputPopover } from './input_popover.component'
 import { TeamForm } from '../models/team.form'
 import { Subscription } from 'rxjs/Subscription'
-import * as twitterBootstrap from 'bootstrap'
-declare var jQuery: JQueryStatic
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'team_details.template.html',
     providers: [TeamService, TeamConfigService],
-    directives: [ButtonPopover, REACTIVE_FORM_DIRECTIVES]
+    directives: [ButtonPopover, InputPopover, REACTIVE_FORM_DIRECTIVES]
 })
 
 export class TeamDetailsComponent implements OnInit, OnDestroy {
@@ -28,10 +27,10 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
     }
 
     @ViewChild('saveChangesButton') saveChangesButton: ButtonPopover
-    @ViewChild('homeGamesMinInput') homeGamesMinInput: ElementRef
-    @ViewChild('homeGamesMaxInput') homeGamesMaxInput: ElementRef
-    @ViewChild('awayGamesMinInput') awayGamesMinInput: ElementRef
-    @ViewChild('awayGamesMaxInput') awayGamesMaxInput: ElementRef
+    @ViewChild('homeGamesMinInput') homeGamesMinInput: InputPopover
+    @ViewChild('homeGamesMaxInput') homeGamesMaxInput: InputPopover
+    @ViewChild('awayGamesMinInput') awayGamesMinInput: InputPopover
+    @ViewChild('awayGamesMaxInput') awayGamesMaxInput: InputPopover
     editing: boolean = false
     teamForm: FormGroup
 
@@ -45,10 +44,6 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             awayGamesMax: new FormControl('', [this.numberValidator]),
             awayGamesEnabled: new FormControl(),
         })
-        this.fieldData.homeGamesMin = { state: State.Hidden } as PopoverFieldType
-        this.fieldData.homeGamesMax = { state: State.Hidden } as PopoverFieldType
-        this.fieldData.awayGamesMin = { state: State.Hidden } as PopoverFieldType
-        this.fieldData.awayGamesMax = { state: State.Hidden } as PopoverFieldType
         this.route.params.forEach(params => {
             let id = +params['id']
             this.teamService.getTeamAndConfig(id).then(team => {
@@ -106,7 +101,7 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
      *  If the user enters a value, check the box to enable. If the user is
      *  entering a value, it is assumed they want enabled checked.
      */
-    onFieldChange(value: any, element: ElementRef, control: FormControl, controlPair: FormControl, enableControl: FormControl, popoverData: PopoverFieldType) {
+    onFieldChange(value: any, element: InputPopover, control: FormControl, controlPair: FormControl, enableControl: FormControl) {
         // if value blank and the control's pair is blank, disable
         if (typeof value === 'string' && value.trim() == '' && typeof controlPair.value === 'string' && controlPair.value.trim() == '' && enableControl) {
             enableControl.updateValue(false, { emitEvent: false })
@@ -115,32 +110,10 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             enableControl.updateValue(true, { emitEvent: false })
         }
         if (control.valid) {
-            if (popoverData.element) {
-                if (popoverData.state == State.Shown) {
-                    popoverData.element.popover('hide')
-                }
-            }
+            element.hideError()
         }
         else {
-            if (popoverData.element) {
-                if (popoverData.state == State.Hidden) {
-                    popoverData.element.popover('show')
-                } else if (popoverData.state == State.Hidding) {
-                    popoverData.element.one('hidden.bs.popover', () => {
-                        popoverData.element.popover('show')
-                    })
-                }
-            } else {
-                popoverData.element = jQuery(element.nativeElement).popover({ html: true, template: this.popoverTemplate, content: 'Please enter a number', placement: 'bottom', trigger: 'manual' }).on('show.bs.popover', () => {
-                    popoverData.state = State.Showing
-                }).on('shown.bs.popover', () => {
-                    popoverData.state = State.Shown
-                }).on('hide.bs.popover', () => {
-                    popoverData.state = State.Hidding
-                }).on('hidden.bs.popover', () => {
-                    popoverData.state = State.Hidden
-                }).popover('show')
-            }
+            element.showError('Please enter a number')
         }
     }
 
@@ -191,7 +164,7 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             if (!this.listeners.homeGamesMin) {
                 this.listeners.homeGamesMin = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.homeGamesMinInput, this.teamForm.controls['homeGamesMin'] as FormControl,
-                        this.teamForm.controls['homeGamesMax'] as FormControl, this.teamForm.controls['homeGamesEnabled'] as FormControl, this.fieldData.homeGamesMin)
+                        this.teamForm.controls['homeGamesMax'] as FormControl, this.teamForm.controls['homeGamesEnabled'] as FormControl)
                 })
             }
             fc = this.teamForm.controls['homeGamesMax'] as FormControl
@@ -199,14 +172,14 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             if (!this.listeners.homeGamesMax) {
                 this.listeners.homeGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.homeGamesMaxInput, this.teamForm.controls['homeGamesMax'] as FormControl,
-                        this.teamForm.controls['homeGamesMin'] as FormControl, this.teamForm.controls['homeGamesEnabled'] as FormControl, this.fieldData.homeGamesMax)
+                        this.teamForm.controls['homeGamesMin'] as FormControl, this.teamForm.controls['homeGamesEnabled'] as FormControl)
                 })
             }
             fc = this.teamForm.controls['awayGamesMin'] as FormControl
             fc.updateValue(this.team.teamConfigPreLoaded.awayGamesMin)
             if (!this.listeners.awayGamesMin) {
                 this.listeners.awayGamesMin = fc.valueChanges.subscribe((evt) => {
-                    this.onFieldChange(evt, this.awayGamesMinInput, this.teamForm.controls['awayGamesMin'] as FormControl, this.teamForm.controls['awayGamesMax'] as FormControl, this.teamForm.controls['awayGamesEnabled'] as FormControl, this.fieldData.awayGamesMin)
+                    this.onFieldChange(evt, this.awayGamesMinInput, this.teamForm.controls['awayGamesMin'] as FormControl, this.teamForm.controls['awayGamesMax'] as FormControl, this.teamForm.controls['awayGamesEnabled'] as FormControl)
                 })
             }
             fc = this.teamForm.controls['awayGamesMax'] as FormControl
@@ -214,7 +187,7 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             if (!this.listeners.awayGamesMax) {
                 this.listeners.awayGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.awayGamesMaxInput, this.teamForm.controls['awayGamesMax'] as FormControl,
-                        this.teamForm.controls['awayGamesMin'] as FormControl, this.teamForm.controls['awayGamesEnabled'] as FormControl, this.fieldData.awayGamesMax)
+                        this.teamForm.controls['awayGamesMin'] as FormControl, this.teamForm.controls['awayGamesEnabled'] as FormControl)
                 })
             }
         }
@@ -250,10 +223,8 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
         return Number.isInteger(Number(control.value)) ? null : { NaN: true }
     }
 
-    private fieldData: FieldDataType = {} as FieldDataType
     private team: Team
     private listeners: ListenerType = {} as ListenerType
-    private popoverTemplate = '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="alert alert-danger alert-popover" role="alert"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span><span class="sr-only">title</span><div class="popover-content popover-content-s"></div></div></div>'
 }
 
 interface ListenerType {
@@ -263,20 +234,4 @@ interface ListenerType {
     awayGamesMin: Subscription,
     awayGamesMax: Subscription,
     awayGamesEnabled: Subscription
-}
-interface PopoverFieldType {
-    element: JQuery,
-    state: State
-}
-interface FieldDataType {
-    homeGamesMin: PopoverFieldType,
-    homeGamesMax: PopoverFieldType,
-    awayGamesMin: PopoverFieldType,
-    awayGamesMax: PopoverFieldType
-}
-enum State {
-    Hidden,
-    Hidding,
-    Shown,
-    Showing
 }
