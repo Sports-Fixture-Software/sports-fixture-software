@@ -30,6 +30,10 @@ export class LeagueDetailsComponent implements OnInit {
     ngOnInit() {
         this.leagueForm = new FormGroup({
             name: new FormControl('', [<any>Validators.required]),
+            consecutiveHomeGamesMaxEnabled: new FormControl(),
+            consecutiveHomeGamesMax: new FormControl(),
+            consecutiveAwayGamesMaxEnabled: new FormControl(),
+            consecutiveAwayGamesMax: new FormControl()
         })
         this.router.routerState.parent(this.route)
             .params.forEach(params => {
