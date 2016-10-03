@@ -74,7 +74,5 @@ export class ButtonPopover implements AfterViewInit, OnDestroy {
 }
 enum State {
     Hidden,
-    Hidding,
-    Shown,
-    Showing
+    Shown
 }
