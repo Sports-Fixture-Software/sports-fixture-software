@@ -6,6 +6,10 @@ import { Fixture } from '../models/fixture';
 import { FixtureService } from '../services/fixture.service';
 import { Collection }  from '../services/collection'
 import { Navbar } from './navbar.component';
+import { BreadcrumbService, Breadcrumb } from '../services/breadcrumb.service';
+import { League } from '../models/league';
+
+
 
 import { POPOVER_DIRECTIVES } from 'ng2-popover';
 import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
@@ -26,7 +30,8 @@ export class FixtureComponent implements OnInit, OnDestroy {
         public route: ActivatedRoute,
         private fixtureService: FixtureService,
         private notifyService: NotifyService,
-        private changeref: ChangeDetectorRef) {
+        private changeref: ChangeDetectorRef,
+        private breadcrumbService: BreadcrumbService) {
     }
 
     ngOnInit() {
@@ -34,8 +39,16 @@ export class FixtureComponent implements OnInit, OnDestroy {
             let id = +params['id']
             this.fixtureService.getFixture(id).then(fixture => {
                 this.fixture = fixture
-                this.changeref.detectChanges()
-            })
+                return this.fixture.getLeague();
+            }).then((league: League) => {
+                this.breadcrumbService.setBreadcrumbs([
+                    new Breadcrumb("Leagues", ["/"]),
+                    new Breadcrumb(league.name, ['/league', league.id]),
+                    new Breadcrumb(this.fixture.name, ['/fixtures', this.fixture.id])
+                ])
+            }).then(() => {
+                this.changeref.detectChanges();
+            });
         })
         this.generatedSubscription = this.notifyService.generated$.subscribe((value) => {
             // if receive notification via the notify service that the fixture

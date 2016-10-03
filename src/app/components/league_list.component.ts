@@ -1,8 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs/subscription';
 import { League } from '../models/league';
 import { LeagueService } from '../services/league.service';
 import { Collection }  from '../services/collection'
+import { BreadcrumbService, Breadcrumb } from '../services/breadcrumb.service';
 import * as Promise from 'bluebird'
 import { Navbar } from './navbar.component';
 import { LeagueListItem } from './league_list_item.component';
@@ -17,7 +19,8 @@ import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
     directives: [Navbar, LeagueListItem, POPOVER_DIRECTIVES, MODAL_DIRECTIVES]
 })
 
-export class LeagueListComponent implements OnInit {
+export class LeagueListComponent implements OnInit, OnDestroy {
+
     /**
      * ## API
      * - `changeref` (provided by the injector)
@@ -26,7 +29,9 @@ export class LeagueListComponent implements OnInit {
      */
     constructor(private leagueService: LeagueService,
         private changeref: ChangeDetectorRef,
-        private router: Router) {
+        public route: ActivatedRoute,
+        private router: Router,
+        private breadcrumbService: BreadcrumbService) {
         this._leagueService = leagueService
         this._changeref = changeref
     }
@@ -53,6 +58,16 @@ export class LeagueListComponent implements OnInit {
                 this.errorModal.open()
             })
         }
+
+        this.routeSubscription = this.route.params.subscribe(params => {
+            this.breadcrumbService.setBreadcrumbs([
+                    new Breadcrumb("Leagues", ["/"]),
+            ]);
+        });
+    }
+
+    ngOnDestroy() {
+        this.routeSubscription.unsubscribe();
     }
 
     submitAddLeague(leagueName: String) {
@@ -78,4 +93,5 @@ export class LeagueListComponent implements OnInit {
     private _leagueService: LeagueService
     private _changeref: ChangeDetectorRef
     private _leagues : League[]
+    private routeSubscription: Subscription;    
 }
