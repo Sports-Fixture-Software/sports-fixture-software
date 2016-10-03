@@ -225,3 +225,7 @@ h2 {
 .sidebar button {
     width: 100%;
 }
+
+.selectable {
+    cursor: pointer;
+}

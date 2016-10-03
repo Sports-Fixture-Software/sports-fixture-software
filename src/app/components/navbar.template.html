@@ -1,3 +1,18 @@
+<style>
+    .breadcrumb {
+        background-color: #001450;
+        padding: 0px;
+    }
+    
+    .breadcrumb > .selectable > a {
+        color: #AAA;
+    }
+    
+    .active {
+        color: #FFF;
+    }
+</style>
+
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -7,18 +22,18 @@
                         <img src="images/LogoNavbar.png" />
                     </td>
                     <td>
-                        <a class="navbar-brand" href="#">
-                            {{title}}
-                        </a>
+                        <div class="navbar-brand">
+                            <ol class="breadcrumb">
+                                <li *ngFor="let breadcrumb of breadcrumbs; let isLast = last" [class.active]="isLast" [class.selectable]="!isLast">
+                                    <a (click)="navigateToBreadcrumb(breadcrumb)" *ngIf="!isLast">{{breadcrumb.title}}</a>
+                                    <span *ngIf="isLast">{{breadcrumb.title}}</span>
+                                </li>
+                            </ol>
+                        </div>
                     </td>
                 </tr>
             </table>
         </div>
     </div>
-</nav>
 
-<div>
-    <div *ngFor="let breadcrumb of breadcrumbs" (click)="navigateToBreadcrumb(breadcrumb)">
-        {{breadcrumb.title}}
-    </div>
-</div>
+</nav>
