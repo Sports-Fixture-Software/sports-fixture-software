@@ -32,7 +32,7 @@ export class InputPopover implements AfterViewInit, OnDestroy {
         }).on('shown.bs.popover', () => {
             this.state = State.Shown
         }).on('hide.bs.popover', () => {
-            this.state = State.Hidding
+            this.state = State.Hiding
         }).on('hidden.bs.popover', () => {
             this.state = State.Hidden
         })
@@ -54,7 +54,7 @@ export class InputPopover implements AfterViewInit, OnDestroy {
         if (this.popover) {
             if (this.state == State.Hidden) {
                 this.popover.popover('show')
-            } else if (this.state == State.Hidding) {
+            } else if (this.state == State.Hiding) {
                 this.popover.one('hidden.bs.popover', () => {
                     this.popover.popover('show')
                 })
@@ -84,7 +84,7 @@ export class InputPopover implements AfterViewInit, OnDestroy {
 
 enum State {
     Hidden,
-    Hidding,
+    Hiding,
     Shown,
     Showing
 }
