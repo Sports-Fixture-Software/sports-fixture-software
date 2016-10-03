@@ -8,6 +8,7 @@ import { ButtonPopover } from './button_popover.component'
 import { FixtureForm } from '../models/fixture.form'
 import { Subscription } from 'rxjs/Subscription'
 import { POPOVER_DIRECTIVES } from 'ng2-popover'
+import { Validator } from '../util/validator'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -36,11 +37,15 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             startDateEnabled: new FormControl('', [<any>Validators.required]),
             endDate: new FormControl('', [<any>Validators.required]),
             endDateEnabled: new FormControl('', [<any>Validators.required]),
+            consecutiveHomeGamesMaxEnabled: new FormControl(),
+            consecutiveHomeGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)]),
+            consecutiveAwayGamesMaxEnabled: new FormControl(),
+            consecutiveAwayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)])
         })
         this.router.routerState.parent(this.route)
             .params.forEach(params => {
                 let id = +params['id']
-                this.fixtureService.getFixture(id).then(fixture => {
+                this.fixtureService.getFixtureAndLeagueAndConfig(id).then(fixture => {
                     this.fixture = fixture
                     this.resetForm()
                     this.changeref.detectChanges()

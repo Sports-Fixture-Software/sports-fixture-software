@@ -22,7 +22,8 @@
 
             <div class="pull-right">
                 <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditFixture()" type="button">Edit Fixture</button>
-                <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteFixturePopover" popoverPlacement="bottom">Delete Fixture</button>
+                <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteFixturePopover"
+                    popoverPlacement="bottom">Delete Fixture</button>
                 <button-popover #saveChangesButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" *ngIf="editing" type="submit">Save Changes</button-popover>
                 <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()">Revert</button>
             </div>
@@ -80,7 +81,7 @@
             <tr>
                 <td>
                     <div class="form-control-ro">
-                        <input type="checkbox" [disabled]="!editing" formControlName="endDateEnabled"/>
+                        <input type="checkbox" [disabled]="!editing" formControlName="endDateEnabled" />
                     </div>
                 </td>
                 <td>
@@ -91,6 +92,50 @@
                 </td>
                 <td *ngIf="editing">
                     <input type="date" class="form-control" formControlName="endDate" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" formControlName="consecutiveHomeGamesMaxEnabled" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-title"><strong>Consecutive Home Games</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro pull-right">
+                        {{ fixture?.fixtureConfigPreLoaded?.consecutiveHomeGamesMax }}
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input-popover #consecutiveHomeGamesMaxInput type="text" [formGroup]="fixtureForm" input-class="form-control form-number"
+                        inputFormControlName="consecutiveHomeGamesMax"></input-popover>
+                </td>
+                <td>
+                    <div class="form-text-small">(max)</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" formControlName="consecutiveAwayGamesMaxEnabled" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-title"><strong>Consecutive Away Games</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro pull-right">
+                        {{ fixture?.fixtureConfigPreLoaded?.consecutiveAwayGamesMax }}
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input-popover #consecutiveAwayGamesMaxInput type="text" [formGroup]="fixtureForm" input-class="form-control form-number"
+                        inputFormControlName="consecutiveAwayGamesMax"></input-popover>
+                </td>
+                <td>
+                    <div class="form-text-small">(max)</div>
                 </td>
             </tr>
         </tbody>
