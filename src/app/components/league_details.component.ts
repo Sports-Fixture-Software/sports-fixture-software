@@ -10,7 +10,7 @@ import { ButtonPopover } from './button_popover.component'
 import { InputPopover } from './input_popover.component'
 import { LeagueForm } from '../models/league.form'
 import { Validator } from '../util/validator'
-import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
+import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover'
 import { Subscription } from 'rxjs/Subscription'
 
 @Component({
@@ -40,9 +40,9 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
         this.leagueForm = new FormGroup({
             name: new FormControl('', [<any>Validators.required]),
             consecutiveHomeGamesMaxEnabled: new FormControl(),
-            consecutiveHomeGamesMax: new FormControl('', [Validator.wholeNumberOrBlank]),
+            consecutiveHomeGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)]),
             consecutiveAwayGamesMaxEnabled: new FormControl(),
-            consecutiveAwayGamesMax: new FormControl('', [Validator.wholeNumberOrBlank])
+            consecutiveAwayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)])
         })
         this.router.routerState.parent(this.route)
             .params.forEach(params => {
@@ -122,7 +122,7 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
             element.hideError()
         }
         else {
-            element.showError('Please enter a number')
+            element.showError(`Please enter a number greater than ${Validator.CONSECUTIVE_GAMES_MIN-1}`)
         }
     }
 

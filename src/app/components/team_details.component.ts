@@ -38,11 +38,11 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.teamForm = new FormGroup({
             name: new FormControl('', [<any>Validators.required]),
-            homeGamesMin: new FormControl('', [Validator.wholeNumberOrBlank]),
-            homeGamesMax: new FormControl('', [Validator.wholeNumberOrBlank]),
+            homeGamesMin: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
+            homeGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
             homeGamesEnabled: new FormControl(),
-            awayGamesMin: new FormControl('', [Validator.wholeNumberOrBlank]),
-            awayGamesMax: new FormControl('', [Validator.wholeNumberOrBlank]),
+            awayGamesMin: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
+            awayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
             awayGamesEnabled: new FormControl(),
         })
         this.route.params.forEach(params => {

@@ -1,21 +1,30 @@
 import { FormControl, FormGroup } from '@angular/forms'
-
 export class Validator {
 
     /**
-     * Validator to ensure a non-negative whole number number, or blank.
+     * Validator to ensure an integer is greater than the `target` number
+     * provided, or blank.
      */
-    static wholeNumberOrBlank = (control: FormControl): { [key: string]: any } => {
-        if (control.value == null) {
+    static integerGreaterEqualOrBlank = (target: number) => {
+        return (control: FormControl): { [key: string]: any } => {
+            if (control.value == null) {
+                return null
+            }
+            if (typeof control.value === 'string' && control.value.trim() == '') {
+                return null
+            }
+            let num = Number(control.value)
+            if (Number.isNaN(num)) {
+                return { NaN: true }
+            }
+            if (!Number.isInteger(num)) {
+                return { NotInteger: true }
+            }
+            if (num < target) {
+                return { NotGreater: true }
+            }
             return null
         }
-        if (typeof control.value === 'string' && control.value.trim() == '') {
-            return null
-        }
-        if (Number(control.value) < 0) {
-            return { Negative: true }
-        }
-        return Number.isInteger(Number(control.value)) ? null : { NaN: true }
     }
 
     /**
@@ -25,4 +34,8 @@ export class Validator {
     static differentTeamsSelected = ({value}: FormGroup): { [key: string]: any } => {
         return value.homeTeam == value.awayTeam ? { equal: true } : null
     }
+    /**
+     * Minimum number allowed for consecutive home/ away games constraint
+     */
+    static CONSECUTIVE_GAMES_MIN: number = 2
 }
