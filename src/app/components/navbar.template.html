@@ -16,3 +16,9 @@
         </div>
     </div>
 </nav>
+
+<div>
+    <div *ngFor="let breadcrumb of breadcrumbs" (click)="navigateToBreadcrumb(breadcrumb)">
+        {{breadcrumb.title}}
+    </div>
+</div>
