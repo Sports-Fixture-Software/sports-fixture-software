@@ -159,6 +159,16 @@ export class DatabaseService {
                             ('id').inTable('league')
                 })
             }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('fixtureconfig',
+                    (table) => {
+                        table.increments('id')
+                        table.integer('priority')
+                        table.integer('consecutiveHomeGamesMax')
+                        table.integer('consecutiveAwayGamesMax')
+                        table.integer('fixture_id').notNullable().references
+                            ('id').inTable('fixture')
+                })
+            }).then((res) => {
                 return this.get().knex.schema.createTableIfNotExists('info',
                     (table) => {
                         table.integer('databaseVersion')
@@ -261,7 +271,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
     
-    private _databaseVersion: number = 9
+    private _databaseVersion: number = 10
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null
