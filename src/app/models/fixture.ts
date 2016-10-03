@@ -35,17 +35,8 @@ export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseS
     set generatedBy(value: string) { this.set('generatedBy', value) }
     get generatedBy(): string { return this.get('generatedBy') }
 
-    getLeague(): Promise<League> {
-        return this.fetch({ withRelated: ['league'] }).then((res) => {
-            return res.related('league') as League
-        })
-    }
     setLeague(value: League) { this.set('league_id', value.id) }
 
-    getRounds(): Promise<Collection<Round>> {
-        return this.fetch({ withRelated: ['rounds'] }).then((res) => {
-            return res.related('rounds') as Collection<Round>
-        })
     }
 
     /**
