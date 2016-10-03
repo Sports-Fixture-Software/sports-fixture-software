@@ -24,10 +24,16 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
     get name(): string { return this.get('name') }
     set name(value: string) { this.set('name', value) }
 
+    get teamsPreLoaded(): Collection<Team> {
+        return this.related('teams') as Collection<Team>
     }
 
     get leagueConfigPreLoaded(): LeagueConfig {
         return this.related('leagueConfig') as LeagueConfig
+    }
+
+    get fixturesPreLoaded(): Collection<Fixture> {
+        return this.related('fixtures') as Collection<Fixture>
     }
 
     /**
