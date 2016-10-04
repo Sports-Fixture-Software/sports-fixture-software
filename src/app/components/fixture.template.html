@@ -1,7 +1,7 @@
 <navbar title="{{ fixture?.name }}"></navbar>
 
 <div class="sidebar btn-group-vertical">
-    <a [routerLink]="['details']" [routerLinkActive]="['btn-primary']" class="btn btn-default">Details</a>
+    <a [routerLink]="['details']" [routerLinkActive]="['btn-primary']" class="btn btn-default">Fixture</a>
     <a [routerLink]="['rounds']" [routerLinkActive]="['btn-primary']" class="btn btn-default">Rounds</a>
     <a [routerLink]="['generate']" [routerLinkActive]="['btn-primary']" class="btn btn-default">Generate</a>
     <a [routerLink]="['review']" [routerLinkActive]="['btn-primary']" class="btn btn-default" [class.disabled]="!fixture?.generatedOn?.isValid()">Review</a>

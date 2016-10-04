@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, AfterViewInit, ElementRef, ChangeDetectorRef} from '@angular/core'
+import { Component, Input, Output, EventEmitter, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef} from '@angular/core'
 import * as twitterBootstrap from 'bootstrap'
 declare var jQuery: JQueryStatic;
 
@@ -7,7 +7,7 @@ declare var jQuery: JQueryStatic;
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'button_popover.template.html'
 })
-export class ButtonPopover implements AfterViewInit {
+export class ButtonPopover implements AfterViewInit, OnDestroy {
     @Input() errorTitle: String
     @Input() errorContent: String
     @Input('disabled') disabled: boolean
@@ -74,7 +74,5 @@ export class ButtonPopover implements AfterViewInit {
 }
 enum State {
     Hidden,
-    Hidding,
-    Shown,
-    Showing
+    Shown
 }
