@@ -8,7 +8,6 @@ import { BreadcrumbService, Breadcrumb } from '../services/breadcrumb.service';
     templateUrl: 'navbar.template.html'
 })
 export class Navbar implements OnInit {
-    @Input() title: string;
     breadcrumbs: Breadcrumb[];
     
     constructor(private router: Router,
