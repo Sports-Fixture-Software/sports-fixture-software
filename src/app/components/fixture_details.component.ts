@@ -39,11 +39,11 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.fixtureForm = new FormGroup({
             name: new FormControl('', [<any>Validators.required]),
-            description: new FormControl('', [<any>Validators.required]),
-            startDate: new FormControl('', [<any>Validators.required]),
-            startDateEnabled: new FormControl('', [<any>Validators.required]),
-            endDate: new FormControl('', [<any>Validators.required]),
-            endDateEnabled: new FormControl('', [<any>Validators.required]),
+            description: new FormControl(''),
+            startDate: new FormControl(),
+            startDateEnabled: new FormControl(false),
+            endDate: new FormControl(),
+            endDateEnabled: new FormControl(false),
             consecutiveHomeGamesMaxEnabled: new FormControl(),
             consecutiveHomeGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)]),
             consecutiveAwayGamesMaxEnabled: new FormControl(),
