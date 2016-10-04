@@ -5,6 +5,7 @@ import { FixtureService } from '../services/fixture.service'
 import { Collection } from '../services/collection'
 import { Fixture } from '../models/fixture'
 import { Round } from '../models/round'
+import { Match } from '../models/match'
 import { Validator } from '../util/validator'
 import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover'
@@ -78,34 +79,31 @@ export class ReviewComponent implements OnInit {
      * or match-up the user selects.
      *
      * `round` the selected round.
-     * `config` the selected match-up.
+     * `match` the selected match-up.
      */
-    prepareForm(round: Round, config?: MatchConfig) {
+    prepareForm(round: Round, match: Match) {
         let fc = this.matchupForm.controls['round'] as FormControl
         fc.updateValue(round)
-        fc = this.matchupForm.controls['config'] as FormControl
-        fc.updateValue(config)
-        if (config && config.homeTeamPreLoaded) {
+        fc = this.matchupForm.controls['match'] as FormControl
+        fc.updateValue(match)
+        if (match && match.homeTeamPreLoaded) {
             fc = this.matchupForm.controls['homeTeam'] as FormControl
             for (let team of this.homeTeamsAll) {
-                if (team.id == config.homeTeamPreLoaded.id) {
+                if (team.id == match.homeTeamPreLoaded.id) {
                     fc.updateValue(team)
                     break
                 }
             }
         }
-        if (config && config.awayTeamPreLoaded) {
+        if (match && match.awayTeamPreLoaded) {
             fc = this.matchupForm.controls['awayTeam'] as FormControl
             for (let team of this.awayTeamsAll) {
-                if (team.id == config.awayTeamPreLoaded.id) {
+                if (team.id == match.awayTeamPreLoaded.id) {
                     fc.updateValue(team)
                     break
                 }
             }
         }
-        this.removeTeamsAsAlreadyReserved(round,
-            config ? config.homeTeamPreLoaded : null,
-            config ? config.awayTeamPreLoaded : null)
     }
 
     /**
