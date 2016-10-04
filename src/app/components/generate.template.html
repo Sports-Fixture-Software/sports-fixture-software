@@ -6,8 +6,8 @@
 <p><strong>{{numberOfTeams}}</strong> teams
     play <strong>{{numberOfRounds}}</strong> rounds
 </p>
-<p>Starting on <strong>{{fixture?.startDate | date}}</strong>
-    ending on <strong>{{fixture?.endDate | date}}</strong>
+<p>Starting on <strong>{{fixture?.startDate?.format('ll')}}</strong>
+    ending on <strong>{{fixture?.endDate?.format('ll')}}</strong>
 </p>
 <div class="spacer30"></div>
 <button type="button" class="btn btn-primary btn-lg btn-block vert-sep" (click)="generate()">

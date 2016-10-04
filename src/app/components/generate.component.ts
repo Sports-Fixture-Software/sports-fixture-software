@@ -10,6 +10,7 @@ import { MatchService } from '../services/match.service'
 import { SchedulerService } from '../services/scheduler.service'
 import { Collection }  from '../services/collection'
 import { DateTime } from '../util/date_time'
+import * as moment from 'moment'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -49,7 +50,7 @@ export class GenerateComponent implements OnInit {
 
     generate() {
         if (this.fixture) {
-            this.fixture.generatedOn = new Date()
+            this.fixture.generatedOn = moment()
             this.fixtureService.updateFixture(this.fixture)
             this.notifyService.emitGenerated(true)
             this.schedulerService.generateFixture(this.fixture)

@@ -5,6 +5,7 @@ import { Round } from './round'
 import { Collection } from '../services/collection'
 import { FixtureConfig } from './fixture_config'
 import * as Promise from 'bluebird'
+import * as moment from 'moment'
 
 export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseService).Model<Fixture> {
 
@@ -23,16 +24,16 @@ export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseS
     set name(value: string) { this.set('name', value) }
     set description(value: string) { this.set('description', value) }
     get description(): string { return this.get('description') }
-    set startDate(value: Date) { this.set('startDate', value) }
-    get startDate(): Date { return this.get('startDate') }
-    set endDate(value: Date) { this.set('endDate', value) }
-    get endDate(): Date { return this.get('endDate') }
-    set createdOn(value: Date) { this.set('createdOn', value) }
-    get createdOn(): Date { return this.get('createdOn') }
+    set startDate(value: moment.Moment) { this.set('startDate', value.valueOf()) }
+    get startDate(): moment.Moment { return moment(this.get('startDate')) }
+    set endDate(value: moment.Moment) { this.set('endDate', value.valueOf()) }
+    get endDate(): moment.Moment { return moment(this.get('endDate')) }
+    set createdOn(value: moment.Moment) { this.set('createdOn', value.valueOf()) }
+    get createdOn(): moment.Moment { return moment(this.get('createdOn')) }
     set createdBy(value: string) { this.set('createdBy', value) }
     get createdBy(): string { return this.get('createdBy') }
-    set generatedOn(value: Date) { this.set('generatedOn', value) }
-    get generatedOn(): Date { return this.get('generatedOn') }
+    set generatedOn(value: moment.Moment) { this.set('generatedOn', value.valueOf()) }
+    get generatedOn(): moment.Moment { return moment(this.get('generatedOn')) }
     set generatedBy(value: string) { this.set('generatedBy', value) }
     get generatedBy(): string { return this.get('generatedBy') }
 
