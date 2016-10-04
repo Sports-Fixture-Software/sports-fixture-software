@@ -49,11 +49,11 @@ export class FixtureService {
 
     /**
      * get fixture, and the associated fixture config, and the associated
-     * league, and the associated league config
+     * league
      */
     getFixtureAndLeagueAndConfig(id: number): Promise<Fixture> {
         return new Fixture().where('id', id).fetch({
-            withRelated: ['fixtureConfig', 'league', 'league.leagueConfig']
+            withRelated: ['fixtureConfig', 'league']
         })
     }
 
