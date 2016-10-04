@@ -138,7 +138,7 @@ export class RoundListComponent implements OnInit {
      * match-up form. Clears the form.
      */
     createMatchup(form: RoundForm) {
-        this._roundService.addUpdateRound(form.round).then(() => {
+        this._roundService.addRound(form.round).then(() => {
             let config = form.config
             if (!config) {
                 config = new MatchConfig()
