@@ -104,23 +104,22 @@
                 <td>
                     <div class="form-title"><strong>Consecutive Home Games</strong></div>
                 </td>
-                <td *ngIf="!editing">
-                    <div *ngIf="fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value" class="form-title-ro pull-right">
+                <td *ngIf="fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value && editing">
+                    <input-popover #consecutiveHomeGamesMaxInput *ngIf="editing" type="text" [formGroup]="fixtureForm" input-class="form-control form-number"
+                        inputFormControlName="consecutiveHomeGamesMax"></input-popover>
+                </td>
+                <td *ngIf="fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value && !editing">
+                    <div class="form-title-ro pull-right">
                         {{ fixture?.fixtureConfigPreLoaded?.consecutiveHomeGamesMax }}
                     </div>
-                    <div *ngIf="!fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value" class="form-inherit oversize-header">
+                </td>
+                <td *ngIf="!fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value" colspan="2">
+                    <div class="form-inherit oversize-header">
                         Using league's configuration
                     </div>
                 </td>
-                <td *ngIf="editing">
-                    <input-popover #consecutiveHomeGamesMaxInput *ngIf="fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value" type="text" [formGroup]="fixtureForm" input-class="form-control form-number"
-                        inputFormControlName="consecutiveHomeGamesMax"></input-popover>
-                    <div *ngIf="!fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value" class="form-inherit oversize-header">
-                        Using league's configuration
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value" class="form-text-small">(max)</div>
+                <td *ngIf="fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value">
+                    <div class="form-text-small">(max)</div>
                 </td>
             </tr>
             <tr>
@@ -132,23 +131,22 @@
                 <td>
                     <div class="form-title"><strong>Consecutive Away Games</strong></div>
                 </td>
-                <td *ngIf="!editing">
-                    <div *ngIf="fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value" class="form-title-ro pull-right">
+                <td *ngIf="fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value && editing">
+                    <input-popover #consecutiveAwayGamesMaxInput *ngIf="editing" type="text" [formGroup]="fixtureForm" input-class="form-control form-number"
+                        inputFormControlName="consecutiveAwayGamesMax"></input-popover>
+                </td>
+                <td *ngIf="fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value && !editing">
+                    <div class="form-title-ro pull-right">
                         {{ fixture?.fixtureConfigPreLoaded?.consecutiveAwayGamesMax }}
                     </div>
-                    <div *ngIf="!fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value" class="form-inherit oversize-header">
+                </td>
+                <td *ngIf="!fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value" colspan="2">
+                    <div class="form-inherit oversize-header">
                         Using league's configuration
                     </div>
                 </td>
-                <td *ngIf="editing">
-                    <input-popover #consecutiveAwayGamesMaxInput *ngIf="fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value" type="text" [formGroup]="fixtureForm" input-class="form-control form-number"
-                        inputFormControlName="consecutiveAwayGamesMax"></input-popover>
-                    <div *ngIf="!fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value" class="form-inherit oversize-header">
-                        Using league's configuration
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value" class="form-text-small">(max)</div>
+                <td *ngIf="fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value">
+                    <div class="form-text-small">(max)</div>
                 </td>
             </tr>
         </tbody>
