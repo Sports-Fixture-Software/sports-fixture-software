@@ -211,7 +211,7 @@ export class RoundListComponent implements OnInit {
                 if (i == 1) {
                     round.startDate = this.fixture.startDate
                 } else {
-                    round.startDate = runningDate.toDate()
+                    round.startDate = runningDate
                 }
                 round.setFixture(this.fixture)
                 this.rounds.splice(~index, 0, round)
