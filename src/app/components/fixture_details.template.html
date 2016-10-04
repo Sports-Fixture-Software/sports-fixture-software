@@ -24,8 +24,8 @@
                 <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditFixture()" type="button">Edit Fixture</button>
                 <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteFixturePopover"
                     popoverPlacement="bottom">Delete Fixture</button>
-                <button-popover #saveChangesButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" *ngIf="editing" type="submit">Save Changes</button-popover>
-                <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [disabled]="!fixtureForm.valid" (click)="onRevert()">Revert</button>
+                <button-popover #saveChangesButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" *ngIf="editing" type="submit" [disabled]="!fixtureForm.valid">Save Changes</button-popover>
+                <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()">Revert</button>
             </div>
         </div>
     </div>
@@ -106,7 +106,7 @@
                 </td>
                 <td *ngIf="!editing">
                     <div *ngIf="fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value" class="form-title-ro pull-right">
-                        Noinherit {{ fixture?.fixtureConfigPreLoaded?.consecutiveHomeGamesMax }}
+                        {{ fixture?.fixtureConfigPreLoaded?.consecutiveHomeGamesMax }}
                     </div>
                     <div *ngIf="!fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value" class="form-inherit">
                         Using league's configuration
@@ -134,7 +134,7 @@
                 </td>
                 <td *ngIf="!editing">
                     <div *ngIf="fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value" class="form-title-ro pull-right">
-                        NoInherit {{ fixture?.fixtureConfigPreLoaded?.consecutiveAwayGamesMax }}
+                        {{ fixture?.fixtureConfigPreLoaded?.consecutiveAwayGamesMax }}
                     </div>
                     <div *ngIf="!fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value" class="form-inherit">
                         Using league's configuration

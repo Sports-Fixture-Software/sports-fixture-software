@@ -17,7 +17,7 @@ import { Validator } from '../util/validator'
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'fixture_details.template.html',
     providers: [FixtureService, FixtureConfigService],
-        directives: [ButtonPopover, InputPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES]
+    directives: [ButtonPopover, InputPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES]
 })
 
 export class FixtureDetailsComponent implements OnInit, OnDestroy {
@@ -93,10 +93,10 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
     /**
      *  If the user unchecks, clear the entered date
      */
-    onStartDateEnabledChange(value : boolean) {
+    onStartDateEnabledChange(value: boolean) {
         if (!value) {
             let fc = this.fixtureForm.controls['startDate'] as FormControl
-            fc.updateValue(null, {emitEvent : false})
+            fc.updateValue(null, { emitEvent: false })
         }
     }
 
@@ -104,20 +104,20 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
      *  If the user enters a date, check the box to enable. If the user is
      *  entering a date, it is assumed they want it used
      */
-    onStartDateChange(value : Date) {
+    onStartDateChange(value: Date) {
         if (value) {
             let fc = this.fixtureForm.controls['startDateEnabled'] as FormControl
-            fc.updateValue(true, {emitEvent : false})
+            fc.updateValue(true, { emitEvent: false })
         }
     }
 
     /**
      *  If the user unchecks, clear the entered date
      */
-    onEndDateEnabledChange(value : boolean) {
+    onEndDateEnabledChange(value: boolean) {
         if (!value) {
             let fc = this.fixtureForm.controls['endDate'] as FormControl
-            fc.updateValue(null, {emitEvent : false})
+            fc.updateValue(null, { emitEvent: false })
         }
     }
 
@@ -125,10 +125,10 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
      *  If the user enters a date, check the box to enable. If the user is
      *  entering a date, it is assumed they want it used
      */
-    onEndDateChange(value : Date) {
+    onEndDateChange(value: Date) {
         if (value) {
             let fc = this.fixtureForm.controls['endDateEnabled'] as FormControl
-            fc.updateValue(true, {emitEvent : false})
+            fc.updateValue(true, { emitEvent: false })
         }
     }
 
@@ -136,11 +136,13 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
      *  Show an error popover if invalid user entry.
      */
     onFieldChange(element: InputPopover, control: FormControl) {
-        if (control.valid) {
-            element.hideError()
-        }
-        else {
-            element.showError(`Please enter a number greater than ${Validator.CONSECUTIVE_GAMES_MIN-1}`)
+        if (element) {
+            if (control.valid) {
+                element.hideError()
+            }
+            else {
+                element.showError(`Please enter a number greater than ${Validator.CONSECUTIVE_GAMES_MIN - 1}`)
+            }
         }
     }
 
@@ -151,13 +153,13 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
         // off
         if (form.startDateEnabled && !form.startDate) {
             let fc = this.fixtureForm.controls['startDateEnabled'] as FormControl
-            fc.updateValue(false, {emitEvent : false})
+            fc.updateValue(false, { emitEvent: false })
         }
         // if user checked the date, but didn't enter a date, turn the checked
         // off
         if (form.endDateEnabled && !form.endDate) {
             let fc = this.fixtureForm.controls['endDateEnabled'] as FormControl
-            fc.updateValue(false, {emitEvent : false})
+            fc.updateValue(false, { emitEvent: false })
         }
         this.fixture.startDate = form.startDate
         this.fixture.endDate = form.endDate
@@ -167,21 +169,29 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             config = new FixtureConfig()
             config.setFixture(this.fixture)
         }
-        config.consecutiveHomeGamesMax = Number.parseInt(form.consecutiveHomeGamesMax)
-        config.consecutiveHomeGamesMax = Number.isInteger(config.consecutiveHomeGamesMax) ? config.consecutiveHomeGamesMax : null
-        config.consecutiveAwayGamesMax = Number.parseInt(form.consecutiveAwayGamesMax)
-        config.consecutiveAwayGamesMax = Number.isInteger(config.consecutiveAwayGamesMax) ? config.consecutiveAwayGamesMax : null
-        // if user checked the checkbox, but didn't enter a value, turn the
-        // checked off
-        if (form.consecutiveHomeGamesMaxEnabled && (form.consecutiveHomeGamesMax == null || (typeof form.consecutiveHomeGamesMax === 'string' && form.consecutiveHomeGamesMax.trim() == ''))) {
-            let fc = this.fixtureForm.controls['consecutiveHomeGamesMaxEnabled'] as FormControl
-            fc.updateValue(false, { emitEvent: false })
+        if (form.consecutiveHomeGamesMaxEnabled) {
+            if (form.consecutiveHomeGamesMax == null || (typeof form.consecutiveHomeGamesMax === 'string' && form.consecutiveHomeGamesMax.trim() == '')) {
+                // if user checked the checkbox, but didn't enter a value, turn
+                // the checked off
+                let fc = this.fixtureForm.controls['consecutiveHomeGamesMaxEnabled'] as FormControl
+                fc.updateValue(false, { emitEvent: false })
+            }
+            config.consecutiveHomeGamesMax = Number.parseInt(form.consecutiveHomeGamesMax)
+            config.consecutiveHomeGamesMax = Number.isInteger(config.consecutiveHomeGamesMax) ? config.consecutiveHomeGamesMax : null
+        } else {
+            config.consecutiveHomeGamesMax = null
         }
-        // if user checked the checkbox, but didn't enter a value, turn the
-        // checked off
-        if (form.consecutiveAwayGamesMaxEnabled && (form.consecutiveAwayGamesMax == null || (typeof form.consecutiveAwayGamesMax === 'string' && form.consecutiveAwayGamesMax.trim() == ''))) {
-            let fc = this.fixtureForm.controls['consecutiveAwayGamesMaxEnabled'] as FormControl
-            fc.updateValue(false, { emitEvent: false })
+        if (form.consecutiveAwayGamesMaxEnabled) {
+            if (form.consecutiveAwayGamesMax == null || (typeof form.consecutiveAwayGamesMax === 'string' && form.consecutiveAwayGamesMax.trim() == '')) {
+                // if user checked the checkbox, but didn't enter a value, turn
+                // the checked off
+                let fc = this.fixtureForm.controls['consecutiveAwayGamesMaxEnabled'] as FormControl
+                fc.updateValue(false, { emitEvent: false })
+            }
+            config.consecutiveAwayGamesMax = Number.parseInt(form.consecutiveAwayGamesMax)
+            config.consecutiveAwayGamesMax = Number.isInteger(config.consecutiveAwayGamesMax) ? config.consecutiveAwayGamesMax : null
+        } else {
+            config.consecutiveAwayGamesMax = null
         }
 
         this.fixtureService.updateFixture(this.fixture).then((f) => {
@@ -252,7 +262,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
     }
 
     private fixture: Fixture
-    private listeners : listenerType = {} as listenerType
+    private listeners: listenerType = {} as listenerType
 }
 
 interface listenerType {
