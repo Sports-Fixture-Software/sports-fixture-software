@@ -50,8 +50,7 @@ export class TeamListComponent implements OnInit {
     set league(value: League) { this._league = value }
 
     ngOnInit() {
-        this._router.routerState.parent(this._route)
-            .params.forEach(params => {
+        this._router.routerState.parent(this._router.routerState.parent(this._route)).params.forEach(params => {
                 let id = +params['id'];
                 this._leagueService.getLeague(id).then((l) => {
                     this.league = l
@@ -110,6 +109,10 @@ export class TeamListComponent implements OnInit {
             this.createTeamButton.showError('Error creating team', err.message)
             this._changeref.detectChanges()
         })
+    }
+
+    navigateToTeam(team: Team) {
+        this._router.navigate([team.id], { relativeTo: this._route });
     }
 
     private static CREATE_TEAM: string = 'Create Team'

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core'
 import * as bookshelf from 'bookshelf'  
 import * as knex from 'knex'
 import * as Promise from 'bluebird'
+import * as moment from 'moment'
 
 @Injectable()
 export class DatabaseService {
@@ -137,6 +138,28 @@ export class DatabaseService {
                             ('id').inTable('round')
                 })
             }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('teamconfig',
+                    (table) => {
+                        table.increments('id')
+                        table.integer('priority')
+                        table.integer('homeGamesMin')
+                        table.integer('homeGamesMax')
+                        table.integer('awayGamesMin')
+                        table.integer('awayGamesMax')
+                        table.integer('team_id').notNullable().references
+                            ('id').inTable('team')
+                })
+            }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('leagueconfig',
+                    (table) => {
+                        table.increments('id')
+                        table.integer('priority')
+                        table.integer('consecutiveHomeGamesMax')
+                        table.integer('consecutiveAwayGamesMax')
+                        table.integer('league_id').notNullable().references
+                            ('id').inTable('league')
+                })
+            }).then((res) => {
                 return this.get().knex.schema.createTableIfNotExists('info',
                     (table) => {
                         table.integer('databaseVersion')
@@ -163,26 +186,26 @@ export class DatabaseService {
         let fixtures = [
             {
                 name: 'Fixture 2016', description: 'Fixture with early Easter',
-                startDate: '2016-03-24', endDate: '2016-08-27', league_id: 1,
-                createdOn: '2016-08-30', createdBy: 'Tom'
+                startDate: moment('2016-03-24').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 1,
+                createdOn: moment('2016-08-30').valueOf(), createdBy: 'Tom'
             },
             {
                 name: 'Fixture 2017', description: 'Fixture with late Easter',
-                startDate: '2017-04-13', endDate: '2016-08-27', league_id: 1,
-                createdOn: '2016-08-30', createdBy: 'Tom'
+                startDate: moment('2017-04-13').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 1,
+                createdOn: moment('2016-08-30').valueOf(), createdBy: 'Tom'
             },
             {
                 name: 'Fixture with a really long name to test the display and to see how wrapping is handled', description: 'Fixture description with a really long name to test the display and to see how wrapping is handled',
-                startDate: '2017-04-13', endDate: '2016-08-27', league_id: 1,
-                createdOn: '2016-08-30', createdBy: 'A person with a really really long name, super long'
+                startDate: moment('2017-04-13').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 1,
+                createdOn: moment('2016-08-30').valueOf(), createdBy: 'A person with a really really long name, super long'
             },
             {
                 name: 'U18 Fixture 2016', description: 'Fixture with early Easter',
-                startDate: '2016-03-24', endDate: '2016-08-27', league_id: 3
+                startDate: moment('2016-03-24').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 3
             },
             {
                 name: 'U18 Fixture 2017', description: 'Fixture with late Easter',
-                startDate: '2017-04-13', endDate: '2016-08-27', league_id: 3
+                startDate: moment('2017-04-13').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 3
             },
         ]
         let teams = [
@@ -206,6 +229,9 @@ export class DatabaseService {
             { name: 'Sturt U18', league_id: 3},
             { name: 'West U18', league_id: 3},
         ]
+        let teamConfigs = [
+            { homeGamesMin: 0, homeGamesMax: 0, team_id: 1 }
+        ]
         return Promise.each(leagues, (val) => {
             return this.get().knex('league').insert(val)
         }).then((res) => {
@@ -215,6 +241,10 @@ export class DatabaseService {
         }).then((res) => {
             return Promise.each(teams, (val) => {
                 return this.get().knex('team').insert(val)
+            })
+        }).then((res) => {
+            return Promise.each(teamConfigs, (val) => {
+                return this.get().knex('teamconfig').insert(val)
             })
         })
     }
@@ -232,7 +262,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
     
-    private _databaseVersion: number = 6
+    private _databaseVersion: number = 9
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null

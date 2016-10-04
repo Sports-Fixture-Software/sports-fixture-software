@@ -30,9 +30,10 @@
     </div>
     <table class="table table-striped">
         <colgroup>
-            <col style="width:10px">
-            <col style="width:60px">
+            <col style="width:30px">
+            <col style="width:37%">
             <col>
+            <col style="width:60px">
         </colgroup>
         <tbody>
             <tr>
@@ -40,11 +41,53 @@
                 <td>
                     <div class="form-title"><strong>Name</strong></div>
                 </td>
-                <td *ngIf="!editing">
+                <td *ngIf="!editing" colspan="2">
                     <div class="form-title-ro">{{ league?.name }}</div>
                 </td>
-                <td *ngIf="editing">
+                <td *ngIf="editing" colspan="2">
                     <input type="text" class="form-control" formControlName="name" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" formControlName="consecutiveHomeGamesMaxEnabled" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-title" ><strong>Consecutive Home Games</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro pull-right">
+                        {{ league?.leagueConfigPreLoaded?.consecutiveHomeGamesMax }}
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input-popover #consecutiveHomeGamesMaxInput type="text" [formGroup]="leagueForm" input-class="form-control form-number" inputFormControlName="consecutiveHomeGamesMax"></input-popover>
+                    </td>
+                <td>
+                    <div class="form-text-small">(max)</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" formControlName="consecutiveAwayGamesMaxEnabled" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-title" ><strong>Consecutive Away Games</strong></div>
+                </td>
+                <td *ngIf="!editing">
+                    <div class="form-title-ro pull-right">
+                        {{ league?.leagueConfigPreLoaded?.consecutiveAwayGamesMax }}
+                    </div>
+                </td>
+                <td *ngIf="editing">
+                    <input-popover #consecutiveAwayGamesMaxInput type="text" [formGroup]="leagueForm" input-class="form-control form-number" inputFormControlName="consecutiveAwayGamesMax"></input-popover>
+                    </td>
+                <td>
+                    <div class="form-text-small">(max)</div>
                 </td>
             </tr>
         </tbody>
