@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef,NgZone } from '@angular/core'
 import { Validators } from '@angular/common'
 import { ActivatedRoute, Router } from '@angular/router'
 import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
@@ -10,13 +10,14 @@ import { ButtonPopover } from './button_popover.component'
 import { InputPopover } from './input_popover.component'
 import { TeamForm } from '../models/team.form'
 import { Validator } from '../util/validator'
+import { POPOVER_DIRECTIVES } from 'ng2-popover'
 import { Subscription } from 'rxjs/Subscription'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'team_details.template.html',
     providers: [TeamService, TeamConfigService],
-    directives: [ButtonPopover, InputPopover, REACTIVE_FORM_DIRECTIVES]
+    directives: [ButtonPopover, InputPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES]
 })
 
 export class TeamDetailsComponent implements OnInit, OnDestroy {
@@ -24,10 +25,12 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
         private router: Router,
         private teamService: TeamService,
         private teamConfigService: TeamConfigService,
-        private changeref: ChangeDetectorRef) {
+        private changeref: ChangeDetectorRef,
+        private zone: NgZone) {
     }
 
     @ViewChild('saveChangesButton') saveChangesButton: ButtonPopover
+    @ViewChild('deleteTeamButton') deleteTeamButton: ButtonPopover
     @ViewChild('homeGamesMinInput') homeGamesMinInput: InputPopover
     @ViewChild('homeGamesMaxInput') homeGamesMaxInput: InputPopover
     @ViewChild('awayGamesMinInput') awayGamesMinInput: InputPopover
@@ -71,6 +74,18 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
         this.editing = false
         this.resetForm()
         this.changeref.detectChanges()
+    }
+
+    onDeleteTeam() {
+        this.teamService.deleteTeam(this.team).then(() => {
+            this.zone.run(() => {
+                this.router.navigate(['league'])
+            })
+        }).catch((err: Error) => {
+            this.deleteTeamButton.showError('Error deleting team',
+                err.message)
+            this.changeref.detectChanges()
+        })
     }
 
     /**

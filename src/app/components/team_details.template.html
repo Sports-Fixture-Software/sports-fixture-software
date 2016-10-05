@@ -4,8 +4,25 @@
             <h2>Team Details</h2>
         </div>
         <div class="col-xs-6 heading-row">
+
+            <popover-content #deleteTeamPopover title="Delete Team" [closeOnClickOutside]="true">
+                <div class="alert alert-danger" role="alert" style="min-width:250px">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span class="sr-only">Delete Team</span> Permanently delete team {{team?.name}}?
+                </div>
+                <div class="pull-right form-footer">
+                    <button class="btn btn-default horiz-sep" type="button" (click)="deleteTeamPopover.hide()">
+                        Cancel
+                    </button>
+                    <button-popover #deleteTeamButton btn-class="btn btn-primary" type="button" (click)="onDeleteTeam()">
+                        Delete Team
+                    </button-popover>
+                </div>
+            </popover-content>
+
             <div class="pull-right">
                 <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditTeam()" type="button">Edit Team</button>
+                <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteTeamPopover" popoverPlacement="bottom">Delete Team</button>
                 <button-popover #saveChangesButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" *ngIf="editing" type="submit"
                     [disabled]="!teamForm.valid">Save Changes</button-popover>
                 <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()">Revert</button>
