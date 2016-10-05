@@ -203,6 +203,27 @@ export class ReviewComponent implements OnInit {
         })
     }
 
+    /**
+     * Determines if a team is repeated in a round.
+     *
+     * `round` the selected round.
+     * `match` the selected match-up.
+     * Returns `true` if a team exists twice or more in a round,
+     * false otherwise.
+     */
+    isTeamRepeated(round: Round, team: Team): boolean {
+        let count = 0
+        for (let match of round.matchesPreLoaded) {
+            if (match.homeTeam_id == team.id || match.awayTeam_id == team.id) {
+                count++
+                if (count > 1) {
+                    return true
+                }
+            }
+        }
+        return count > 1 ? true : false
+    }
+
     private editFixtureLabel: string = ReviewComponent.EDIT_FIXTURE
     private editing: boolean = false
     private rounds: Round[] = []
