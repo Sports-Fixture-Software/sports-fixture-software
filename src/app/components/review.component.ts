@@ -2,10 +2,13 @@ import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { Validators } from '@angular/common'
 import { FixtureService } from '../services/fixture.service'
+import { MatchService } from '../services/match.service'
 import { Collection } from '../services/collection'
 import { Fixture } from '../models/fixture'
 import { Round } from '../models/round'
+import { Team } from '../models/team'
 import { Match } from '../models/match'
+import { ReviewForm } from '../models/review.form'
 import { Validator } from '../util/validator'
 import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover'
@@ -17,7 +20,7 @@ import * as fs from 'fs'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
-    providers: [FixtureService],
+    providers: [FixtureService, MatchService],
     directives: [ButtonPopover, POPOVER_DIRECTIVES, REACTIVE_FORM_DIRECTIVES],
     templateUrl: 'review.template.html'
 })
@@ -25,12 +28,15 @@ import * as fs from 'fs'
 export class ReviewComponent implements OnInit {
     constructor(private _changeref: ChangeDetectorRef,
         private _fixtureService: FixtureService,
+        private _matchService: MatchService,
         private _router: Router,
         private _route: ActivatedRoute) {
     }
 
     matchupForm: FormGroup
     @ViewChild('saveFixtureButton') saveFixtureButton: ButtonPopover
+    @ViewChild('createMatchupPopover') createMatchupPopover: PopoverContent
+    @ViewChild('createMatchupButton') createMatchupButton: ButtonPopover
     error: Error
 
     ngOnInit() {
@@ -38,13 +44,18 @@ export class ReviewComponent implements OnInit {
             round: new FormControl(),
             homeTeam: new FormControl('', [<any>Validators.required]),
             awayTeam: new FormControl('', [<any>Validators.required]),
-            config: new FormControl()
+            match: new FormControl()
         }, {}, Validator.differentTeamsSelected)
         this._router.routerState.parent(this._route)
             .params.forEach(params => {
                 let id = +params['id'];
-                this._fixtureService.getFixture(id).then((f) => {
+                this._fixtureService.getFixtureAndTeams(id).then((f) => {
                     this.fixture = f
+                    this.homeTeamsAll = this.fixture.leaguePreLoaded.teamsPreLoaded.toArray()
+                    this.awayTeamsAll = this.homeTeamsAll.slice(0)
+                    let byeTeam = new Team('Bye')
+                    byeTeam.id = null
+                    this.awayTeamsAll.push(byeTeam)
                     return this._fixtureService.getRoundsAndMatches(f)
                 }).then((rounds: Collection<Round>) => {
                     this.rounds = rounds.toArray()
@@ -104,6 +115,26 @@ export class ReviewComponent implements OnInit {
                 }
             }
         }
+    }
+
+    /**
+     * create the match-up in the database based on the user's responses to
+     * the match-up form.
+     */
+    createMatchup(form: ReviewForm) {
+        if (form.match) {
+            form.match.setHomeTeam(form.homeTeam)
+            form.match.setAwayTeam(form.awayTeam)
+        }
+        this._matchService.addMatch(form.match).then(() => {
+            return this._fixtureService.getRoundsAndMatches(this.fixture)
+        }).then((rounds: Collection<Round>) => {
+            this.rounds = rounds.toArray()
+            this.createMatchupPopover.hide()
+            this._changeref.detectChanges()
+        }).catch((err: Error) => {
+            this.createMatchupButton.showError('Error saving match-up', err.message)
+        })
     }
 
     /**
@@ -175,6 +206,8 @@ export class ReviewComponent implements OnInit {
     private editFixtureLabel: string = ReviewComponent.EDIT_FIXTURE
     private editing: boolean = false
     private rounds: Round[] = []
+    private homeTeamsAll: Team[]
+    private awayTeamsAll: Team[]
     private fixture: Fixture
     private static EDIT_FIXTURE: string = 'Edit Fixture'
     private static VIEW_FIXTURE: string = 'View Fixture'
