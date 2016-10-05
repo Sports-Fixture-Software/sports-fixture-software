@@ -15,13 +15,14 @@ import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover'
 import { FileFolder } from '../util/file_folder'
 import { ExportTo } from '../util/export_to'
 import { ButtonPopover } from './button_popover.component'
+import { ButtonHidden } from './button_hidden.component'
 import * as electron from 'electron'
 import * as fs from 'fs'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     providers: [FixtureService, MatchService],
-    directives: [ButtonPopover, POPOVER_DIRECTIVES, REACTIVE_FORM_DIRECTIVES],
+    directives: [ButtonPopover, ButtonHidden, POPOVER_DIRECTIVES, REACTIVE_FORM_DIRECTIVES],
     templateUrl: 'review.template.html'
 })
 
@@ -36,6 +37,7 @@ export class ReviewComponent implements OnInit {
     matchupForm: FormGroup
     @ViewChild('saveFixtureButton') saveFixtureButton: ButtonPopover
     @ViewChild('createMatchupPopover') createMatchupPopover: PopoverContent
+    @ViewChild('deleteMatchupButton') deleteMatchupButton: ButtonPopover
     @ViewChild('createMatchupButton') createMatchupButton: ButtonPopover
     error: Error
 
@@ -69,8 +71,8 @@ export class ReviewComponent implements OnInit {
     }
 
     onEditFixture() {
-        this.editing = !this.editing
-        this.editFixtureLabel = this.editing ? ReviewComponent.VIEW_FIXTURE : ReviewComponent.EDIT_FIXTURE
+        this.editingFixture = !this.editingFixture
+        this.editFixtureLabel = this.editingFixture ? ReviewComponent.VIEW_FIXTURE : ReviewComponent.EDIT_FIXTURE
     }
 
     /**
@@ -93,6 +95,13 @@ export class ReviewComponent implements OnInit {
      * `match` the selected match-up.
      */
     prepareForm(round: Round, match: Match) {
+        if (match) {
+            this.editingMatch = true
+            this.matchupButtonText = ReviewComponent.EDIT_MATCHUP
+        } else {
+            this.matchupButtonText = ReviewComponent.CREATE_MATCHUP
+            this.editingMatch = false
+        }
         let fc = this.matchupForm.controls['round'] as FormControl
         fc.updateValue(round)
         fc = this.matchupForm.controls['match'] as FormControl
@@ -122,11 +131,20 @@ export class ReviewComponent implements OnInit {
      * the match-up form.
      */
     createMatchup(form: ReviewForm) {
-        if (form.match) {
-            form.match.setHomeTeam(form.homeTeam)
-            form.match.setAwayTeam(form.awayTeam)
+        let match = form.match
+        if (!form.match) {
+            match = new Match()
         }
-        this._matchService.addMatch(form.match).then(() => {
+        match.setRound(form.round)
+        match.setHomeTeam(form.homeTeam)
+        match.setAwayTeam(form.awayTeam)
+        let fc = this.matchupForm.controls['homeTeam'] as FormControl
+        fc.updateValue(null)
+        fc = this.matchupForm.controls['awayTeam'] as FormControl
+        fc.updateValue(null)
+        fc = this.matchupForm.controls['match'] as FormControl
+        fc.updateValue(null)
+        this._matchService.addMatch(match).then(() => {
             return this._fixtureService.getRoundsAndMatches(this.fixture)
         }).then((rounds: Collection<Round>) => {
             this.rounds = rounds.toArray()
@@ -135,6 +153,22 @@ export class ReviewComponent implements OnInit {
         }).catch((err: Error) => {
             this.createMatchupButton.showError('Error saving match-up', err.message)
         })
+    }
+
+    deleteMatchup(form: ReviewForm) {
+        if (form.match) {
+            this._matchService.deleteMatch(form.match).then(() => {
+                return this._fixtureService.getRoundsAndMatches(this.fixture)
+            }).then((rounds: Collection<Round>) => {
+                this.rounds = rounds.toArray()
+                this.createMatchupPopover.hide()
+                this._changeref.detectChanges()
+            }).catch((err: Error) => {
+                this.deleteMatchupButton.showError('Error deleting match-up', err.message)
+            })
+        } else {
+            this.deleteMatchupButton.showError('Error deleting match-up', 'The match-up could not be found')
+        }
     }
 
     /**
@@ -212,6 +246,9 @@ export class ReviewComponent implements OnInit {
      * false otherwise.
      */
     isTeamRepeated(round: Round, team: Team): boolean {
+        if (team.id == null) { // bye
+            return false
+        }
         let count = 0
         for (let match of round.matchesPreLoaded) {
             if (match.homeTeam_id == team.id || match.awayTeam_id == team.id) {
@@ -224,12 +261,16 @@ export class ReviewComponent implements OnInit {
         return count > 1 ? true : false
     }
 
+    private matchupButtonText: string
     private editFixtureLabel: string = ReviewComponent.EDIT_FIXTURE
-    private editing: boolean = false
+    private editingFixture: boolean = false
+    private editingMatch: boolean
     private rounds: Round[] = []
     private homeTeamsAll: Team[]
     private awayTeamsAll: Team[]
     private fixture: Fixture
+    private static CREATE_MATCHUP: string = 'Create Match-up'
+    private static EDIT_MATCHUP: string = 'Edit Match-up'
     private static EDIT_FIXTURE: string = 'Edit Fixture'
     private static VIEW_FIXTURE: string = 'View Fixture'
 }
