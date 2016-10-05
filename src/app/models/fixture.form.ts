@@ -4,5 +4,9 @@ export interface FixtureForm {
     startDate: string,
     startDateEnabled: boolean,
     endDate: string,
-    endDateEnabled: boolean
+    endDateEnabled: boolean,
+    consecutiveHomeGamesMaxEnabled: boolean,
+    consecutiveHomeGamesMax: string,
+    consecutiveAwayGamesMaxEnabled: boolean,
+    consecutiveAwayGamesMax: string
 }

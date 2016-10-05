@@ -22,8 +22,9 @@
 
             <div class="pull-right">
                 <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditFixture()" type="button">Edit Fixture</button>
-                <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteFixturePopover" popoverPlacement="bottom">Delete Fixture</button>
-                <button-popover #saveChangesButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" *ngIf="editing" type="submit">Save Changes</button-popover>
+                <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteFixturePopover"
+                    popoverPlacement="bottom">Delete Fixture</button>
+                <button-popover #saveChangesButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" *ngIf="editing" type="submit" [disabled]="!fixtureForm.valid">Save Changes</button-popover>
                 <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()">Revert</button>
             </div>
         </div>
@@ -31,8 +32,9 @@
     <table class="table table-striped">
         <colgroup>
             <col style="width:30px">
-            <col style="width:100px">
+            <col style="width:38%">
             <col>
+            <col style="width:60px">
         </colgroup>
         <tbody>
             <tr>
@@ -40,10 +42,10 @@
                 <td>
                     <div class="form-title"><strong>Name</strong></div>
                 </td>
-                <td *ngIf="!editing">
+                <td *ngIf="!editing" colspan="2">
                     <div class="form-title-ro">{{ fixture?.name }}</div>
                 </td>
-                <td *ngIf="editing">
+                <td *ngIf="editing" colspan="2">
                     <input type="text" class="form-control" formControlName="name" />
                 </td>
             </tr>
@@ -52,12 +54,12 @@
                 <td>
                     <div class="form-title"><strong>Description</strong></div>
                 </td>
-                <td *ngIf="!editing">
+                <td *ngIf="!editing" colspan="2">
                     <div class="form-title-ro">
                         {{ fixture?.description }}
                     </div>
                 </td>
-                <td *ngIf="editing">
+                <td *ngIf="editing" colspan="2">
                     <input type="text" class="form-control" formControlName="description" />
                 </td>
             </tr>
@@ -70,27 +72,81 @@
                 <td>
                     <div class="form-title"><strong>Start Date</strong></div>
                 </td>
-                <td *ngIf="!editing">
+                <td *ngIf="!editing" colspan="2">
                     <div class="form-title-ro">{{ fixture?.startDate?.format('ll') }}</div>
                 </td>
-                <td *ngIf="editing">
+                <td *ngIf="editing" colspan="2">
                     <input type="date" class="form-control" formControlName="startDate" />
                 </td>
             </tr>
             <tr>
                 <td>
                     <div class="form-control-ro">
-                        <input type="checkbox" [disabled]="!editing" formControlName="endDateEnabled"/>
+                        <input type="checkbox" [disabled]="!editing" formControlName="endDateEnabled" />
                     </div>
                 </td>
                 <td>
                     <div class="form-title"><strong>End Date</strong></div>
                 </td>
-                <td *ngIf="!editing">
+                <td *ngIf="!editing" colspan="2">
                     <div class="form-title-ro">{{ fixture?.endDate?.format('ll') }}</div>
                 </td>
-                <td *ngIf="editing">
+                <td *ngIf="editing" colspan="2">
                     <input type="date" class="form-control" formControlName="endDate" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" formControlName="consecutiveHomeGamesMaxEnabled" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-title"><strong>Consecutive Home Games</strong></div>
+                </td>
+                <td *ngIf="fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value && editing">
+                    <input-popover #consecutiveHomeGamesMaxInput *ngIf="editing" type="text" [formGroup]="fixtureForm" input-class="form-control form-number"
+                        inputFormControlName="consecutiveHomeGamesMax"></input-popover>
+                </td>
+                <td *ngIf="fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value && !editing">
+                    <div class="form-title-ro pull-right">
+                        {{ fixture?.fixtureConfigPreLoaded?.consecutiveHomeGamesMax }}
+                    </div>
+                </td>
+                <td *ngIf="!fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value" colspan="2">
+                    <div class="form-inherit oversize-header">
+                        Using league's configuration
+                    </div>
+                </td>
+                <td *ngIf="fixtureForm.controls.consecutiveHomeGamesMaxEnabled.value">
+                    <div class="form-text-small">(max)</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" [disabled]="!editing" formControlName="consecutiveAwayGamesMaxEnabled" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-title"><strong>Consecutive Away Games</strong></div>
+                </td>
+                <td *ngIf="fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value && editing">
+                    <input-popover #consecutiveAwayGamesMaxInput *ngIf="editing" type="text" [formGroup]="fixtureForm" input-class="form-control form-number"
+                        inputFormControlName="consecutiveAwayGamesMax"></input-popover>
+                </td>
+                <td *ngIf="fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value && !editing">
+                    <div class="form-title-ro pull-right">
+                        {{ fixture?.fixtureConfigPreLoaded?.consecutiveAwayGamesMax }}
+                    </div>
+                </td>
+                <td *ngIf="!fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value" colspan="2">
+                    <div class="form-inherit oversize-header">
+                        Using league's configuration
+                    </div>
+                </td>
+                <td *ngIf="fixtureForm.controls.consecutiveAwayGamesMaxEnabled.value">
+                    <div class="form-text-small">(max)</div>
                 </td>
             </tr>
         </tbody>

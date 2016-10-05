@@ -56,19 +56,14 @@ export class RoundListComponent implements OnInit {
         this._router.routerState.parent(this._route)
             .params.forEach(params => {
                 let id = +params['id'];
-                this._fixtureService.getFixture(id).then((f) => {
+                this._fixtureService.getFixtureAndTeams(id).then((f) => {
                     this.fixture = f
                     return this._fixtureService.getRoundsAndConfig(f)
                 }).then((rounds: Collection<Round>) => {
                     this.rounds = rounds.toArray()
                     this.fillInRounds()
-                }).then(() => {
-                    return this.fixture.getLeague()
-                }).then((league: League) => {
-                    return league.getTeams()
-                }).then((teams: Collection<Team>) => {
-                    this.homeTeamsAll = teams.toArray()
-                    this.awayTeamsAll = teams.toArray()
+                    this.homeTeamsAll = this.fixture.leaguePreLoaded.teamsPreLoaded.toArray()
+                    this.awayTeamsAll = this.homeTeamsAll.slice(0) //copy
                     let byeTeam = new Team('Bye')
                     byeTeam.id = null
                     this.awayTeamsAll.push(byeTeam)
@@ -143,7 +138,7 @@ export class RoundListComponent implements OnInit {
      * match-up form. Clears the form.
      */
     createMatchup(form: RoundForm) {
-        this._roundService.addUpdateRound(form.round).then(() => {
+        this._roundService.addRound(form.round).then(() => {
             let config = form.config
             if (!config) {
                 config = new MatchConfig()
