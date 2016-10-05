@@ -30,4 +30,18 @@ export class BreadcrumbService {
     public setBreadcrumbs(crumbs: Breadcrumb[]) {
         this.crumbs.next(crumbs);
     }
+
+
+    /**
+     * Provides the seccond to last breadcrumb. If less than 
+     * two breadcrumbs, it retuns undefined.
+     */
+    public getParentBreadcrumb(): Breadcrumb {
+        var numberOfCrumbs = this.crumbs.value.length;
+        
+        if (numberOfCrumbs < 2)
+            return undefined;
+
+        return this.crumbs.value[numberOfCrumbs - 1];
+    }
 }
