@@ -53,6 +53,6 @@ export class TeamService {
      * Count the number of teams in a single league
      */
     countTeams(league: League) : Promise<number> {
-        return new Team().where('league_id', league.id).count()
+        return new Team().where({'league_id': league.id, 'active': true}).count()
     }
 }
