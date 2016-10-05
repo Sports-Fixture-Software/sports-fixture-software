@@ -43,7 +43,11 @@ export class FixtureService {
      */
     getFixtureAndTeams(id: number): Promise<Fixture> {
         return new Fixture().where('id', id).fetch({
-            withRelated: ['league', 'league.teams']
+            withRelated: ['league', {
+                'league.teams': (qb) => {
+                    return qb.where('active', true)
+                }
+            }]
         })
     }
 
