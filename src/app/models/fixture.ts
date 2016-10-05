@@ -43,6 +43,10 @@ export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseS
     }
     setLeague(value: League) { this.set('league_id', value.id) }
 
+    get leaguePreLoaded(): League {
+        return this.related('league') as League
+    }
+
     getRounds(): Promise<Collection<Round>> {
         return this.fetch({ withRelated: ['rounds'] }).then((res) => {
             return res.related('rounds') as Collection<Round>
