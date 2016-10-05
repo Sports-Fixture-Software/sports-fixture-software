@@ -210,6 +210,9 @@ h2 {
 .button-col {
     width: 56px;
 }
+.null-col {
+    width: 1px;
+}
 .heading-row {
     min-height: 44px;
 }
