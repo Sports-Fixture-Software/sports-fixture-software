@@ -24,6 +24,10 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
     get name(): string { return this.get('name') }
     set name(value: string) { this.set('name', value) }
 
+    get teamsPreLoaded(): Collection<Team> {
+        return this.related('teams') as Collection<Team>
+    }
+
     getTeams(): Promise<Collection<Team>> {
         return this.fetch({ withRelated: ['teams']}).then((res) => {
             return res.related('teams') as Collection<Team>
