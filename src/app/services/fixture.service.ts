@@ -30,6 +30,15 @@ export class FixtureService {
     }
 
     /**
+      * get fixture, and the associated teams
+      */
+     getFixtureAndTeams(id: number): Promise<Fixture> {
+         return new Fixture().where('id', id).fetch({
+             withRelated: ['league', 'league.teams']
+         })
+     }
+
+    /**
      * get all rounds for the fixture, sorted by round number.
      */
     getRounds(fixture: Fixture): Promise<Collection<Round>> {
