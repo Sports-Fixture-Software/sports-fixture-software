@@ -7,11 +7,20 @@ import * as Promise from 'bluebird'
 @Injectable()
 export class TeamService {
 
-    getTeams(leagueId?: number): Promise<Collection<Team>> {
-        if (leagueId) {
-            return new Team().where('league_id', leagueId).fetchAll()
+    getTeams(league: League): Promise<Collection<Team>> {
+        if (league) {
+            return league.fetch({
+                withRelated: [
+                    {
+                        'teams' : (qb) => {
+                            return qb.where('active', true)
+                        }
+                    }]
+            }).then((res) => {
+                return res.related('teams') as Collection<Team>
+            })
         } else {
-            return new Team().fetchAll()
+            return new Team().where('active', true).fetchAll()
         }
     }
 
@@ -33,10 +42,11 @@ export class TeamService {
     }
 
     /**
-     * returns an empty Team
+     * returns the deleted team
      */
     deleteTeam(team: Team): Promise<Team> {
-        return team.destroy()
+        team.set('active', false)
+        return team.save()
     }
 
     /**
