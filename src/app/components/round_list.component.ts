@@ -17,6 +17,7 @@ import { ButtonHidden } from './button_hidden.component'
 import { DateTime } from '../util/date_time'
 import { DaysOfWeek } from '../util/days_of_week'
 import { Search } from '../util/search'
+import { Validator } from '../util/validator'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
 import * as moment from 'moment'
 import * as twitterBootstrap from 'bootstrap'
@@ -50,7 +51,7 @@ export class RoundListComponent implements OnInit {
             homeTeam: new FormControl('', [<any>Validators.required]),
             awayTeam: new FormControl('', [<any>Validators.required]),
             config: new FormControl()
-        }, {}, this.differentTeamsSelectedValidator)
+        }, {}, Validator.differentTeamsSelected)
 
         this._router.routerState.parent(this._route)
             .params.forEach(params => {
@@ -210,7 +211,7 @@ export class RoundListComponent implements OnInit {
                 if (i == 1) {
                     round.startDate = this.fixture.startDate
                 } else {
-                    round.startDate = runningDate.toDate()
+                    round.startDate = runningDate
                 }
                 round.setFixture(this.fixture)
                 this.rounds.splice(~index, 0, round)
@@ -282,14 +283,6 @@ export class RoundListComponent implements OnInit {
             let fc = this.matchupForm.controls['awayTeam'] as FormControl
             fc.updateValue(null)
         }
-    }
-
-    /**
-     * Validator to ensure different teams are selected. Can't reserve a
-     * match-up of teamX vs teamX
-     */
-    private differentTeamsSelectedValidator = ({value}: FormGroup): { [key: string]: any } => {
-        return value.homeTeam == value.awayTeam ? { equal: true } : null
     }
 
     /**

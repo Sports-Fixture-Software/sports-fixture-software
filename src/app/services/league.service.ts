@@ -21,6 +21,15 @@ export class LeagueService {
         return new League().where('id', id).fetch()
     }
 
+    /**
+     * get league and the associated league config.
+     */
+    getLeagueAndConfig(id: number): Promise<League> {
+        return new League().where('id', id).fetch({
+            withRelated: ['leagueConfig']
+        })
+    }
+
     public addLeague(league: League): Promise<League> {
         return league.save()
     }

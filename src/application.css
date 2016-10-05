@@ -131,6 +131,14 @@ body {
     padding-left: 13px;
     padding-right: 13px; 
 }
+.form-text-small {
+    color: #999;
+    min-height: 34px;
+    padding-bottom: 7px;
+    padding-top: 7px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
 .form-control-ro {
     margin-top: 7px;
 }
@@ -143,6 +151,12 @@ body {
     width: 48vw;
     /* max-width set because ng2-popover has a hard-coded max-width of 500 */
     max-width: 460px;
+}
+.form-number {
+    text-align: right;
+}
+.popover-content-s {
+  display: inline;
 }
 .inner-stack {
     padding-top: 2px;
@@ -169,6 +183,9 @@ table {
 }
 h2 { 
     margin-top: 0px;
+}
+.alert-popover {
+    margin: 10px;
 }
 .vert-sep {
     margin-bottom: 10px;

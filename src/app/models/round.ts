@@ -6,6 +6,7 @@ import { Match } from './match'
 import { MatchConfig } from './match_config'
 import { Collection } from '../services/collection'
 import * as Promise from 'bluebird'
+import * as moment from 'moment'
 
 export class Round extends (databaseInjector.get(DatabaseService) as DatabaseService).Model<Round> {
 
@@ -24,8 +25,8 @@ export class Round extends (databaseInjector.get(DatabaseService) as DatabaseSer
     set number(value: number) { this.set('number', value) }
     set name(value: string) { this.set('name', value) }
     get name(): string { return this.get('name') }
-    set startDate(value: Date) { this.set('startDate', value) }
-    get startDate(): Date { return this.get('startDate') }
+    set startDate(value: moment.Moment) { this.set('startDate', value.valueOf()) }
+    get startDate(): moment.Moment { return moment(this.get('startDate')) }
 
     getFixture(): Promise<Fixture> {
         return this.fetch({ withRelated: ['fixture'] }).then((res) => {

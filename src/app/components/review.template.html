@@ -1,4 +1,15 @@
-<h2>Review Matches</h2>
+<div class="row">
+    <div class="col-xs-6">
+        <h2>Review Matches</h2>
+    </div>
+    <div class="col-xs-6 heading-row">
+        <div class="pull-right">
+            <button-popover #saveFixtureButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" type="button" (click)="onSaveFixture()">Save Fixture…</button-popover>
+        </div>
+    </div>
+</div>
+
+<h2></h2>
 <div *ngIf="error" class="alert alert-danger" role="alert" style="min-width:250px">
     <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
     <span class="sr-only">Error</span>{{ error?.message }}
@@ -22,7 +33,7 @@
                 {{round.number}}
             </td>
             <td>
-                {{round.startDate | date}}
+                {{round.startDate?.format('ll')}}
             </td>
             <td>
                 <div *ngFor="let config of round.matchesPreLoaded">

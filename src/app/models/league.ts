@@ -6,6 +6,7 @@ import { DatabaseService } from '../services/database.service'
 import { Collection } from '../services/collection'
 import { Fixture } from './fixture'
 import { Team } from './team'
+import { LeagueConfig } from './league_config'
 import * as Promise from 'bluebird'
 
 export class League extends (databaseInjector.get(DatabaseService) as DatabaseService).Model<League> {
@@ -29,6 +30,10 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
         })
     }
 
+    get leagueConfigPreLoaded(): LeagueConfig {
+        return this.related('leagueConfig') as LeagueConfig
+    }
+
     /**
      * Needed by bookshelf to setup relationship
      */
@@ -40,5 +45,11 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
      */
    protected teams(): Collection<Team> {
         return this.hasMany(Team)
+    }
+    /**
+     * Needed by bookshelf to setup relationship
+     */
+    protected leagueConfig(): LeagueConfig {
+        return this.hasOne(LeagueConfig)
     }
 }

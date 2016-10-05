@@ -19,6 +19,15 @@ export class TeamService {
         return new Team().where('id', id).fetch()
     }
 
+    /**
+     * get team and the associated team config.
+     */
+    getTeamAndConfig(id: number): Promise<Team> {
+        return new Team().where('id', id).fetch({
+            withRelated: ['teamConfig']
+        })
+    }
+
     addTeam(team: Team): Promise<Team> {
         return team.save()
     }
