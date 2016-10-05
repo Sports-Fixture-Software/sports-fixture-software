@@ -1,4 +1,4 @@
-<popover-content id="createMatchupPopover" #createMatchupPopover title="Edit Match-up" [closeOnClickOutside]="true">
+<popover-content id="createMatchupPopover" #createMatchupPopover [title]="matchupButtonText" [closeOnClickOutside]="true">
     <form id="matchupForm" class="form-l" [formGroup]="matchupForm" novalidate (ngSubmit)="createMatchup(matchupForm.value)">
         <div class="form-group">
             <table>
