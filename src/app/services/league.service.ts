@@ -40,7 +40,12 @@ export class LeagueService {
      */
     getLeagueAndTeams(id: number): Promise<League> {
         return new League().where('id', id).fetch({
-            withRelated: ['teams']
+            withRelated: [
+                {
+                    'teams' : (qb) => {
+                        return qb.where('active', true)
+                    }
+                }]
         })
     }
 
