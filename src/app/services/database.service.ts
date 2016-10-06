@@ -191,7 +191,8 @@ export class DatabaseService {
         let leagues = [
             { name: 'SANFL (10 teams)' },
             { name: 'South Australian National Footbal League (SANFL) - a really long name' },
-            { name: 'U18 (9 teams)' }
+            { name: 'U18 (9 teams)' },
+            { name: 'U16 (6 teams)' }
         ]
         let fixtures = [
             {
@@ -201,12 +202,12 @@ export class DatabaseService {
             },
             {
                 name: 'Fixture 2017', description: 'Fixture with late Easter',
-                startDate: moment('2017-04-13').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 1,
+                startDate: moment('2017-04-13').valueOf(), endDate: moment('2017-08-27').valueOf(), league_id: 1,
                 createdOn: moment('2016-08-30').valueOf(), createdBy: 'Tom'
             },
             {
                 name: 'Fixture with a really long name to test the display and to see how wrapping is handled', description: 'Fixture description with a really long name to test the display and to see how wrapping is handled',
-                startDate: moment('2017-04-13').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 1,
+                startDate: moment('2017-04-13').valueOf(), endDate: moment('2017-08-27').valueOf(), league_id: 1,
                 createdOn: moment('2016-08-30').valueOf(), createdBy: 'A person with a really really long name, super long'
             },
             {
@@ -215,7 +216,12 @@ export class DatabaseService {
             },
             {
                 name: 'U18 Fixture 2017', description: 'Fixture with late Easter',
-                startDate: moment('2017-04-13').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 3
+                startDate: moment('2017-04-13').valueOf(), endDate: moment('2017-08-27').valueOf(), league_id: 3
+            },
+            {
+                name: 'Fixture 2016', description: 'Fixture with early Easter',
+                startDate: moment('2016-03-24').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 4,
+                createdOn: moment('2016-08-30').valueOf(), createdBy: 'Tom'
             },
         ]
         let teams = [
@@ -238,6 +244,12 @@ export class DatabaseService {
             { name: 'South U18', league_id: 3},
             { name: 'Sturt U18', league_id: 3},
             { name: 'West U18', league_id: 3},
+            { name: 'Adelaide U16', league_id: 4},
+            { name: 'Central U16', league_id: 4},
+            { name: 'Glenelg U16', league_id: 4},
+            { name: 'North U16', league_id: 4},
+            { name: 'Norwood U16', league_id: 4},
+            { name: 'Port U16', league_id: 4},
         ]
         let teamConfigs = [
             { homeGamesMin: 0, homeGamesMax: 0, team_id: 1 }
@@ -272,7 +284,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
     
-    private _databaseVersion: number = 10
+    private _databaseVersion: number = 11
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null
