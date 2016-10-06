@@ -52,11 +52,9 @@ export class TeamListComponent implements OnInit {
     ngOnInit() {
         this._router.routerState.parent(this._router.routerState.parent(this._route)).params.forEach(params => {
                 let id = +params['id'];
-                this._leagueService.getLeague(id).then((l) => {
+                this._leagueService.getLeagueAndTeams(id).then((l) => {
                     this.league = l
-                    return l.getTeams()
-                }).then((t) => {
-                    this.teams = t.toArray()
+                    this.teams = l.teamsPreLoaded.toArray()
                     this._changeref.detectChanges()
                 })
                 this.teamForm = new FormGroup({
@@ -100,7 +98,7 @@ export class TeamListComponent implements OnInit {
         team.setLeague(this.league)
         this._teamService.addTeam(team).then((t) => {
             this.createTeamPopover.hide()
-            return this.league.getTeams()
+            return this._teamService.getTeams(this.league.id)
         }).then((t) => {
             this.teams = t.toArray()
             this.addTeamButton.nativeElement.focus()

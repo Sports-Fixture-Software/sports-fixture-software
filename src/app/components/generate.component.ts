@@ -36,13 +36,11 @@ export class GenerateComponent implements OnInit {
         this.router.routerState.parent(this.route)
             .params.forEach(params => {
                 let id = +params['id']
-                this.fixtureService.getFixture(id).then(fixture => {
+                this.fixtureService.getFixtureAndLeague(id).then(fixture => {
                     this.fixture = fixture
                     this.numberOfRounds = DateTime.getNumberOfRounds(this.fixture.startDate, this.fixture.endDate)
-                    return fixture.getLeague()
-                }).then((league) => {
-                    this.league = league
-                    return this.teamService.countTeams(league)
+                    this.league = fixture.leaguePreLoaded
+                    return this.teamService.countTeams(this.league)
                 }).then((res) => {
                     this.numberOfTeams = res
                     this.changeref.detectChanges()

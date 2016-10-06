@@ -38,11 +38,9 @@ export class FixtureListComponent implements OnInit {
         this._router.routerState.parent(this._route)
             .params.forEach(params => {
                 let id = +params['id'];
-                this._leagueService.getLeague(id).then((l) => {
+                this._leagueService.getLeagueAndFixtures(id).then((l) => {
                     this.league = l
-                    return this._fixtureService.getFixtures(l)
-                }).then((f) => {
-                    this.fixtures = f.toArray()
+                    this.fixtures = l.fixturesPreLoaded.toArray()
                     this._changeref.detectChanges()
                 })
                 this.fixtureForm = new FormGroup({
