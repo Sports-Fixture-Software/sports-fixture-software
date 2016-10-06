@@ -31,11 +31,9 @@ export class SchedulerService {
             let rounds = r.toArray()
             return this.fillInRounds(fixture, rounds)
         }).then(() => {
-            return fixture.getLeague()
-        }).then((league: League) => {
-            return this.teamService.getTeams(league.id)
-        }).then((teams) => {
-            this.teams = teams.toArray()
+            return this.fixtureService.getFixtureAndTeams(fixture.id)
+        }).then((fixture: Fixture) => {
+            this.teams = fixture.leaguePreLoaded.teamsPreLoaded.toArray()
             // for testing only
             return this.randomFixture(fixture)
         })

@@ -3,6 +3,7 @@ import { DatabaseService } from '../services/database.service'
 import { League } from './league'
 import { Round } from './round'
 import { Collection } from '../services/collection'
+import { FixtureConfig } from './fixture_config'
 import * as Promise from 'bluebird'
 import * as moment from 'moment'
 
@@ -36,17 +37,14 @@ export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseS
     set generatedBy(value: string) { this.set('generatedBy', value) }
     get generatedBy(): string { return this.get('generatedBy') }
 
-    getLeague(): Promise<League> {
-        return this.fetch({ withRelated: ['league'] }).then((res) => {
-            return res.related('league') as League
-        })
-    }
     setLeague(value: League) { this.set('league_id', value.id) }
 
-    getRounds(): Promise<Collection<Round>> {
-        return this.fetch({ withRelated: ['rounds'] }).then((res) => {
-            return res.related('rounds') as Collection<Round>
-        })
+    get fixtureConfigPreLoaded(): FixtureConfig {
+        return this.related('fixtureConfig') as FixtureConfig
+    }
+
+    get leaguePreLoaded(): League {
+        return this.related('league') as League
     }
 
     /**
@@ -60,5 +58,11 @@ export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseS
      */
     protected rounds(): Collection<Round> {
         return this.hasMany(Round)
+    }
+    /**
+     * Needed by bookshelf to setup relationship
+     */
+    protected fixtureConfig(): FixtureConfig {
+        return this.hasOne(FixtureConfig)
     }
 }
