@@ -1,4 +1,4 @@
-import { Match, Constraint, Team, MatchState, ConTable } from './FixtureConstraints';
+import { Match, Constraint, Team, MatchState, ConTable } from './fixture_constraints';
 
 /**
  * plotFixture
