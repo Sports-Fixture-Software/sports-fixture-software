@@ -111,7 +111,7 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
      *  entering a value, it is assumed they want enabled checked.
      */
     onFieldChange(value: any, element: InputPopover, control: FormControl, enableControl: FormControl) {
-        // if value blank and the control's pair is blank, disable
+        // if value blank, disable
         if (typeof value === 'string' && value.trim() == '' && enableControl) {
             enableControl.updateValue(false, { emitEvent: false })
         } else if (value && enableControl) {

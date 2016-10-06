@@ -22,6 +22,29 @@ export class LeagueService {
     }
 
     /**
+     * get league and the associated fixtures.
+     */
+    getLeagueAndFixtures(id: number): Promise<League> {
+        return new League().where('id', id).fetch({
+            withRelated: [
+                {
+                    'fixtures' : (qb) => {
+                        return qb.where('active', true)
+                    }
+                }]
+        })
+    }
+
+    /**
+     * get league and the associated teams.
+     */
+    getLeagueAndTeams(id: number): Promise<League> {
+        return new League().where('id', id).fetch({
+            withRelated: ['teams']
+        })
+    }
+
+    /**
      * get league and the associated league config.
      */
     getLeagueAndConfig(id: number): Promise<League> {

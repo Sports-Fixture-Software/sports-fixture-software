@@ -28,14 +28,12 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
         return this.related('teams') as Collection<Team>
     }
 
-    getTeams(): Promise<Collection<Team>> {
-        return this.fetch({ withRelated: ['teams']}).then((res) => {
-            return res.related('teams') as Collection<Team>
-        })
-    }
-
     get leagueConfigPreLoaded(): LeagueConfig {
         return this.related('leagueConfig') as LeagueConfig
+    }
+
+    get fixturesPreLoaded(): Collection<Fixture> {
+        return this.related('fixtures') as Collection<Fixture>
     }
 
     /**

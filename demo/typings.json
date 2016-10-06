@@ -1,0 +1,7 @@
+{
+  "name": "demo",
+  "dependencies": {},
+  "globalDependencies": {
+    "core-js": "registry:dt/core-js#0.0.0+20160725163759"
+  }
+}

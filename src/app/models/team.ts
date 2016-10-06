@@ -20,11 +20,6 @@ export class Team extends (databaseInjector.get(DatabaseService) as DatabaseServ
     get name(): string { return this.get('name') }
     set name(value: string) { this.set('name', value) }
 
-    getLeague(): Promise<League> {
-        return this.fetch({ withRelated: ['league'] }).then((res) => {
-            return res.related('league') as League
-        })
-    }
     setLeague(value: League) { this.set('league_id', value.id) }
 
     get teamConfigPreLoaded(): TeamConfig {
