@@ -90,6 +90,7 @@ export class DatabaseService {
                 return this.get().knex.schema.createTableIfNotExists('team',
                     (table) => {
                         table.increments('id')
+                        table.boolean('active').notNullable().defaultTo(true)
                         table.string('name').notNullable()
                         table.integer('league_id').notNullable().references
                             ('id').inTable('league')
@@ -272,7 +273,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
     
-    private _databaseVersion: number = 10
+    private _databaseVersion: number = 11
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null
