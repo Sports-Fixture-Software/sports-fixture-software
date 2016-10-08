@@ -115,7 +115,7 @@ gulp.task('build:watch', ['build'], function() {
  */
 gulp.task('run', ['build'], function() {
     return gulp.src('build')
-        .pipe(runElectron());
+        .pipe(runElectron(['--debug']));
 })
 
 gulp.task('unittest:services', ['copy:test-modules'], () => {
@@ -123,6 +123,26 @@ gulp.task('unittest:services', ['copy:test-modules'], () => {
         'build/test/init.js',
         'build/test/services/**/*.js',
         'build/test/util/**/*.js'])
+        .pipe(jasmine({
+            reporter: new reporters.TerminalReporter()
+        }
+        )).pipe(exit())
+});
+
+gulp.task('end2end:all', () => {
+    return gulp.src([
+        'build/test/init.js',
+        'build/test/end2end/**/*.js'])
+        .pipe(jasmine({
+            reporter: new reporters.TerminalReporter()
+        }
+        )).pipe(exit())
+});
+
+gulp.task('test:all', () => {
+    return gulp.src([
+        'build/test/init.js',
+        'build/test/**/*.js'])
         .pipe(jasmine({
             reporter: new reporters.TerminalReporter()
         }
@@ -156,6 +176,11 @@ gulp.task('unittest', () => {
     runSequence('build', 'unittest:services')
 })
 gulp.task('unittester', ['unittest:services']);
-gulp.task('test', ['unittest']);
-gulp.task('tester', ['unittester']);
+gulp.task('end2end', () => {
+    runSequence('build', 'end2end:all')
+})
+gulp.task('end2ender', ['end2end:all']);
+gulp.task('test', () => {
+    runSequence('build', 'test:all')
+})
 gulp.task('default', ['build']);
