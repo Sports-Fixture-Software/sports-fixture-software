@@ -70,13 +70,13 @@
                     </div>
                 </td>
                 <td>
-                    <div class="form-title"><strong>Start Date</strong></div>
+                    <div class="form-title" id="startDate"><strong>Start Date</strong></div>
                 </td>
                 <td *ngIf="!editing" colspan="2">
-                    <div class="form-title-ro">{{ fixture?.startDate?.isValid() ? fixture.startDate.format('ll') : '' }}</div>
+                    <div class="form-title-ro" aria-labelledby="startDate">{{ fixture?.startDate?.isValid() ? fixture.startDate.format('ll') : '' }}</div>
                 </td>
                 <td *ngIf="editing" colspan="2">
-                    <input type="date" class="form-control" formControlName="startDate" />
+                    <input type="date" class="form-control" formControlName="startDate" aria-labelledby="startDate"/>
                 </td>
             </tr>
             <tr>
@@ -86,13 +86,13 @@
                     </div>
                 </td>
                 <td>
-                    <div class="form-title"><strong>End Date</strong></div>
+                    <div class="form-title" id="endDate"><strong>End Date</strong></div>
                 </td>
                 <td *ngIf="!editing" colspan="2">
-                    <div class="form-title-ro">{{ fixture?.endDate?.isValid() ? fixture.endDate.format('ll') : '' }}</div>
+                    <div class="form-title-ro" aria-labelledby="endDate">{{ fixture?.endDate?.isValid() ? fixture.endDate.format('ll') : '' }}</div>
                 </td>
                 <td *ngIf="editing" colspan="2">
-                    <input type="date" class="form-control" formControlName="endDate" />
+                    <input type="date" class="form-control" formControlName="endDate" aria-labelledby="endDate"/>
                 </td>
             </tr>
             <tr>
