@@ -60,7 +60,7 @@
                 {{round.number}}{{ last ? onAfterFor(): ""}}
             </td>
             <td>
-                {{round.startDate?.format('ll')}}
+                {{round?.startDate?.isValid() ? round.startDate.format('ll') : ''}}
             </td>
             <td>
                 <div class="inner-stack" *ngFor="let config of round.matchConfigsPreLoaded">

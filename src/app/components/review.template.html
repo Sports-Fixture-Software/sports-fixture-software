@@ -72,7 +72,7 @@
                 {{round.number}}
             </td>
             <td>
-                {{round.startDate?.format('ll')}}
+                {{round?.startDate?.isValid() ? round.startDate.format('ll') : ''}}
             </td>
             <td *ngIf="!editingFixture">
                 <div *ngFor="let match of round.matchesPreLoaded">

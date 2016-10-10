@@ -73,7 +73,7 @@
                     <div class="form-title"><strong>Start Date</strong></div>
                 </td>
                 <td *ngIf="!editing" colspan="2">
-                    <div class="form-title-ro">{{ fixture?.startDate?.format('ll') }}</div>
+                    <div class="form-title-ro">{{ fixture?.startDate?.isValid() ? fixture.startDate.format('ll') : '' }}</div>
                 </td>
                 <td *ngIf="editing" colspan="2">
                     <input type="date" class="form-control" formControlName="startDate" />
@@ -89,7 +89,7 @@
                     <div class="form-title"><strong>End Date</strong></div>
                 </td>
                 <td *ngIf="!editing" colspan="2">
-                    <div class="form-title-ro">{{ fixture?.endDate?.format('ll') }}</div>
+                    <div class="form-title-ro">{{ fixture?.endDate?.isValid() ? fixture.endDate.format('ll') : '' }}</div>
                 </td>
                 <td *ngIf="editing" colspan="2">
                     <input type="date" class="form-control" formControlName="endDate" />
