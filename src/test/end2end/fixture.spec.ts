@@ -4,9 +4,9 @@ import { createFixture } from './helpers/fixture.helper'
 import * as webdriverio from 'webdriverio'
 import * as Promise from 'bluebird'
 
-describe('fixture', function () {
+describe('fixture', () => {
     let app: any
-    
+
     beforeEach((done) => {
         app = TestApp.startApp(done)
     }, 7000 * computerSpeed)
@@ -75,7 +75,7 @@ describe('fixture', function () {
             expect(text).toBe(fixtureDescription)
             done()
         })
-    }, 8000 * computerSpeed)})
+    }, 8000 * computerSpeed)
 
     it('delete fixture', (done) => {
         let client = app.client as webdriverio.Client<void>
@@ -114,7 +114,7 @@ describe('fixture', function () {
         }).then(() => {
             return client.isExisting('fixture-list-item')
         }).then((exists) => {
-            expect(exists).toBe(false)    
+            expect(exists).toBe(false)
             done()
         })
     }, 9000 * computerSpeed)
