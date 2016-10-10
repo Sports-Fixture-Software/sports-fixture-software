@@ -1,6 +1,6 @@
 import { TestApp, computerSpeed } from '../init'
 import { createLeague } from './helpers/league.helper'
-import { createFixture } from './helpers/fixture.helper'
+import { createFixture, editFixture } from './helpers/fixture.helper'
 import * as webdriverio from 'webdriverio'
 import * as Promise from 'bluebird'
 
@@ -143,22 +143,9 @@ describe('fixture', () => {
             //   (getText returns a string if only 1 match)     
             expect(text).toEqual(jasmine.any(String))
             expect(text).toBe(fixtureName)
-        }).then(() => {
             return client.click(`[aria-label="${fixtureName}"]`)
         }).then(() => {
-            return client.waitForVisible('[aria-label="Edit Fixture Form"]')
-        }).then(() => {
-            return client.click('[aria-label="Edit Fixture"]')
-        }).then(() => {
-            return client.waitForVisible('input[aria-labelledby="fixtureName"]')
-        }).then(() => {
-            return client.setValue('input[aria-labelledby="fixtureName"]', editName)
-        }).then(() => {
-            return client.setValue('input[aria-labelledby="fixtureDescription"]', editDescription)
-        }).then(() => {
-            return client.submitForm('input[aria-labelledby="fixtureName"]')
-        }).then(() => {
-            return client.waitForVisible('div[aria-labelledby="fixtureName"]')
+            return editFixture(client, editName, editDescription)
         }).then(() => {
             return client.getText('div[aria-labelledby="fixtureName"]')
         }).then((text) => {
