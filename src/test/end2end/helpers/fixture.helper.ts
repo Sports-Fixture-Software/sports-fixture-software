@@ -17,3 +17,31 @@ export function createFixture(client: webdriverio.Client<any>, name: string, des
         return client.waitForVisible('input[aria-labelledby="fixtureName"]', undefined, true)
     })
 } 
+
+export function editFixture(client: webdriverio.Client<any>, name?: string, description?: string, startDate?: string, endDate?: string): webdriverio.Client<boolean> {
+    return client.waitForVisible('[aria-label="Edit Fixture"]').then(() => {
+        return client.click('[aria-label="Edit Fixture"]')
+    }).then(() => {
+        return client.waitForVisible('input[aria-labelledby="fixtureName"]')
+    }).then(() => {
+        if (name) {
+            return client.setValue('input[aria-labelledby="fixtureName"]', name)
+        }
+    }).then(() => {
+        if (description) {
+            return client.setValue('input[aria-labelledby="fixtureDescription"]', description)
+        }
+    }).then(() => {
+        if (startDate) {
+            return client.setValue('input[aria-labelledby="startDate"]', startDate)
+        }
+    }).then((v) => {
+        if (endDate) {
+            return client.setValue('input[aria-labelledby="endDate"]', endDate)
+        }
+    }).then(() => {
+        return client.submitForm('input[aria-labelledby="fixtureName"]')
+    }).then(() => {
+        return client.waitForVisible('div[aria-labelledby="fixtureName"]')
+    })
+}
