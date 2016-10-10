@@ -1,35 +1,20 @@
-let Application = require('spectron').Application
-let electron = require('electron-prebuilt')
+import { TestApp, computerSpeed } from '../init'
 import * as webdriverio from 'webdriverio'
 import * as Promise from 'bluebird'
-import * as fs from 'fs'
 
 describe('application initialise', function () {
     let app: any
     
     beforeEach((done) => {
-        try {
-            fs.unlinkSync('test-end-to-end.database')
-        } catch (error) { }
-        app = new Application({
-            path: electron,
-            args: ['build', '--database=test-end-to-end.database']
-        })
-        app.start().then(() => {
-            done()
-        })
-    }, 10000)
+        app = TestApp.startApp(done)
+    }, 7000 * computerSpeed)
 
     afterEach((done) => {
-        if (app && app.isRunning()) {
-            app.stop().then(() => {
-                done()
-            })
-        }
-    }, 10000)
+        TestApp.stopApp(app, done)
+    }, 7000 * computerSpeed)
 
     it('browser window displayed with angular loaded', (done) => {
-        let client = app.client as webdriverio.Browser<void>
+        let client = app.client as webdriverio.Client<void>
         client.waitForExist('router-outlet').then((found) => {
             expect(found).toBe(true)
             return app.browserWindow.isVisible()
@@ -37,5 +22,5 @@ describe('application initialise', function () {
             expect(visible).toBe(true)
             done()
         })
-    }, 10000)
+    }, 6000 * computerSpeed)
 })
