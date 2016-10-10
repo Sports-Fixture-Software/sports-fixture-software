@@ -3,19 +3,19 @@
         <popover-content #createFixturePopover placement="right-top" id="fixture-popover" title="Create Fixture" [closeOnClickOutside]="true">
             <form class="form-s" [formGroup]="fixtureForm" novalidate (ngSubmit)="createFixture(fixtureForm.value)">
                 <div class="form-group">
-                    <label for="fixtureName">Fixture name</label>
-                    <input type="text" class="form-control" id="fixtureName" placeholder="Name" formControlName="name">
+                    <label id="fixtureName">Fixture name</label>
+                    <input type="text" class="form-control" aria-labelledby="fixtureName" placeholder="Name" formControlName="name">
                 </div>
                 <div class="form-group">
-                    <label for="fixtureDescription">Description</label>
-                    <input type="text" class="form-control" id="fixtureDescription" placeholder="Description (optional)" formControlName="description">
+                    <label id="fixtureDescription">Description</label>
+                    <input type="text" class="form-control" aria-labelledby="fixtureDescription" placeholder="Description (optional)" formControlName="description">
                 </div>
                 <div class="pull-right form-footer">
-                    <button-popover #createFixtureButton btn-class="btn btn-primary" type="submit">Create Fixture</button-popover>
+                    <button-popover #createFixtureButton btn-class="btn btn-primary" type="submit" [disabled]="!fixtureForm.valid">Create Fixture</button-popover>
                 </div>
             </form>
         </popover-content>
-        <button class="btn btn-default vert-sep" [popover]="createFixturePopover" [popoverCloseOnClickOutside]="true" popoverPlacement="right-top">
+        <button class="btn btn-default vert-sep" [popover]="createFixturePopover" [popoverCloseOnClickOutside]="true" popoverPlacement="right-top" aria-label="Create Fixture">
                 <span class="glyphicon glyphicon-plus"></span>
         </button>
     </div>
@@ -23,7 +23,7 @@
     <div class="col-xs-11">
         <table class="table table-striped table-bordered">
             <tbody>
-                <tr *ngFor="let fixture of fixtures" (click)="navigateToFixture(fixture)">
+                <tr *ngFor="let fixture of fixtures" (click)="navigateToFixture(fixture)" [attr.aria-label]="fixture?.name">
                     <td>
                         <fixture-list-item [fixture]="fixture"></fixture-list-item>
                     </td>
