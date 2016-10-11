@@ -1,4 +1,4 @@
-<h2>Summary</h2>
+<h2 aria-label="Summary">Summary</h2>
 <div class="spacer30"></div>
 <p><strong>{{league?.name}}</strong> - 
     <strong>{{fixture?.name}}</strong>
@@ -10,6 +10,6 @@
     ending on <strong>{{fixture?.endDate?.isValid() ? fixture.endDate.format('ll') : 'not specified' }}</strong>
 </p>
 <div class="spacer30"></div>
-<button type="button" class="btn btn-primary btn-lg btn-block vert-sep" (click)="generate()">
+<button type="button" class="btn btn-primary btn-lg btn-block vert-sep" (click)="generate()" aria-label="Generate">
     Generate
 </button>
