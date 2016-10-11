@@ -33,11 +33,15 @@ export function editFixture(client: webdriverio.Client<any>, name?: string, desc
         }
     }).then(() => {
         if (startDate) {
-            return client.setValue('input[aria-labelledby="startDate"]', startDate)
+            return client.click('input[aria-labelledby="startDate"]').then(() => {
+                return client.keys(startDate)
+            })
         }
-    }).then((v) => {
+    }).then(() => {
         if (endDate) {
-            return client.setValue('input[aria-labelledby="endDate"]', endDate)
+            return client.click('input[aria-labelledby="endDate"]').then(() => {
+                return client.keys(endDate)
+            })
         }
     }).then(() => {
         return client.submitForm('input[aria-labelledby="fixtureName"]')
