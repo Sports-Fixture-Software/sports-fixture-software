@@ -29,7 +29,6 @@ export interface ConstrCheck {
     ( fixture: FixtureInterface, proposedMatch: Match ): boolean; 
 }
 
-
 /**
  * ConstraintFactory
  * Produces constraint checking functions for teams, fixtures, and leagues 
@@ -60,7 +59,7 @@ export class ConstraintFactory {
             // Checking prior games
             for( var i: number = 1; i < max; i++ ){
                 count++;
-                if( fixture.getAwayTeamVs( proposedMatch.roundNum-i, proposedMatch.homeTeam ) == -1 ){
+                if( fixture.getAwayTeamVs( proposedMatch.roundNum-(max-i), proposedMatch.homeTeam ) == -1 ){
                     count = 0;
                 }
                 if( count > max ){
