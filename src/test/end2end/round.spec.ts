@@ -1,6 +1,7 @@
 import { TestApp, computerSpeed } from '../init'
 import { createLeague } from './helpers/league.helper'
 import { createFixture, editFixture } from './helpers/fixture.helper'
+import { createTeam } from './helpers/team.helper'
 import * as webdriverio from 'webdriverio'
 import * as Promise from 'bluebird'
 
@@ -173,11 +174,17 @@ describe('round', function () {
         let fixtureName = 'hydrogen'
         let startDate = '24032016'
         let endDate = '31082016'
-        let headers: string[]
+        let teams = ['Adelaide', 'Central', 'Glenelg', 'North']
         createLeague(client, leagueName).then(() => {
             return client.click(`[aria-label="${leagueName}"]`)
         }).then(() => {
             return client.waitForVisible('[aria-label="Edit League Form"]')
+        }).then(() => {
+            return client.click('[aria-label="Teams"]')
+        }).then(() => {
+            return Promise.each(teams, (item, index, len) => {
+                return createTeam(client, item)
+            }) as any
         }).then(() => {
             return client.click('[aria-label="Fixtures"]')
         }).then(() => {
@@ -207,7 +214,180 @@ describe('round', function () {
         }).then(() => {
             return client.waitForVisible('[aria-labelledby="homeTeam"]')
         }).then(() => {
+            return client.selectByVisibleText('[aria-labelledby="homeTeam"]', teams[0])
+        }).then(() => {
+            return client.selectByVisibleText('[aria-labelledby="awayTeam"]', teams[1])
+        }).then(() => {
+            return client.click('[aria-label="Create Match-up"]')
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Create Match-up"]', undefined, true)
+        }).then(() => {
+            return client.isVisible(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[0]} Match-up"]`)
+        }).then((visible) => {
+            expect(visible).toBe(true)
+            return client.isVisible(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[1]} Match-up"]`)
+        }).then((visible) => {
+            expect(visible).toBe(true)
             done()
         })
-    }, 8000 * computerSpeed)
+    }, 10000 * computerSpeed)
+
+    it('edit match-up', (done) => {
+        let client = app.client as webdriverio.Client<void>
+        let leagueName = 'alpha'
+        let fixtureName = 'hydrogen'
+        let startDate = '24032016'
+        let endDate = '31082016'
+        let teams = ['Adelaide', 'Central', 'Glenelg', 'North']
+        createLeague(client, leagueName).then(() => {
+            return client.click(`[aria-label="${leagueName}"]`)
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Edit League Form"]')
+        }).then(() => {
+            return client.click('[aria-label="Teams"]')
+        }).then(() => {
+            return Promise.each(teams, (item, index, len) => {
+                return createTeam(client, item)
+            }) as any
+        }).then(() => {
+            return client.click('[aria-label="Fixtures"]')
+        }).then(() => {
+            return createFixture(client, fixtureName)
+        }).then(() => {
+            return client.waitForVisible(`[aria-label="${fixtureName}"]`)
+        }).then(() => {
+            return client.click(`[aria-label="${fixtureName}"]`)
+        }).then(() => {
+            return editFixture(client, undefined, undefined, startDate, endDate)
+        }).then(() => {
+            return client.waitForVisible(`[aria-label="Rounds"]`)
+        }).then(() => {
+            return client.click(`[aria-label="Rounds"]`)
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Round List Table"] > tbody > tr')
+        }).then(() => {
+            // table rows
+            return client.elements('[aria-label="Round List Table"] > tbody > tr')
+        }).then((res) => {
+            expect(res.value.length).toBe(23, 'table rows')
+            return client.moveToObject('[aria-label="Round List Table"] > tbody tr:nth-of-type(1)')
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Create Match-up for Round 1"]')
+        }).then(() => {
+            return client.click('[aria-label="Create Match-up for Round 1"]')
+        }).then(() => {
+            return client.waitForVisible('[aria-labelledby="homeTeam"]')
+        }).then(() => {
+            return client.selectByVisibleText('[aria-labelledby="homeTeam"]', teams[0])
+        }).then(() => {
+            return client.selectByVisibleText('[aria-labelledby="awayTeam"]', teams[1])
+        }).then(() => {
+            return client.click('[aria-label="Create Match-up"]')
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Create Match-up"]', undefined, true)
+        }).then(() => {
+            return client.isVisible(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[0]} Match-up"]`)
+        }).then((visible) => {
+            expect(visible).toBe(true)
+            return client.isVisible(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[1]} Match-up"]`)
+        }).then((visible) => {
+            expect(visible).toBe(true)
+            return client.click(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[0]} Match-up"]`)
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Edit Match-up"]')
+        }).then(() => {
+            return client.selectByVisibleText('[aria-labelledby="homeTeam"]', teams[2])
+        }).then(() => {
+            return client.click('[aria-label="Edit Match-up"]')
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Edit Match-up"]', undefined, true)
+        }).then(() => {
+            return client.isVisible(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[2]} Match-up"]`)
+        }).then((visible) => {
+            expect(visible).toBe(true)
+            return client.isVisible(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[1]} Match-up"]`)
+        }).then((visible) => {
+            expect(visible).toBe(true)
+            done()
+        })
+    }, 11000 * computerSpeed)
+
+    it('delete match-up', (done) => {
+        let client = app.client as webdriverio.Client<void>
+        let leagueName = 'alpha'
+        let fixtureName = 'hydrogen'
+        let startDate = '24032016'
+        let endDate = '31082016'
+        let teams = ['Adelaide', 'Central', 'Glenelg', 'North']
+        createLeague(client, leagueName).then(() => {
+            return client.click(`[aria-label="${leagueName}"]`)
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Edit League Form"]')
+        }).then(() => {
+            return client.click('[aria-label="Teams"]')
+        }).then(() => {
+            return Promise.each(teams, (item, index, len) => {
+                return createTeam(client, item)
+            }) as any
+        }).then(() => {
+            return client.click('[aria-label="Fixtures"]')
+        }).then(() => {
+            return createFixture(client, fixtureName)
+        }).then(() => {
+            return client.waitForVisible(`[aria-label="${fixtureName}"]`)
+        }).then(() => {
+            return client.click(`[aria-label="${fixtureName}"]`)
+        }).then(() => {
+            return editFixture(client, undefined, undefined, startDate, endDate)
+        }).then(() => {
+            return client.waitForVisible(`[aria-label="Rounds"]`)
+        }).then(() => {
+            return client.click(`[aria-label="Rounds"]`)
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Round List Table"] > tbody > tr')
+        }).then(() => {
+            // table rows
+            return client.elements('[aria-label="Round List Table"] > tbody > tr')
+        }).then((res) => {
+            expect(res.value.length).toBe(23, 'table rows')
+            return client.moveToObject('[aria-label="Round List Table"] > tbody tr:nth-of-type(1)')
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Create Match-up for Round 1"]')
+        }).then(() => {
+            return client.click('[aria-label="Create Match-up for Round 1"]')
+        }).then(() => {
+            return client.waitForVisible('[aria-labelledby="homeTeam"]')
+        }).then(() => {
+            return client.selectByVisibleText('[aria-labelledby="homeTeam"]', teams[0])
+        }).then(() => {
+            return client.selectByVisibleText('[aria-labelledby="awayTeam"]', teams[1])
+        }).then(() => {
+            return client.click('[aria-label="Create Match-up"]')
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Create Match-up"]', undefined, true)
+        }).then(() => {
+            return client.isVisible(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[0]} Match-up"]`)
+        }).then((visible) => {
+            expect(visible).toBe(true)
+            return client.isVisible(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[1]} Match-up"]`)
+        }).then((visible) => {
+            expect(visible).toBe(true)
+            return client.click(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[0]} Match-up"]`)
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Delete Match-up"]')
+        }).then(() => {
+            return client.click('[aria-label="Delete Match-up"]')
+        }).then(() => {
+            return client.waitForVisible('[aria-label="Delete Match-up"]', undefined, true)
+        }).then(() => {
+            return client.isVisible(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[0]} Match-up"]`)
+        }).then((visible) => {
+            expect(visible).toBe(false)
+            return client.isVisible(`[aria-label="Round List Table"] > tbody tr:nth-of-type(1) > td > div:nth-of-type(1) > [aria-label="Edit ${teams[1]} Match-up"]`)
+        }).then((visible) => {
+            expect(visible).toBe(false)
+            done()
+        })
+    }, 11000 * computerSpeed)
+
 })
