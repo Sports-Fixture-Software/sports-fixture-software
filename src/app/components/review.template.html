@@ -4,8 +4,8 @@
             <table>
                 <tr>
                     <td>
-                        <label for="homeTeam">Home</label>
-                        <select id="homeTeam" class="form-control" formControlName="homeTeam">
+                        <label id="homeTeam">Home</label>
+                        <select aria-labelledby="homeTeam" class="form-control" formControlName="homeTeam">
                             <option *ngFor="let team of homeTeamsAll" [ngValue]="team">
                                 {{team.name}}
                             </option>
@@ -13,8 +13,8 @@
                     </td>
                     <td class="form-centre">vs</td>
                     <td>
-                        <label for="awayTeam">Away</label>
-                        <select id="awayTeam" class="form-control" formControlName="awayTeam">
+                        <label id="awayTeam">Away</label>
+                        <select aria-labelledby="awayTeam" class="form-control" formControlName="awayTeam">
                             <option *ngFor="let team of awayTeamsAll" [ngValue]="team">
                                 {{team.name}}
                             </option>
@@ -25,7 +25,7 @@
         </div>
 
         <div class="pull-right form-footer">
-            <button-popover #createMatchupButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" type="submit" [disabled]="!matchupForm.valid">
+            <button-popover #createMatchupButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" type="submit" [disabled]="!matchupForm.valid" [btn-aria-label]="matchupButtonText">
                 {{matchupButtonText}}
             </button-popover>
             <button-popover *ngIf="editingMatch" #deleteMatchupButton btn-class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="deleteMatchup(matchupForm.value)">
@@ -41,7 +41,7 @@
     </div>
     <div class="col-xs-6 heading-row">
         <div class="pull-right">
-            <button #editFixtureButton class="btn btn-primary horiz-sep vert-sep pull-right" type="button" (click)="onEditFixture()">{{ editFixtureLabel }}</button>
+            <button #editFixtureButton class="btn btn-primary horiz-sep vert-sep pull-right" type="button" (click)="onEditFixture()" [attr.aria-label]="editFixtureLabel">{{ editFixtureLabel }}</button>
             <button-popover #saveFixtureButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" type="button" (click)="onSaveFixture()">Save Fixture…</button-popover>
         </div>
     </div>
@@ -52,7 +52,7 @@
     <span class="sr-only">Error</span>{{ error?.message }}
 </div>
 
-<table class="table table-striped table-min-row">
+<table class="table table-striped table-min-row" aria-label="Review Matches Table">
     <colgroup>
         <col style="width:12%">
         <col style="width:19%">
@@ -83,11 +83,11 @@
                 {{ last ? onAfterFor(): ""}}
                 <div class="inner-stack" *ngFor="let match of round.matchesPreLoaded">
                     <button class="btn btn-default trunc matchup-button"
-                    [class.btn-danger]="isTeamRepeated(round, match.homeTeamPreLoaded)" [class.btn-default]="!isTeamRepeated(round, match.homeTeamPreLoaded)" data-toggle="popover" data-toggle="tooltip" data-placement="bottom" [attr.data-original-title]="match.homeTeamPreLoaded.name" [popover]="createMatchupPopover" popoverPlacement="bottom" (click)="prepareForm(round, match)">
+                    [class.btn-danger]="isTeamRepeated(round, match.homeTeamPreLoaded)" [class.btn-default]="!isTeamRepeated(round, match.homeTeamPreLoaded)" data-toggle="popover" data-toggle="tooltip" data-placement="bottom" [attr.data-original-title]="match.homeTeamPreLoaded.name" [popover]="createMatchupPopover" popoverPlacement="bottom" (click)="prepareForm(round, match)" [attr.aria-label]="'Edit ' + match.homeTeamPreLoaded.name + ' Match-up'">
                         {{match.homeTeamPreLoaded.name}}
                     </button>
                     v
-                    <button class="btn btn-default trunc matchup-button" data-toggle="popover" data-toggle="tooltip" data-placement="bottom" [class.btn-danger]="isTeamRepeated(round, match.awayTeamPreLoaded)" [class.btn-default]="!isTeamRepeated(round, match.awayTeamPreLoaded)" [attr.data-original-title]="match.awayTeamPreLoaded.name" [popover]="createMatchupPopover" popoverPlacement="left-top" (click)="prepareForm(round, match)">
+                    <button class="btn btn-default trunc matchup-button" data-toggle="popover" data-toggle="tooltip" data-placement="bottom" [class.btn-danger]="isTeamRepeated(round, match.awayTeamPreLoaded)" [class.btn-default]="!isTeamRepeated(round, match.awayTeamPreLoaded)" [attr.data-original-title]="match.awayTeamPreLoaded.name" [popover]="createMatchupPopover" popoverPlacement="left-top" (click)="prepareForm(round, match)" [attr.aria-label]="'Edit ' + match.awayTeamPreLoaded.name == undefined ? 'Bye' : match.awayTeamPreLoaded.name + ' Match-up'">
                         {{match.awayTeamPreLoaded.name == undefined ? 'Bye' : match.awayTeamPreLoaded.name}}
                     </button>
                 </div>
