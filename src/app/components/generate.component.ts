@@ -4,7 +4,7 @@ import { Fixture } from '../models/fixture'
 import { League } from '../models/league'
 import { FixtureService } from '../services/fixture.service'
 import { TeamService } from '../services/team.service'
-import { NotifyService } from '../services/notify.service'
+import { NotifyService, GenerateState } from '../services/notify.service'
 import { RoundService } from '../services/round.service'
 import { MatchService } from '../services/match.service'
 import { SchedulerService } from '../services/scheduler.service'
@@ -50,10 +50,13 @@ export class GenerateComponent implements OnInit {
 
     generate() {
         if (this.fixture) {
+            this.notifyService.emitGenerateState(GenerateState.Generating)
             this.fixture.generatedOn = moment()
-            this.fixtureService.updateFixture(this.fixture)
-            this.notifyService.emitGenerated(true)
-            this.schedulerService.generateFixture(this.fixture)
+            this.fixtureService.updateFixture(this.fixture).then(() => {
+                return this.schedulerService.generateFixture(this.fixture)
+            }).then(() => {
+                this.notifyService.emitGenerateState(GenerateState.Generated)
+            })
         }
     }
 
