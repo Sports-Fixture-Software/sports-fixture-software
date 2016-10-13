@@ -1,5 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef, Output, EventEmitter } from '@angular/core'
+import { Component, OnInit, ChangeDetectorRef, Output, ViewChild, EventEmitter } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
+import { ButtonPopover } from './button_popover.component'
 import { Fixture } from '../models/fixture'
 import { League } from '../models/league'
 import { FixtureService } from '../services/fixture.service'
@@ -7,7 +8,8 @@ import { TeamService } from '../services/team.service'
 import { NotifyService } from '../services/notify.service'
 import { RoundService } from '../services/round.service'
 import { MatchService } from '../services/match.service'
-import { SchedulerService } from '../services/scheduler.service'
+// import { SchedulerService } from '../services/scheduler/random/scheduler.service'
+import { SchedulerService } from '../services/scheduler/dfs/scheduler.service'
 import { Collection }  from '../services/collection'
 import { DateTime } from '../util/date_time'
 import * as moment from 'moment'
@@ -18,7 +20,7 @@ import * as moment from 'moment'
     // RoundService, MatchService not used in this file, but needs to be
     // 'provided' before SchedulerService is used
     providers: [FixtureService, TeamService, SchedulerService, RoundService, MatchService],
-    directives: []
+    directives: [ButtonPopover]
 })
 
 export class GenerateComponent implements OnInit {
@@ -31,6 +33,8 @@ export class GenerateComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router) {
     }
+
+    @ViewChild('generateButton') generateButton: ButtonPopover
 
     ngOnInit() {
         this.router.routerState.parent(this.route)
@@ -50,10 +54,15 @@ export class GenerateComponent implements OnInit {
 
     generate() {
         if (this.fixture) {
-            this.fixture.generatedOn = moment()
-            this.fixtureService.updateFixture(this.fixture)
-            this.notifyService.emitGenerated(true)
-            this.schedulerService.generateFixture(this.fixture)
+            this.schedulerService.generateFixture(this.fixture).then(() => {
+                this.fixture.generatedOn = moment()
+                this.fixtureService.updateFixture(this.fixture)
+                this.notifyService.emitGenerated(true)
+            }).catch((err: Error) => {
+                this.generateButton.showError('Error generating fixture',
+                    err.message)
+                this.changeref.detectChanges()
+            })
         }
     }
 

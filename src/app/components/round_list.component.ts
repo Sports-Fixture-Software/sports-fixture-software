@@ -61,7 +61,7 @@ export class RoundListComponent implements OnInit {
                     return this._fixtureService.getRoundsAndConfig(f)
                 }).then((rounds: Collection<Round>) => {
                     this.rounds = rounds.toArray()
-                    this.fillInRounds()
+                    DateTime.fillInRounds(this.fixture, this.rounds, true)
                     this.homeTeamsAll = this.fixture.leaguePreLoaded.teamsPreLoaded.toArray()
                     this.awayTeamsAll = this.homeTeamsAll.slice(0) //copy
                     let byeTeam = new Team('Bye')
@@ -157,7 +157,7 @@ export class RoundListComponent implements OnInit {
             return this._fixtureService.getRoundsAndConfig(this.fixture)
         }).then((rounds: Collection<Round>) => {
             this.rounds = rounds.toArray()
-            this.fillInRounds()
+            DateTime.fillInRounds(this.fixture, this.rounds, true)
             this.createMatchupPopover.hide()
             this._changeref.detectChanges()
         }).catch((err: Error) => {
@@ -171,7 +171,7 @@ export class RoundListComponent implements OnInit {
                 return this._fixtureService.getRoundsAndConfig(this.fixture)
             }).then((rounds: Collection<Round>) => {
                 this.rounds = rounds.toArray()
-                this.fillInRounds()
+                DateTime.fillInRounds(this.fixture, this.rounds, true)
                 this.createMatchupPopover.hide()
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
@@ -179,38 +179,6 @@ export class RoundListComponent implements OnInit {
             })
         } else {
             this.deleteMatchupButton.showError('Error deleting match-up', 'The match-up could not be found')
-        }
-    }
-
-    /**
-     * Fills in the "gaps" in rounds. The database may already have some rounds
-     * because of entered constraints - constraints need a parent `Round`. Fill
-     * in any gaps with new `Round`s.
-     */
-    private fillInRounds() {
-        let runningDate = moment(this.fixture.startDate)
-        if (runningDate.day() == DaysOfWeek.Sunday) {
-            runningDate.subtract(1, 'day')
-        } else if (runningDate.day() < DaysOfWeek.Saturday) {
-            runningDate.add(DaysOfWeek.Saturday - runningDate.day(), 'day')
-        }
-        for (let i = 1; i <= DateTime.getNumberOfRounds(this.fixture.startDate, this.fixture.endDate); i++) {
-            let index = Search.binarySearch(this.rounds, i, (a: number, b: Round) => {
-                return a - b.number
-            })
-            if (i > 1) {
-                runningDate.add(1, 'week')
-            }
-            if (index < 0) {
-                let round = new Round(i)
-                if (i == 1) {
-                    round.startDate = this.fixture.startDate
-                } else {
-                    round.startDate = runningDate
-                }
-                round.setFixture(this.fixture)
-                this.rounds.splice(~index, 0, round)
-            }
         }
     }
 
