@@ -1,5 +1,9 @@
 import * as webdriverio from 'webdriverio'
 
+/**
+ * end-to-end function to create a new team.
+ * `name` is the team name.
+ */
 export function createTeam(client: webdriverio.Client<any>, name: string): webdriverio.Client<boolean> {
     return client.waitForVisible('[aria-label="Create Team"]').then(() => {
         return client.click('[aria-label="Create Team"]')

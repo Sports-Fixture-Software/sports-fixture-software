@@ -4,6 +4,9 @@ import { createTeam } from './helpers/team.helper'
 import * as webdriverio from 'webdriverio'
 import * as Promise from 'bluebird'
 
+/**
+ * end-to-end test suite for team functions
+ */
 describe('team', function () {
     let app: any
 
@@ -15,6 +18,11 @@ describe('team', function () {
         TestApp.stopApp(app, done)
     }, 7000 * computerSpeed)
 
+    /**
+     * Create a new team.
+     *
+     * A league is created, then a team is created.
+     */
     it('create team', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -40,6 +48,11 @@ describe('team', function () {
         })
     }, 7000 * computerSpeed)
 
+    /**
+     * Delete a team.
+     *
+     * A league is created, then a team is created, then team is deleted.
+     */
     it('delete team', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -74,6 +87,12 @@ describe('team', function () {
         })
     }, 8000 * computerSpeed)
 
+    /**
+     * Edit a team.
+     *
+     * A league is created, then a team is created, then the team is
+     * edited, then saved, and then check if save persisted.
+     */
     it('edit team', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -111,6 +130,12 @@ describe('team', function () {
         })
     }, 8000 * computerSpeed)
 
+    /**
+     * Revert edits on a team.
+     *
+     * A league is created, then a team is created, then the team is
+     * edited, then edits reverted, and then check if the original persisted.
+     */
     it('revert team', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'

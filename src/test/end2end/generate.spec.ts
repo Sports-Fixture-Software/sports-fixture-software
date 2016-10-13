@@ -5,6 +5,9 @@ import { createTeam } from './helpers/team.helper'
 import * as webdriverio from 'webdriverio'
 import * as Promise from 'bluebird'
 
+/**
+ * end-to-end test suite for generate fixture functions
+ */
 describe('generate', function () {
     let app: any
 
@@ -16,6 +19,12 @@ describe('generate', function () {
         TestApp.stopApp(app, done)
     }, 7000 * computerSpeed)
 
+    /**
+     * Generate a fixture.
+     *
+     * A league is created, then 4 teams are created, then a fixture created,
+     * then the fixture is edited, then a fixture is generated.
+     */
     it('generate for 3 rounds, 4 teams', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'

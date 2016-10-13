@@ -3,6 +3,9 @@ import { createLeague } from './helpers/league.helper'
 import * as webdriverio from 'webdriverio'
 import * as Promise from 'bluebird'
 
+/**
+ * end-to-end test suite for league functions
+ */
 describe('league', function () {
     let app: any
     
@@ -14,6 +17,9 @@ describe('league', function () {
         TestApp.stopApp(app, done)
     }, 7000 * computerSpeed)
 
+    /**
+     * Create a new league.
+     */
     it('create first league', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -28,6 +34,11 @@ describe('league', function () {
         })
     }, 7000 * computerSpeed)
 
+    /**
+     * Delete a league.
+     *
+     * A league is created, then deleted.
+     */
     it('delete league', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -57,6 +68,12 @@ describe('league', function () {
         })
     }, 8000 * computerSpeed)
 
+    /**
+     * Edit a league.
+     *
+     * A league is created, then the league is edited, then saved, and then
+     * check if save persisted.
+     */
     it('edit league', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -83,6 +100,12 @@ describe('league', function () {
         })
     }, 8000 * computerSpeed)
 
+    /**
+     * Revert edits on a league.
+     *
+     * A league is created, then the league is edited, then edits reverted, and
+     * then check if the original persisted.
+     */
     it('revert league', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -109,6 +132,9 @@ describe('league', function () {
         })
     }, 8000 * computerSpeed)
 
+    /**
+     * Creates a 100 leagues.
+     */
     it('create 100 leagues', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueNames: string[] = []

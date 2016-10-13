@@ -1,5 +1,9 @@
 import * as webdriverio from 'webdriverio'
 
+/**
+ * end-to-end function to create a new league.
+ * `name` is the league name.
+ */
 export function createLeague(client: webdriverio.Client<any>, name: string): webdriverio.Client<boolean> {
     return client.waitForExist('[aria-label="Create League"]').then((found) => {
         expect(found).toBe(true)

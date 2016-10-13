@@ -5,6 +5,9 @@ import { createTeam } from './helpers/team.helper'
 import * as webdriverio from 'webdriverio'
 import * as Promise from 'bluebird'
 
+/**
+ * end-to-end test suite for round functions
+ */
 describe('round', function () {
     let app: any
 
@@ -16,6 +19,12 @@ describe('round', function () {
         TestApp.stopApp(app, done)
     }, 7000 * computerSpeed)
 
+    /**
+     * View round page with 0 rounds.
+     *
+     * A league is created, then a fixture is created, then view the rounds
+     * page, and check for no rounds.
+     */
     it('no rounds (no fixture dates)', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -47,6 +56,13 @@ describe('round', function () {
         })
     }, 8000 * computerSpeed)
 
+    /**
+     * View round page with 1 round.
+     *
+     * A league is created, then a fixture is created, then a fixture edited
+     * with dates across a single weekend, then view the rounds page, and check
+     * for 1 round, round number and round date.
+     */
     it('1 round', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -102,6 +118,14 @@ describe('round', function () {
         })
     }, 8000 * computerSpeed)
 
+    /**
+     * View round page with 23 round.
+     *
+     * A league is created, then a fixture is created, then a fixture edited
+     * with dates across 23 rounds, then view the rounds page, and check
+     * for 23 rounds, round number (for round 1 & round 23) and round date (for
+     * round 1 & round 23).
+     */
     it('23 round', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -168,6 +192,13 @@ describe('round', function () {
         })
     }, 8000 * computerSpeed)
 
+    /**
+     * Add a reserve match-up.
+     *
+     * A league is created, then 4 teams are created, then a fixture is created,
+     * then a fixture edited with dates across 23 rounds, then view the rounds
+     * page, then add a reserve match-up, and check the match-up persisted.
+     */
     it('add match-up', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -232,6 +263,14 @@ describe('round', function () {
         })
     }, 10000 * computerSpeed)
 
+    /**
+     * Edit a reserve match-up.
+     *
+     * A league is created, then 4 teams are created, then a fixture is created,
+     * then a fixture edited with dates across 23 rounds, then view the rounds
+     * page, then add a reserve match-up, edit a reserve match-up, and check
+     * the match-up persisted.
+     */
     it('edit match-up', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -312,6 +351,13 @@ describe('round', function () {
         })
     }, 11000 * computerSpeed)
 
+    /**
+     * Delete a reserve match-up.
+     *
+     * A league is created, then 4 teams are created, then a fixture is created,
+     * then a fixture edited with dates across 23 rounds, then view the rounds
+     * page, then add a reserve match-up, and then delete the match-up.
+     */
     it('delete match-up', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'

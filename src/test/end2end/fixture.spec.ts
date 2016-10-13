@@ -4,6 +4,9 @@ import { createFixture, editFixture } from './helpers/fixture.helper'
 import * as webdriverio from 'webdriverio'
 import * as Promise from 'bluebird'
 
+/**
+ * end-to-end test suite for fixture functions
+ */
 describe('fixture', () => {
     let app: any
 
@@ -15,6 +18,12 @@ describe('fixture', () => {
         TestApp.stopApp(app, done)
     }, 7000 * computerSpeed)
 
+    /**
+     * Create a new fixture.
+     *
+     * A league is created, then a fixture is created. The optional description
+     * is left blank.
+     */
     it('create fixture (no description)', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -40,6 +49,12 @@ describe('fixture', () => {
         })
     }, 8000 * computerSpeed)
 
+    /**
+     * Create a new fixture.
+     *
+     * A league is created, then a fixture is created. The optional description
+     * is completed.
+     */
     it('create fixture (with description)', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -77,6 +92,11 @@ describe('fixture', () => {
         })
     }, 8000 * computerSpeed)
 
+    /**
+     * Delete a fixture.
+     *
+     * A league is created, then a fixture is created, then fixture is deleted.
+     */
     it('delete fixture', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -119,6 +139,13 @@ describe('fixture', () => {
         })
     }, 9000 * computerSpeed)
 
+    /**
+     * Edit a fixture.
+     *
+     * A league is created, then a fixture is created, then the fixture is
+     * edited, then saved, and then check if save persisted. The optional
+     * description is completed.
+     */
     it('edit fixture (with description)', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'
@@ -157,6 +184,12 @@ describe('fixture', () => {
         })
     }, 9000 * computerSpeed)
 
+    /**
+     * Revert edits on a fixture.
+     *
+     * A league is created, then a fixture is created, then the fixture is
+     * edited, then edits reverted, and then check if the original persisted.
+     */
     it('revert fixture', (done) => {
         let client = app.client as webdriverio.Client<void>
         let leagueName = 'alpha'

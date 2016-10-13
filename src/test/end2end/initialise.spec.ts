@@ -2,6 +2,9 @@ import { TestApp, computerSpeed } from '../init'
 import * as webdriverio from 'webdriverio'
 import * as Promise from 'bluebird'
 
+/**
+ * end-to-end test suite for application initialisation
+ */
 describe('application initialise', function () {
     let app: any
     
@@ -13,6 +16,9 @@ describe('application initialise', function () {
         TestApp.stopApp(app, done)
     }, 7000 * computerSpeed)
 
+    /**
+     * Test a browser window is displayed and angular loads.
+     */
     it('browser window displayed with angular loaded', (done) => {
         let client = app.client as webdriverio.Client<void>
         client.waitForExist('router-outlet').then((found) => {
