@@ -11,7 +11,8 @@
     "clean": "gulp clean",
     "postinstall": "typings install",
     "test": "gulp test",
-    "unittest": "gulp unittest"
+    "unittest": "gulp unittest",
+    "end2end": "gulp end2end"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     "jasmine-reporters": "^2.2.0",
     "node-pre-gyp": "^0.6.30",
     "run-sequence": "^1.2.2",
+    "spectron": "^3.4.0",
     "typedoc": "^0.4.4",
     "typescript": "^1.8.10",
     "typings": "^1.3.2"

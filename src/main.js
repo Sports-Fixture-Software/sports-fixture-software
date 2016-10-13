@@ -2,7 +2,15 @@ const electron = require('electron')
 const glob = require('glob')
 const path = require('path')
 
-require('electron-debug')({showDevTools: true});
+let developerMode = false
+
+if (process && process.argv && process.argv.indexOf('--debug') >= 0) {
+  developerMode = true
+}
+
+if (developerMode) {
+  require('electron-debug')({ showDevTools: true });
+}
 
 // Module to control application life.
 const app = electron.app
@@ -22,6 +30,10 @@ function createWindow () {
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`)
+
+  if (!developerMode) {
+    app.setApplicationMenu(null)
+  }
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

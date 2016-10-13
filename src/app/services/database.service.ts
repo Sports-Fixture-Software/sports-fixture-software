@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core'
+import { AppConfig } from '../util/app_config'
 import * as bookshelf from 'bookshelf'  
 import * as knex from 'knex'
 import * as Promise from 'bluebird'
@@ -40,8 +41,7 @@ export class DatabaseService {
                 return res
             }).catch((err: Error) => {
                 this._initError = new Error
-                    (`Unable to open database "${this.dbFilename}"
-                     (${err.message})`)
+                    (`Unable to open database "${AppConfig.getDatabaseFilename()}" (${err.message})`)
             })
         }
         else {
@@ -179,8 +179,9 @@ export class DatabaseService {
                 return this.get().knex('info').insert
                     ({databaseVersion: this._databaseVersion})
             }).then((res) => {
-                // for testing only. Remove from production version
-                return this.seedDatabase()
+                if (AppConfig.isDeveloperMode()) {
+                    return this.seedDatabase()
+                }
             })
     }
 
@@ -276,15 +277,14 @@ export class DatabaseService {
         return this._initError
     }
 
-    private dbFilename: string = 'sanfl_fixture_software.database'
     private DBConfig = {  
         client: 'sqlite3',
         connection: {
-            filename: this.dbFilename
+            filename: AppConfig.getDatabaseFilename()
         },
         useNullAsDefault: true
     }
-    
+
     private _databaseVersion: number = 11
     private _initError: Error
     private _initCalled: boolean = false
