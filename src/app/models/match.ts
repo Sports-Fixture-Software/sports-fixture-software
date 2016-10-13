@@ -18,6 +18,7 @@ export class Match extends (databaseInjector.get(DatabaseService) as DatabaseSer
     set awayTeam_id(value: number) { this.set('awayTeam_id', value) }
 
     setRound(value: Round) { this.set('round_id', value.id) }
+    set round_id(value: number) { this.set('round_id', value) }
 
     get homeTeamPreLoaded(): Team {
         return this.related('homeTeam') as Team
