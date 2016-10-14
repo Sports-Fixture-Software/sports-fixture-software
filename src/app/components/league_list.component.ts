@@ -5,16 +5,18 @@ import { LeagueService } from '../services/league.service';
 import { Collection }  from '../services/collection'
 import * as Promise from 'bluebird'
 import { Navbar } from './navbar.component';
+import { AppConfig } from '../util/app_config'
 import { LeagueListItem } from './league_list_item.component';
 import { POPOVER_DIRECTIVES } from 'ng2-popover';
 import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { ButtonPopover } from './button_popover.component'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl : 'league_list.template.html',
     properties : ['leagues'],
     providers: [LeagueService], 
-    directives: [Navbar, LeagueListItem, POPOVER_DIRECTIVES, MODAL_DIRECTIVES]
+    directives: [Navbar, LeagueListItem, ButtonPopover, POPOVER_DIRECTIVES, MODAL_DIRECTIVES]
 })
 
 export class LeagueListComponent implements OnInit {
@@ -32,6 +34,7 @@ export class LeagueListComponent implements OnInit {
     }
 
     @ViewChild('errorModal')
+    @ViewChild('createLeagueButton') createLeagueButton: ButtonPopover
     errorModal : ModalComponent
 
     newLeagueText: String
@@ -49,7 +52,8 @@ export class LeagueListComponent implements OnInit {
                 this.leagues = l.toArray()
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
-                this.lastError = err
+                this.lastError = new Error(`A error occurred loading the database "${AppConfig.getDatabaseFilename()}"" . ${AppConfig.DatabaseErrorGuidance}`)
+                AppConfig.log(err)
                 this.errorModal.open()
             })
         }
@@ -62,8 +66,10 @@ export class LeagueListComponent implements OnInit {
                 this.leagues.push(l)
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
-                this.lastError = err
-                this.errorModal.open()
+                this.createLeagueButton.showError('Error creating league',
+                    'A database error occurred when creating the league. ' + AppConfig.DatabaseErrorGuidance)
+                AppConfig.log(err)
+                this.changeref.detectChanges()
             })
     }
 

@@ -16,16 +16,18 @@
 <div class="row">
     <div class="col-xs-1 button-grid">
         <popover-content #createLeagePopover title="Create League" [closeOnClickOutside]="true">
-            <div style="width: 270px">
-                <div class="input-group" style="width: 100%">
+            <form class="form-s" [formGroup]="leagueForm" novalidate (ngSubmit)="submitAddLeague(leagueForm.value)">
+                <div class="form-group">
                     <div class="input-group">
-                        <input #newLeagueText type="text" class="form-control" placeholder="League Name..." (keyup.enter)="submitAddLeague(newLeagueText.value); createLeagePopover.hide(); newLeagueText.value=''">
+                        <input #newLeagueText type="text" class="form-control" placeholder="League Name..." formControlName="name">
                         <span class="input-group-btn">
-                            <button type="submit" class="btn btn-default" (click)="submitAddLeague(newLeagueText.value); createLeagePopover.hide(); newLeagueText.value=''"><span class="glyphicon glyphicon-ok"></span></button>
+                            <button type="submit" class="btn btn-default" [disabled]="!leagueForm.valid">
+                                <span class="glyphicon glyphicon-ok"></span>
+                            </button>
                         </span>
                     </div>
                 </div>
-            </div>
+            </form>
         </popover-content>
         <button class="btn btn-default vert-sep" [popover]="createLeagePopover" [popoverCloseOnClickOutside]="true" popoverPlacement="right">
                 <span class="glyphicon glyphicon-plus"></span>

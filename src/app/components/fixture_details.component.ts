@@ -9,6 +9,7 @@ import { FixtureConfigService } from '../services/fixture_config.service'
 import { ButtonPopover } from './button_popover.component'
 import { InputPopover } from './input_popover.component'
 import { FixtureForm } from '../models/fixture.form'
+import { AppConfig } from '../util/app_config'
 import { Subscription } from 'rxjs/Subscription'
 import { POPOVER_DIRECTIVES } from 'ng2-popover'
 import { Validator } from '../util/validator'
@@ -86,7 +87,8 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             })
         }).catch((err: Error) => {
             this.deleteFixtureButton.showError('Error deleting fixture',
-                err.message)
+                'A database error occurred when deleting the fixture. ' + AppConfig.DatabaseErrorGuidance)
+            AppConfig.log(err)
             this.changeref.detectChanges()
         })
     }
@@ -201,7 +203,9 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             this.editing = false
             this.changeref.detectChanges()
         }).catch((err: Error) => {
-            this.saveChangesButton.showError('Error saving changes', err.message)
+            this.saveChangesButton.showError('Error saving changes',
+                'A database error occurred when saving the fixture. ' + AppConfig.DatabaseErrorGuidance)
+            AppConfig.log(err)
             this.changeref.detectChanges()
         })
     }

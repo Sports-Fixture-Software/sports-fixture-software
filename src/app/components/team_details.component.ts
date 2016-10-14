@@ -10,6 +10,7 @@ import { ButtonPopover } from './button_popover.component'
 import { InputPopover } from './input_popover.component'
 import { TeamForm } from '../models/team.form'
 import { Validator } from '../util/validator'
+import { AppConfig } from '../util/app_config'
 import { POPOVER_DIRECTIVES } from 'ng2-popover'
 import { Subscription } from 'rxjs/Subscription'
 
@@ -83,7 +84,8 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             })
         }).catch((err: Error) => {
             this.deleteTeamButton.showError('Error deleting team',
-                err.message)
+                'A database error occurred when deleting the team. ' + AppConfig.DatabaseErrorGuidance)
+            AppConfig.log(err)
             this.changeref.detectChanges()
         })
     }
@@ -166,7 +168,9 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             this.editing = false
             this.changeref.detectChanges()
         }).catch((err: Error) => {
-            this.saveChangesButton.showError('Error saving changes', err.message)
+            this.saveChangesButton.showError('Error saving changes',
+                'A database error occurred when saving the team. ' + AppConfig.DatabaseErrorGuidance)
+            AppConfig.log(err)
             this.changeref.detectChanges()
         })
     }

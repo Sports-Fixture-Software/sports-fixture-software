@@ -10,6 +10,7 @@ import { Team } from '../models/team'
 import { Match } from '../models/match'
 import { ReviewForm } from '../models/review.form'
 import { Validator } from '../util/validator'
+import { AppConfig } from '../util/app_config'
 import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover'
 import { FileFolder } from '../util/file_folder'
@@ -63,8 +64,8 @@ export class ReviewComponent implements OnInit {
                     this.rounds = rounds.toArray()
                     this._changeref.detectChanges()
                 }).catch((err: Error) => {
-                    let detail = err ? err.message : ''
-                    this.error = new Error(`Error loading rounds: ${detail}`)
+                    this.error = new Error('A database error occurred when reading the fixture. ' + AppConfig.DatabaseErrorGuidance)
+                    AppConfig.log(err)
                     this._changeref.detectChanges()
                 })
             })
@@ -151,7 +152,9 @@ export class ReviewComponent implements OnInit {
             this.createMatchupPopover.hide()
             this._changeref.detectChanges()
         }).catch((err: Error) => {
-            this.createMatchupButton.showError('Error saving match-up', err.message)
+            this.createMatchupButton.showError('Error saving match-up',
+                'A database error occurred when saving the match-up. ' + AppConfig.DatabaseErrorGuidance)
+            AppConfig.log(err)
         })
     }
 
@@ -164,10 +167,13 @@ export class ReviewComponent implements OnInit {
                 this.createMatchupPopover.hide()
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
-                this.deleteMatchupButton.showError('Error deleting match-up', err.message)
+                this.deleteMatchupButton.showError('Error deleting match-up',
+                    'A database error occurred when deleting the match-up. ' + AppConfig.DatabaseErrorGuidance)
+                AppConfig.log(err)
             })
         } else {
-            this.deleteMatchupButton.showError('Error deleting match-up', 'The match-up could not be found')
+            this.deleteMatchupButton.showError('Error deleting match-up', 'The match-up could not be found.')
+            AppConfig.log('The match-up could not be found. ' + JSON.stringify(form))
         }
     }
 
@@ -205,7 +211,9 @@ export class ReviewComponent implements OnInit {
             if (err instanceof UserCancelled) {
                 // don't show error - the user cancelled
             } else {
-                this.saveFixtureButton.showError('Error saving fixture', err.message)
+                this.saveFixtureButton.showError('Error saving fixture',
+                    'A file error occurred when saving the fixture. ' + AppConfig.FileErrorGuidance)
+                AppConfig.log(err)
                 this._changeref.detectChanges()
             }
         })
