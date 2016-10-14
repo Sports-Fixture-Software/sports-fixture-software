@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
 import { Validators } from '@angular/common'
@@ -19,6 +19,8 @@ import { DaysOfWeek } from '../util/days_of_week'
 import { Search } from '../util/search'
 import { Validator } from '../util/validator'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
+import { TeamName } from './pipes/team_name'
+import { Subscription } from 'rxjs/Subscription'
 import * as moment from 'moment'
 import * as twitterBootstrap from 'bootstrap'
 declare var jQuery: JQueryStatic
@@ -27,10 +29,11 @@ declare var jQuery: JQueryStatic
     moduleId: module.id.replace(/\\/g, '/'),
     providers: [FixtureService, RoundService, MatchConfigService],
     directives: [ButtonPopover, ButtonHidden, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES],
+    pipes: [TeamName],
     templateUrl: 'round_list.template.html'
 })
 
-export class RoundListComponent implements OnInit {
+export class RoundListComponent implements OnInit, OnDestroy {
     constructor(private _changeref: ChangeDetectorRef,
         private _fixtureService: FixtureService,
         private _roundService: RoundService,
@@ -64,9 +67,12 @@ export class RoundListComponent implements OnInit {
                     DateTime.fillInRounds(this.fixture, this.rounds, true)
                     this.homeTeamsAll = this.fixture.leaguePreLoaded.teamsPreLoaded.toArray()
                     this.awayTeamsAll = this.homeTeamsAll.slice(0) //copy
-                    let byeTeam = new Team('Bye')
-                    byeTeam.id = null
-                    this.awayTeamsAll.push(byeTeam)
+                    let anyTeam = new Team('Any')
+                    anyTeam.id = Team.ANY_TEAM_ID
+                    this.homeTeamsAll.push(anyTeam)
+                    this.byeTeam = new Team('Bye')
+                    this.byeTeam.id = Team.BYE_TEAM_ID
+                    this.awayTeamsAll.push(this.byeTeam)
                     this.homeTeams = this.homeTeamsAll.slice(0) //copy
                     this.awayTeams = this.homeTeamsAll.slice(0) //copy
                     this._changeref.detectChanges()
@@ -76,6 +82,12 @@ export class RoundListComponent implements OnInit {
                     this._changeref.detectChanges()
                 })
             })
+    }
+
+    ngOnDestroy() {
+        if (this.homeTeamChange) {
+            this.homeTeamChange.unsubscribe()
+        }
     }
 
     /**
@@ -128,9 +140,36 @@ export class RoundListComponent implements OnInit {
                 }
             }
         }
-        this.removeTeamsAsAlreadyReserved(round,
+        this.removeHomeTeamsAsAlreadyReserved(round,
             config ? config.homeTeamPreLoaded : null,
             config ? config.awayTeamPreLoaded : null)
+        this.removeAwayTeamsAsAlreadyReserved(round,
+            config ? config.homeTeamPreLoaded : null,
+            config ? config.awayTeamPreLoaded : null)
+        this._changeref.detectChanges()
+        if (!config || !config.homeTeamPreLoaded) {
+            let fc = this.matchupForm.controls['homeTeam'] as FormControl
+            fc.updateValue(null)
+        }
+        if (!config || !config.awayTeamPreLoaded) {
+            let fc = this.matchupForm.controls['awayTeam'] as FormControl
+            fc.updateValue(null)
+        }
+
+        if (!this.homeTeamChange) {
+            fc = this.matchupForm.controls['homeTeam'] as FormControl
+            this.homeTeamChange = fc.valueChanges.subscribe((evt: Team) => {
+                if (evt && evt.id == Team.ANY_TEAM_ID) {
+                    this.awayTeams = [this.byeTeam]
+                    fc = this.matchupForm.controls['awayTeam'] as FormControl
+                    fc.updateValue(this.byeTeam)
+                } else {
+                    this.removeAwayTeamsAsAlreadyReserved(round,
+                        config ? config.homeTeamPreLoaded : null,
+                        config ? config.awayTeamPreLoaded : null)
+                }
+            })
+        }
     }
 
     /**
@@ -183,7 +222,7 @@ export class RoundListComponent implements OnInit {
     }
 
     /**
-     * Remove teams from the drop-down home and away teams list.
+     * Remove teams from the drop-down home teams list.
      *
      * If the user has reserved a match-up, remove from the list so the user
      * can't reserve the same team again on the same round.
@@ -194,16 +233,16 @@ export class RoundListComponent implements OnInit {
      * `awayTeam` (optional) Do not remove this away team from the away list,
      *      because the user is editing.
      */
-    private removeTeamsAsAlreadyReserved(round: Round, homeTeam?: Team, awayTeam?: Team) {
+    private removeHomeTeamsAsAlreadyReserved(round: Round, homeTeam?: Team, awayTeam?: Team) {
         let configs = round.matchConfigsPreLoaded
         this.homeTeams = this.homeTeamsAll.slice(0) //copy
-        this.awayTeams = this.awayTeamsAll.slice(0) //copy
         // config null if matchConfigsPreLoaded fails. If fails, show all teams
         if (configs) {
             for (let config of configs) {
                 let count = 0
                 for (let i = this.homeTeams.length - 1; i >= 0; i--) {
-                    if ((this.homeTeams[i].id == config.homeTeam_id &&
+                    if ((config.homeTeam_id != Team.ANY_TEAM_ID &&
+                        this.homeTeams[i].id == config.homeTeam_id &&
                         // don't delete the homeTeam as requested
                         !(homeTeam && homeTeam.id == this.homeTeams[i].id))
                         ||
@@ -217,10 +256,32 @@ export class RoundListComponent implements OnInit {
                         }
                     }
                 }
-                count = 0
+            }
+        }
+    }
+
+    /**
+     * Remove teams from the drop-down away teams list.
+     *
+     * If the user has reserved a match-up, remove from the list so the user
+     * can't reserve the same team again on the same round.
+     * 
+     * `round` the round containing the match-ups
+     * `homeTeam` (optional) Do not remove this home team from the home list,
+     *      because the user is editing.
+     * `awayTeam` (optional) Do not remove this away team from the away list,
+     *      because the user is editing.
+     */
+    private removeAwayTeamsAsAlreadyReserved(round: Round, homeTeam?: Team, awayTeam?: Team) {
+        let configs = round.matchConfigsPreLoaded
+        this.awayTeams = this.awayTeamsAll.slice(0) //copy
+        // config null if matchConfigsPreLoaded fails. If fails, show all teams
+        if (configs) {
+            for (let config of configs) {
+                let count = 0
                 for (let i = this.awayTeams.length - 1; i >= 0; i--) {
                     // don't delete the bye from the away teams
-                    if ((config.awayTeam_id && // not the bye
+                    if ((config.awayTeam_id != Team.BYE_TEAM_ID &&
                         this.awayTeams[i].id == config.awayTeam_id &&
                         // don't delete the awayTeam as requested
                         !(awayTeam && awayTeam.id == this.awayTeams[i].id))
@@ -237,17 +298,8 @@ export class RoundListComponent implements OnInit {
                 }
             }
         }
-        this._changeref.detectChanges()
-        if (!homeTeam) {
-            let fc = this.matchupForm.controls['homeTeam'] as FormControl
-            fc.updateValue(null)
-        }
-        if (!awayTeam) {
-            let fc = this.matchupForm.controls['awayTeam'] as FormControl
-            fc.updateValue(null)
-        }
     }
-
+    
     /**
      * Enable a popup tooltip for overflowed elements. For example, if the
      * text is too long for the button, display a tooltip showing the whole
@@ -276,6 +328,8 @@ export class RoundListComponent implements OnInit {
     private homeTeamsAll: Team[]
     private awayTeams: Team[]
     private awayTeamsAll: Team[]
+    private byeTeam : Team
     private fixture: Fixture
     private editing: boolean
+    private homeTeamChange: Subscription
 }
