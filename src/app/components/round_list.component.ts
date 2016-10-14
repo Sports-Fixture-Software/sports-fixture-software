@@ -226,7 +226,7 @@ export class RoundListComponent implements OnInit, OnDestroy {
      *
      * If the user has reserved a match-up, remove from the list so the user
      * can't reserve the same team again on the same round.
-     * 
+     *
      * `round` the round containing the match-ups
      * `homeTeam` (optional) Do not remove this home team from the home list,
      *      because the user is editing.
@@ -299,7 +299,7 @@ export class RoundListComponent implements OnInit, OnDestroy {
             }
         }
     }
-    
+
     /**
      * Enable a popup tooltip for overflowed elements. For example, if the
      * text is too long for the button, display a tooltip showing the whole
