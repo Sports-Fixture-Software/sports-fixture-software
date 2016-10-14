@@ -1,13 +1,16 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms';
+import { Validators } from '@angular/common';
 import { Router } from '@angular/router';
 import { League } from '../models/league';
 import { LeagueService } from '../services/league.service';
 import { Collection }  from '../services/collection'
+import { LeagueForm } from '../models/league.form'
 import * as Promise from 'bluebird'
 import { Navbar } from './navbar.component';
 import { AppConfig } from '../util/app_config'
 import { LeagueListItem } from './league_list_item.component';
-import { POPOVER_DIRECTIVES } from 'ng2-popover';
+import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
 import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { ButtonPopover } from './button_popover.component'
 
@@ -16,7 +19,7 @@ import { ButtonPopover } from './button_popover.component'
     templateUrl : 'league_list.template.html',
     properties : ['leagues'],
     providers: [LeagueService], 
-    directives: [Navbar, LeagueListItem, ButtonPopover, POPOVER_DIRECTIVES, MODAL_DIRECTIVES]
+    directives: [Navbar, LeagueListItem, ButtonPopover, POPOVER_DIRECTIVES, MODAL_DIRECTIVES, REACTIVE_FORM_DIRECTIVES]
 })
 
 export class LeagueListComponent implements OnInit {
@@ -33,11 +36,10 @@ export class LeagueListComponent implements OnInit {
         this._changeref = changeref
     }
 
-    @ViewChild('errorModal')
+    @ViewChild('errorModal') errorModal : ModalComponent
+    @ViewChild('createLeaguePopover') createLeaguePopover: PopoverContent
     @ViewChild('createLeagueButton') createLeagueButton: ButtonPopover
-    errorModal : ModalComponent
-
-    newLeagueText: String
+    leagueForm: FormGroup
     lastError: Error
 
     get leagues(): League[] { return this._leagues }
@@ -45,6 +47,10 @@ export class LeagueListComponent implements OnInit {
 
     ngOnInit() {
         this.lastError = this._leagueService.getInitError();
+        this.leagueForm = new FormGroup({
+            name: new FormControl('', [<any>Validators.required])
+        })
+
         if (this.lastError) {
             this.errorModal.open()
         } else {
@@ -52,18 +58,21 @@ export class LeagueListComponent implements OnInit {
                 this.leagues = l.toArray()
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
-                this.lastError = new Error(`A error occurred loading the database "${AppConfig.getDatabaseFilename()}"" . ${AppConfig.DatabaseErrorGuidance}`)
+                this.lastError = new Error(`A error occurred loading the database "${AppConfig.getDatabaseFilename()}" . ${AppConfig.DatabaseErrorGuidance}`)
                 AppConfig.log(err)
                 this.errorModal.open()
+                this._changeref.detectChanges()
             })
         }
     }
 
-    submitAddLeague(leagueName: String) {
+    submitAddLeague(form: LeagueForm) {
         this._leagueService
-            .addLeague(new League(leagueName))
+            .addLeague(new League(form.name))
             .then((l) => {
                 this.leagues.push(l)
+                this.createLeaguePopover.hide()
+                this.resetForm()
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
                 this.createLeagueButton.showError('Error creating league',
@@ -79,6 +88,11 @@ export class LeagueListComponent implements OnInit {
 
     errorModalOk() {
         this.errorModal.close()
+    }
+
+    private resetForm() {
+        let fc = this.leagueForm.controls['name'] as FormControl
+        fc.updateValue(null)
     }
 
     private _leagueService: LeagueService
