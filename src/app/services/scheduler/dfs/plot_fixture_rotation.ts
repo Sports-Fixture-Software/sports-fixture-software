@@ -1,7 +1,7 @@
 import { Match, Constraint, Team, MatchState, ConTable } from './fixture_constraints';
 
 /**
- * plotFixture
+ * plotFixtureRotation
  * 
  * Plots a fixture with enough rounds for each team to play every other at most
  * once. Uses DFS through the solution space, pruning branches that break 
