@@ -19,7 +19,6 @@ import { DaysOfWeek } from '../util/days_of_week'
 import { Search } from '../util/search'
 import { Validator } from '../util/validator'
 import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
-import { TeamName } from './pipes/team_name'
 import { Subscription } from 'rxjs/Subscription'
 import * as moment from 'moment'
 import * as twitterBootstrap from 'bootstrap'
@@ -29,7 +28,6 @@ declare var jQuery: JQueryStatic
     moduleId: module.id.replace(/\\/g, '/'),
     providers: [FixtureService, RoundService, MatchConfigService],
     directives: [ButtonPopover, ButtonHidden, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES],
-    pipes: [TeamName],
     templateUrl: 'round_list.template.html'
 })
 
