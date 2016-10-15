@@ -14,7 +14,7 @@ export class ExportTo {
             stream.write('Round ' + round.number + ',' + this.CSVify(round.startDate.format('YYYY-MM-DD')) + EOL)
             for (let match of round.matchesPreLoaded) {
                 if (match.homeTeamPreLoaded && match.awayTeamPreLoaded) {
-                    stream.write(',,' + this.CSVify(match.homeTeamPreLoaded.name) + ',' + this.CSVify(match.awayTeamPreLoaded.name) + EOL)
+                    stream.write(',,' + this.CSVify(match.homeTeamName) + ',' + this.CSVify(match.awayTeamName) + EOL)
                 }
             }
         }
