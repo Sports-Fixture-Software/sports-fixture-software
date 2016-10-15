@@ -120,19 +120,19 @@ export class RoundListComponent implements OnInit, OnDestroy {
         fc.updateValue(round)
         fc = this.matchupForm.controls['config'] as FormControl
         fc.updateValue(config)
-        if (config && config.homeTeamPreLoaded) {
+        if (config) {
             fc = this.matchupForm.controls['homeTeam'] as FormControl
             for (let team of this.homeTeamsAll) {
-                if (team.id == config.homeTeamPreLoaded.id) {
+                if (team.id == config.homeTeam_id) {
                     fc.updateValue(team)
                     break
                 }
             }
         }
-        if (config && config.awayTeamPreLoaded) {
+        if (config) {
             fc = this.matchupForm.controls['awayTeam'] as FormControl
             for (let team of this.awayTeamsAll) {
-                if (team.id == config.awayTeamPreLoaded.id) {
+                if (team.id == config.awayTeam_id) {
                     fc.updateValue(team)
                     break
                 }
