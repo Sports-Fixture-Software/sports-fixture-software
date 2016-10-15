@@ -40,7 +40,7 @@ export interface ConstrCheck {
 export class ConstraintFactory {
 
     /** createMaxConsecHome 
-     * Produces a function for checking maximum consecutive home and away games.
+     * Produces a function for checking maximum consecutive home games.
      * Param 'maximum' must be greater than 1. This is not an off-by-one error.
      * 
      * It is assumed that this constraint will only be checked if the subject 
@@ -53,6 +53,7 @@ export class ConstraintFactory {
 
         return function ( fixture: FixtureInterface, proposedMatch: Match ): boolean {
             var count: number = 0;
+            var locked: boolean = false;
             
             // Checking prior games
             for( var i: number = 1; i < max; i++ ){
@@ -69,6 +70,18 @@ export class ConstraintFactory {
             count++;
             if( count > max ){
                 return false;
+            } else if ( count == max ){
+                // Checking if this match prevents the home team from playing both home or away in the following rounds.
+                locked = true;
+                for( var i: number = 1; i < max; i++ ){
+                    if( fixture.getHomeTeamVs( proposedMatch.roundNum+i, proposedMatch.homeTeam ) == -1 ){
+                        locked = false;
+                        break;
+                    } 
+                }
+                if( locked ){
+                    return false;
+                }
             }
 
             // Checking future games. The count should carry over.
@@ -79,6 +92,18 @@ export class ConstraintFactory {
                 }
                 if( count > max ){
                     return false;
+                } else if ( count == max ){
+                    // Checking if this match prevents the home team from playing both home or away in the previous rounds.
+                    locked = true;
+                    for( var i: number = 1; i < max; i++ ){
+                        if( fixture.getHomeTeamVs( proposedMatch.roundNum-i, proposedMatch.homeTeam ) == -1 ){
+                            locked = false;
+                            break;
+                        } 
+                    }
+                    if( locked ){
+                        return false;
+                    }
                 }
             }
             
@@ -88,4 +113,77 @@ export class ConstraintFactory {
         }
     }
 
+
+    /** createMaxConsecAway 
+     * As createMaxConsecHome, but for away games.
+     * 
+     * It is assumed that this constraint will only be checked if the subject 
+     * team is the away team in the proposedMatch.
+     */
+    createMaxConsecAway( max: number ): ConstrCheck {
+        if( max <= 1 ){
+            throw new Error("Maximum consecutive away games must be greater than one to allow for full team rotation.");
+        }
+
+        return function ( fixture: FixtureInterface, proposedMatch: Match ): boolean {
+            var count: number = 0;
+            var locked: boolean = false;
+            
+            // Checking prior games
+            for( var i: number = 1; i < max; i++ ){
+                count++;
+                if( fixture.getHomeTeamVs( proposedMatch.roundNum-(max-i), proposedMatch.awayTeam ) == -1 ){
+                    count = 0;
+                }
+                if( count > max ){
+                    return false;
+                }
+            }
+
+            // Accounting for the proposed match
+            count++;
+            if( count > max ){
+                return false;
+            } else if ( count == max ){
+                // Checking if this match prevents the home team from playing both home or away in the following rounds.
+                locked = true;
+                for( var i: number = 1; i < max; i++ ){
+                    if( fixture.getAwayTeamVs( proposedMatch.roundNum+i, proposedMatch.awayTeam ) == -1 ){
+                        locked = false;
+                        break;
+                    } 
+                }
+                if( locked ){
+                    return false;
+                }
+            }
+
+            // Checking future games. The count should carry over.
+            for( var i: number = 1; i < max; i++ ){
+                count++;
+                if( fixture.getHomeTeamVs( proposedMatch.roundNum+i, proposedMatch.awayTeam ) == -1 ){
+                    count = 0;
+                }
+                if( count > max ){
+                    return false;
+                } else if ( count == max ){
+                    // Checking if this match prevents the home team from playing both home or away in the previous rounds.
+                    locked = true;
+                    for( var i: number = 1; i < max; i++ ){
+                        if( fixture.getAwayTeamVs( proposedMatch.roundNum-i, proposedMatch.awayTeam ) == -1 ){
+                            locked = false;
+                            break;
+                        } 
+                    }
+                    if( locked ){
+                        return false;
+                    }
+                }
+            }
+            
+            // The count of consecutive matches never exceeded the maximum.
+            // The proposed match is consistent.
+            return true;
+        }
+    }
 }

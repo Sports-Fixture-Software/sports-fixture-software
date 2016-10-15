@@ -1,3 +1,4 @@
+import { Constraint } from '../../../util/constraint_factory'
 
 export class Match {
     constructor( 
