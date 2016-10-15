@@ -7,20 +7,6 @@ export class Match {
 }
 
 /**
- * PLACEHOLDER FOR THE CONSTRAINT ENUMERATION THAT COMES WITH THE CONSTRAINT
- * FUNCTION FACTORY TO BE DEVELOPED LATER ON. 
- */
-export enum Constraint {
-    SATISFIED = 0,
-    MAX_HOME = 1,
-    MIN_HOME = 2,
-    MAX_AWAY = 3,
-    MIN_AWAY = 4,
-    MAX_CONSEC_HOME = 5,
-    MAX_CONSEC_AWAY = 6
-}
-
-/**
  * FixtureInterface
  * Interface to retrieve matches from a fixture representation. Used primarily
  * for constraint checking.

@@ -7,8 +7,6 @@ import { Match, FixtureInterface } from '../services/scheduler/dfs/fixture_const
  * implemented.
  * 
  * SATISFIED is for indicating that no constraints are broken.
- * 
- * TODO: WHEN ISSUE #109 IS PULLED, ITS VERSION OF THIS MUST BE DELETED.
  */
 export enum Constraint {
     SATISFIED = 0,
