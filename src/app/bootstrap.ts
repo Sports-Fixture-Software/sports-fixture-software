@@ -12,7 +12,3 @@ dbs.init().then(() => {
     const platform = platformBrowserDynamic();
     platform.bootstrapModule(AppModule);
 });
-
-
-
-

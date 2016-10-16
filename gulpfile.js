@@ -45,8 +45,8 @@ gulp.task('rebuild', ['install'], function() {
                     console.log("No build required");
                     return true;
                 }                
-                return rebuildElectron.installNodeHeaders('1.3.1').then(function() {
-                    return rebuildElectron.rebuildNativeModules('1.3.1', './build/node_modules');                
+                return rebuildElectron.installNodeHeaders('1.4.1').then(function() {
+                    return rebuildElectron.rebuildNativeModules('1.4.1', './build/node_modules');                
                 });
             })
 });
