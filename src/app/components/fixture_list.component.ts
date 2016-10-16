@@ -67,10 +67,10 @@ export class FixtureListComponent implements OnInit {
     }
 
     private resetForm() {
-        let fc = this.fixtureForm.controls['name'] as FormControl
-        fc.updateValue(null)
-        fc = this.fixtureForm.controls['description'] as FormControl
-        fc.updateValue(null)
+        this.fixtureForm.patchValue({
+            name: null,
+            description: null
+        })
     }
 
     private _fixtures: Fixture[]
