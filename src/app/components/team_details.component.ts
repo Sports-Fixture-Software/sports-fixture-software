@@ -40,10 +40,10 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             name: new FormControl('', [<any>Validators.required]),
             homeGamesMin: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
             homeGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
-            homeGamesEnabled: new FormControl(),
+            homeGamesEnabled: new FormControl({value: null, disabled: true}),
             awayGamesMin: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
             awayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
-            awayGamesEnabled: new FormControl(),
+            awayGamesEnabled: new FormControl({value: null, disabled: true}),
         })
     this.route.params.subscribe(params => {
             let id = +params['team_id']
@@ -64,11 +64,15 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
 
     onEditTeam() {
         this.editing = true
+        this.teamForm.get('homeGamesEnabled').enable()
+        this.teamForm.get('awayGamesEnabled').enable()
         this.changeref.detectChanges()
     }
 
     onRevert() {
         this.editing = false
+        this.teamForm.get('homeGamesEnabled').disable()
+        this.teamForm.get('awayGamesEnabled').disable()
         this.resetForm()
         this.changeref.detectChanges()
     }
@@ -122,11 +126,12 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             // user entered a value, assume they want enabled
             enableControl.patchValue(true, { emitEvent: false })
         }
-        if (control.valid) {
-            element.hideError()
-        }
-        else {
-            element.showError('Please enter a number')
+        if (element) {
+            if (control.valid) {
+                element.hideError()
+            } else {
+                element.showError('Please enter a number')
+            }
         }
     }
 
@@ -159,6 +164,8 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             return this.teamConfigService.addTeamConfig(config)
         }).then(() => {
             this.editing = false
+            this.teamForm.get('homeGamesEnabled').disable()
+            this.teamForm.get('awayGamesEnabled').disable()
             this.changeref.detectChanges()
         }).catch((err: Error) => {
             this.saveChangesButton.showError('Error saving changes', err.message)

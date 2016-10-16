@@ -39,12 +39,12 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             name: new FormControl('', [<any>Validators.required]),
             description: new FormControl(''),
             startDate: new FormControl(),
-            startDateEnabled: new FormControl(false),
+            startDateEnabled: new FormControl({value: false, disabled: true}),
             endDate: new FormControl(),
-            endDateEnabled: new FormControl(false),
-            consecutiveHomeGamesMaxEnabled: new FormControl(),
+            endDateEnabled: new FormControl({value: false, disabled: true}),
+            consecutiveHomeGamesMaxEnabled: new FormControl({value: null, disabled: true}),
             consecutiveHomeGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)]),
-            consecutiveAwayGamesMaxEnabled: new FormControl(),
+            consecutiveAwayGamesMaxEnabled: new FormControl({value: null, disabled: true}),
             consecutiveAwayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)])
         })
 
@@ -67,11 +67,19 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
 
     onEditFixture() {
         this.editing = true
+        this.fixtureForm.get('startDateEnabled').enable()
+        this.fixtureForm.get('endDateEnabled').enable()
+        this.fixtureForm.get('consecutiveHomeGamesMaxEnabled').enable()
+        this.fixtureForm.get('consecutiveAwayGamesMaxEnabled').enable()
         this.changeref.detectChanges()
     }
 
     onRevert() {
         this.editing = false
+        this.fixtureForm.get('startDateEnabled').disable()
+        this.fixtureForm.get('endDateEnabled').disable()
+        this.fixtureForm.get('consecutiveHomeGamesMaxEnabled').disable()
+        this.fixtureForm.get('consecutiveAwayGamesMaxEnabled').disable()
         this.resetForm()
         this.changeref.detectChanges()
     }
@@ -188,6 +196,10 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             return this.fixtureConfigService.addFixtureConfig(config)
         }).then(() => {
             this.editing = false
+            this.fixtureForm.get('startDateEnabled').disable()
+            this.fixtureForm.get('endDateEnabled').disable()
+            this.fixtureForm.get('consecutiveHomeGamesMaxEnabled').disable()
+            this.fixtureForm.get('consecutiveAwayGamesMaxEnabled').disable()
             this.changeref.detectChanges()
         }).catch((err: Error) => {
             this.saveChangesButton.showError('Error saving changes', err.message)

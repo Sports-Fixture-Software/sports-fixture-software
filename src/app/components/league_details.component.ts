@@ -37,9 +37,9 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.leagueForm = new FormGroup({
             name: new FormControl('', [<any>Validators.required]),
-            consecutiveHomeGamesMaxEnabled: new FormControl(),
+            consecutiveHomeGamesMaxEnabled: new FormControl({value: null, disabled: true}),
             consecutiveHomeGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)]),
-            consecutiveAwayGamesMaxEnabled: new FormControl(),
+            consecutiveAwayGamesMaxEnabled: new FormControl({value: null, disabled: true}),
             consecutiveAwayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)])
         })
         this.route.parent.params.subscribe(params => {
@@ -61,11 +61,15 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
 
     onEditLeague() {
         this.editing = true
+        this.leagueForm.get('consecutiveHomeGamesMaxEnabled').enable()
+        this.leagueForm.get('consecutiveAwayGamesMaxEnabled').enable()
         this.changeref.detectChanges()
     }
 
     onRevert() {
         this.editing = false
+        this.leagueForm.get('consecutiveHomeGamesMaxEnabled').disable()   
+        this.leagueForm.get('consecutiveAwayGamesMaxEnabled').disable()             
         this.resetForm()
         this.changeref.detectChanges()
     }
@@ -113,11 +117,12 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
             // user entered a value, assume they want enabled
             enableControl.patchValue(true, { emitEvent: false })
         }
-        if (control.valid) {
-            element.hideError()
-        }
-        else {
-            element.showError(`Please enter a number greater than ${Validator.CONSECUTIVE_GAMES_MIN-1}`)
+        if (element) {
+            if (control.valid) {
+                element.hideError()
+            } else {
+                element.showError(`Please enter a number greater than ${Validator.CONSECUTIVE_GAMES_MIN-1}`)
+            }
         }
     }
 
@@ -147,6 +152,8 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
             return this.leagueConfigService.addLeagueConfig(config)
         }).then(() => {
             this.editing = false
+            this.leagueForm.get('consecutiveHomeGamesMaxEnabled').disable()   
+            this.leagueForm.get('consecutiveAwayGamesMaxEnabled').disable()
             this.changeref.detectChanges()
         }).catch((err: Error) => {
             this.saveChangesButton.showError('Error saving changes', err.message)
