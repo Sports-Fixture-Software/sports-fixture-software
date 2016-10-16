@@ -243,7 +243,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
         }
     });
 
-    // Populate the rest of the ConTable with fillFrom, starting from a random round
+    // Populate the rest of the ConTable with fillFrom, starting the head of matchQueue
     var finalMatches: Match[] = resvdMatches.slice();
     if( fillFrom(matchupState, teams, finalMatches, resvdMatches.length, matchQueue ) ){
         if( verbose ){
