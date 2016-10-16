@@ -36,7 +36,7 @@ export class GenerateComponent implements OnInit {
     @ViewChild('generateButton') generateButton: ButtonPopover
 
     ngOnInit() {
-        this.route.params.subscribe((params: Params) => {
+        this.route.parent.params.subscribe((params: Params) => {
             let id = +params['id']
             this.fixtureService.getFixtureAndLeague(id).then(fixture => {
                 this.fixture = fixture

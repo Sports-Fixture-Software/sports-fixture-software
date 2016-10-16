@@ -48,7 +48,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             consecutiveAwayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)])
         })
 
-        this.route.params.subscribe(params => {
+        this.route.parent.params.subscribe(params => {
             let id = +params['id']
                 this.fixtureService.getFixtureAndLeagueAndConfig(id).then(fixture => {
                     this.fixture = fixture

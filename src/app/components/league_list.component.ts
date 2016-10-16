@@ -9,7 +9,7 @@ import { LeagueListItem } from './league_list_item.component';
 import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 @Component({
-    // moduleId: module.id.replace(/\\/g, '/'),
+    moduleId: module.id.replace(/\\/g, '/'),
     templateUrl : 'league_list.template.html',
     providers: [LeagueService]
 })

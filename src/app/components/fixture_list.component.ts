@@ -32,7 +32,7 @@ export class FixtureListComponent implements OnInit {
     set league(value: League) { this._league = value }
 
     ngOnInit() {
-        this.route.params.subscribe((params: Params) => {
+        this.route.parent.params.subscribe((params: Params) => {
             let id = +params['id'];
             this._leagueService.getLeagueAndFixtures(id).then((l) => {
                 this.league = l

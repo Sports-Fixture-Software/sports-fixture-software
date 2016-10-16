@@ -48,7 +48,7 @@ export class TeamListComponent implements OnInit {
     set league(value: League) { this._league = value }
 
     ngOnInit() {
-        this.route.params.subscribe(params => {
+        this.route.parent.parent.params.subscribe(params => {
             let id = +params['id'];
             this._leagueService.getLeagueAndTeams(id).then((l) => {
                 this.league = l

@@ -42,7 +42,7 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
             consecutiveAwayGamesMaxEnabled: new FormControl(),
             consecutiveAwayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)])
         })
-        this.route.params.subscribe(params => {
+        this.route.parent.params.subscribe(params => {
             let id = +params['id']
             this.leagueService.getLeagueAndConfig(id).then(league => {
                 this.league = league

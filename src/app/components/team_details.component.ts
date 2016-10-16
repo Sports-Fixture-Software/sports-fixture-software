@@ -45,7 +45,7 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             awayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
             awayGamesEnabled: new FormControl(),
         })
-        this.route.params.subscribe(params => {
+    this.route.params.subscribe(params => {
             let id = +params['team_id']
             this.teamService.getTeamAndConfig(id).then(team => {
                 this.team = team

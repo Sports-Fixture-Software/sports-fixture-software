@@ -46,7 +46,7 @@ export class ReviewComponent implements OnInit {
             awayTeam: new FormControl('', [<any>Validators.required]),
             match: new FormControl()
         }, null, Validator.differentTeamsSelected)
-        this.route.params.subscribe(params => {
+        this.route.parent.params.subscribe(params => {
             let id = +params['id'];
             this._fixtureService.getFixtureAndTeams(id).then((f) => {
                 this.fixture = f
