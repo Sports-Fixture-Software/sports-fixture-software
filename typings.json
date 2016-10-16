@@ -1,8 +1,7 @@
 {
   "name": "sanfl",
   "dependencies": {
-    "lodash": "registry:npm/lodash#4.0.0+20160723033700",
-    "webdriverio": "registry:npm/webdriverio#4.2.16+20161005232638"
+    "lodash": "registry:npm/lodash#4.0.0+20160723033700"
   },
   "globalDependencies": {
     "bluebird": "registry:dt/bluebird#2.0.0+20160701023356",
@@ -15,6 +14,8 @@
     "jquery": "registry:dt/jquery#1.10.0+20160704162008",
     "knex": "registry:dt/knex#0.0.0+20160812170915",
     "node": "registry:dt/node#6.0.0+20160925070332",
-    "sqlite3": "registry:dt/sqlite3#2.2.3+20160724070935"
+    "q": "registry:dt/q#0.0.0+20161004185634",
+    "sqlite3": "registry:dt/sqlite3#2.2.3+20160724070935",
+    "webdriverio": "registry:dt/webdriverio#4.0.4+20160724073345"
   }
 }
