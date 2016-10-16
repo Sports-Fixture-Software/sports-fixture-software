@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core'
-import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { Subject } from 'rxjs/Subject'
 
 /**
@@ -9,14 +8,19 @@ import { Subject } from 'rxjs/Subject'
  */
 @Injectable()
 export class NotifyService {
-    private generatedSource = new Subject<boolean>()
-    generated$ = this.generatedSource.asObservable()
+    private generateStateSource = new Subject<GenerateState>()
+    generateState$ = this.generateStateSource.asObservable()
 
     /**
      * Emit 'generated' notification - a notification that a fixture has
      * successfully been generated.
      */
-    emitGenerated(value: boolean) {
-        this.generatedSource.next(value)
+    emitGenerateState(state: GenerateState) {
+        this.generateStateSource.next(state)
     }
+}
+
+export enum GenerateState {
+    Generating,
+    Generated
 }

@@ -13,6 +13,7 @@ export class ButtonPopover implements AfterViewInit, OnDestroy {
     @Input('disabled') disabled: boolean
     @Input('type') theType: String
     @Input('btn-class') klass: string
+    @Input('btn-aria-label') ariaLabel: string
     @Output('click') onClick = new EventEmitter<Event>()
     @ViewChild('button') button: ElementRef
 

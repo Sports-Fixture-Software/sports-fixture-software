@@ -16,19 +16,31 @@ Instead of running `npm start`, run `npm run watch`.
 That will build the app and automatically refresh the electron window when files are changed.
 
 ## Testing
-To run all tests:
+
+#### To run all tests:
 
 ```
 npm test
 ```
 
-To run unit tests:
+#### To run unit tests:
 
 ```bash
 npm run unittest
 ``` 
 
-The test results are presented in the terminal.
+  The test results are presented in the terminal.
+
+#### To run end-to-end tests:
+
+```bash
+npm run end2end
+```
+
+The application will load and run tests autonomously. The application will
+close and reload multiple times. See [example video](https://serp2016.slack.com/files/cskeogh/F2NSQEUGH/end-to-end-testing-161013.mp4).
+The results are presented in the terminal.
+
 
 ## Release
 ```bash

@@ -1,12 +1,16 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms';
+import { Validators } from '@angular/common';
 import { Router } from '@angular/router';
 import { League } from '../models/league';
 import { LeagueService } from '../services/league.service';
 import { Collection }  from '../services/collection'
+import { LeagueForm } from '../models/league.form'
 import * as Promise from 'bluebird'
 import { Navbar } from './navbar.component';
 import { LeagueListItem } from './league_list_item.component';
-import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
+import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -29,7 +33,9 @@ export class LeagueListComponent implements OnInit {
     }
 
     @ViewChild('errorModal')
+    @ViewChild('createLeaguePopover') createLeaguePopover: PopoverContent
     errorModal : ModalComponent
+    leagueForm: FormGroup
 
     newLeagueText: String
     lastError: Error
@@ -39,6 +45,10 @@ export class LeagueListComponent implements OnInit {
 
     ngOnInit() {
         this.lastError = this._leagueService.getInitError();
+        this.leagueForm = new FormGroup({
+            name: new FormControl('', [<any>Validators.required])
+        })
+
         if (this.lastError) {
             this.errorModal.open()
         } else {
@@ -52,11 +62,13 @@ export class LeagueListComponent implements OnInit {
         }
     }
 
-    submitAddLeague(leagueName: String) {
+    submitAddLeague(form: LeagueForm) {
         this._leagueService
-            .addLeague(new League(leagueName))
+            .addLeague(new League(form.name))
             .then((l) => {
                 this.leagues.push(l)
+                this.createLeaguePopover.hide()
+                this.resetForm()
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
                 this.lastError = err
@@ -70,6 +82,11 @@ export class LeagueListComponent implements OnInit {
 
     errorModalOk() {
         this.errorModal.close()
+    }
+
+    private resetForm() {
+        let fc = this.leagueForm.controls['name'] as FormControl
+        this.leagueForm.patchValue({name: null});
     }
 
     private _leagueService: LeagueService
