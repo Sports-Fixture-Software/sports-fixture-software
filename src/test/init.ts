@@ -1,7 +1,9 @@
+///<reference path="../../typings/index.d.ts" />
+
 import "reflect-metadata"
 import * as fs from 'fs'
 let Application = require('spectron').Application
-let electron = require('electron-prebuilt')
+let electron = require('electron')
 
 // set to 1 for fast computer, 2 for computer that half as fast, etc
 export const computerSpeed = 1

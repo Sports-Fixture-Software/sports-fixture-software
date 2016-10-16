@@ -1,8 +1,7 @@
 {
   "name": "sanfl",
   "dependencies": {
-    "lodash": "registry:npm/lodash#4.0.0+20161015015725",
-    "webdriverio": "registry:npm/webdriverio#4.2.16+20161005232638"
+    "lodash": "registry:npm/lodash#4.0.0+20161015015725"
   },
   "globalDependencies": {
     "bluebird": "registry:dt/bluebird#3.0.0+20160928162057",
