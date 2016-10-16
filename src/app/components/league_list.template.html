@@ -19,7 +19,7 @@
             <form class="form-s" [formGroup]="leagueForm" novalidate (ngSubmit)="submitAddLeague(leagueForm.value)">
                 <div class="form-group">
                     <div class="input-group">
-                        <input #newLeagueText type="text" class="form-control" placeholder="League Name..." formControlName="name">
+                        <input #newLeagueText type="text" class="form-control" placeholder="League Name..." aria-label="League Name" formControlName="name">
                         <span class="input-group-btn">
                             <button-popover #createLeagueButton type="submit" btn-class="btn btn-default" [disabled]="!leagueForm.valid">
                                 <span class="glyphicon glyphicon-ok"></span>
@@ -29,7 +29,7 @@
                 </div>
             </form>
         </popover-content>
-        <button class="btn btn-default vert-sep" [popover]="createLeaguePopover" [popoverCloseOnClickOutside]="true" popoverPlacement="right">
+        <button class="btn btn-default vert-sep" aria-label="Create League" [popover]="createLeaguePopover" [popoverCloseOnClickOutside]="true" popoverPlacement="right">
                 <span class="glyphicon glyphicon-plus"></span>
         </button>
     </div>
@@ -37,7 +37,7 @@
     <div class="col-xs-11">
         <table class="table table-striped table-bordered">
             <tbody>
-                <tr *ngFor="let league of leagues" (click)="navigateToLeague(league)">
+                <tr *ngFor="let league of leagues" [attr.aria-label]="league?.name" (click)="navigateToLeague(league)">
                     <td>
                         <league-list-item [league]="league"></league-list-item>
                     </td>

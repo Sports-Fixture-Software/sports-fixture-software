@@ -99,7 +99,7 @@ export class TeamListComponent implements OnInit {
         team.setLeague(this.league)
         this._teamService.addTeam(team).then((t) => {
             this.createTeamPopover.hide()
-            return this._teamService.getTeams(this.league.id)
+            return this._teamService.getTeams(this.league)
         }).then((t) => {
             this.teams = t.toArray()
             this.addTeamButton.nativeElement.focus()

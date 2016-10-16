@@ -46,7 +46,7 @@ export class FixtureListComponent implements OnInit {
                 })
                 this.fixtureForm = new FormGroup({
                     name: new FormControl('', [<any>Validators.required]),
-                    description: new FormControl('', [<any>Validators.required])
+                    description: new FormControl('')
                 })
             })
     }
@@ -59,6 +59,7 @@ export class FixtureListComponent implements OnInit {
         this._fixtureService.addFixture(fixture).then((f) => {
             this.fixtures.push(fixture)
             this.createFixturePopover.hide()
+            this.resetForm()
             this._changeref.detectChanges()
         }).catch((err: Error) => {
             this.createFixtureButton.showError('Error creating fixture',
@@ -70,6 +71,13 @@ export class FixtureListComponent implements OnInit {
 
     navigateToFixture(fixture: Fixture) {
         this._router.navigate(['/fixture', fixture.id]);
+    }
+
+    private resetForm() {
+        let fc = this.fixtureForm.controls['name'] as FormControl
+        fc.updateValue(null)
+        fc = this.fixtureForm.controls['description'] as FormControl
+        fc.updateValue(null)
     }
 
     private _fixtures: Fixture[]
