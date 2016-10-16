@@ -212,28 +212,28 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
         fc = this.fixtureForm.controls['description'] as FormControl
         fc.updateValue(this.fixture.description)
         fc = this.fixtureForm.controls['startDate'] as FormControl
-        fc.updateValue(this.fixture.startDate.format('YYYY-MM-DD'))
+        fc.updateValue(this.fixture.startDate.isValid() ? this.fixture.startDate.format('YYYY-MM-DD') : null)
         if (!this.listeners.startDate) {
             this.listeners.startDate = fc.valueChanges.subscribe((evt) => {
                 this.onStartDateChange(evt)
             })
         }
         fc = this.fixtureForm.controls['startDateEnabled'] as FormControl
-        fc.updateValue(this.fixture.startDate)
+        fc.updateValue(this.fixture.startDate.isValid())
         if (!this.listeners.startDateEnabled) {
             this.listeners.startDateEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onStartDateEnabledChange(evt)
             })
         }
         fc = this.fixtureForm.controls['endDate'] as FormControl
-        fc.updateValue(this.fixture.endDate.format('YYYY-MM-DD'))
+        fc.updateValue(this.fixture.endDate.isValid() ? this.fixture.endDate.format('YYYY-MM-DD') : null)
         if (!this.listeners.endDate) {
             this.listeners.endDate = fc.valueChanges.subscribe((evt) => {
                 this.onEndDateChange(evt)
             })
         }
         fc = this.fixtureForm.controls['endDateEnabled'] as FormControl
-        fc.updateValue(this.fixture.endDate)
+        fc.updateValue(this.fixture.endDate.isValid())
         if (!this.listeners.endDateEnabled) {
             this.listeners.endDateEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onEndDateEnabledChange(evt)

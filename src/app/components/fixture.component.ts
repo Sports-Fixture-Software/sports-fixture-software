@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute, ROUTER_DIRECTIVES } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
-import { NotifyService } from '../services/notify.service';
+import { NotifyService, GenerateState } from '../services/notify.service';
 import { Fixture } from '../models/fixture';
 import { FixtureService } from '../services/fixture.service';
 import { Collection }  from '../services/collection'
@@ -20,7 +20,8 @@ import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 export class FixtureComponent implements OnInit, OnDestroy {
     private fixture: Fixture
     private routeSubscription: Subscription
-    private generatedSubscription: Subscription
+    private generateSubscription: Subscription
+    private canReview: boolean = false
 
     constructor(private router: Router,
         public route: ActivatedRoute,
@@ -34,24 +35,24 @@ export class FixtureComponent implements OnInit, OnDestroy {
             let id = +params['id']
             this.fixtureService.getFixture(id).then(fixture => {
                 this.fixture = fixture
+                this.canReview = fixture.generatedOn.isValid()
                 this.changeref.detectChanges()
             })
         })
-        this.generatedSubscription = this.notifyService.generated$.subscribe((value) => {
+        this.generateSubscription = this.notifyService.generateState$.subscribe((value) => {
+            if (value == GenerateState.Generating) {
+                this.canReview = false
             // if receive notification via the notify service that the fixture
-            // has been generated, reload the fixture, so the review button
-            // becomes active.
-            if (this.fixture) {
-                this.fixtureService.getFixture(this.fixture.id).then((fixture) => {
-                    this.fixture = fixture
-                    this.changeref.detectChanges()
-                })
+            // has been generated, make the review button active.
+            } else if (value == GenerateState.Generated) {
+                this.canReview = true
+                this.changeref.detectChanges()
             }
         })
     }
 
     ngOnDestroy() {
         this.routeSubscription.unsubscribe()
-        this.generatedSubscription.unsubscribe()
+        this.generateSubscription.unsubscribe()
     }
 }
