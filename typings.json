@@ -1,20 +1,21 @@
 {
   "name": "sanfl",
   "dependencies": {
-    "lodash": "registry:npm/lodash#4.0.0+20160723033700",
+    "lodash": "registry:npm/lodash#4.0.0+20161015015725",
     "webdriverio": "registry:npm/webdriverio#4.2.16+20161005232638"
   },
   "globalDependencies": {
-    "bluebird": "registry:dt/bluebird#2.0.0+20160701023356",
-    "bookshelf": "registry:dt/bookshelf#0.8.2+20160514174357",
+    "bluebird": "registry:dt/bluebird#3.0.0+20160928162057",
+    "bookshelf": "registry:dt/bookshelf#0.8.2+20160920193204",
     "bootstrap": "registry:dt/bootstrap#3.3.5+20160619023404",
-    "core-js": "registry:dt/core-js#0.0.0+20160602141332",
+    "core-js": "registry:dt/core-js#0.0.0+20160914114559",
     "create-error": "registry:dt/create-error#0.3.1+20160316155526",
-    "github-electron": "registry:dt/github-electron#1.4.1+20160928142324",
-    "jasmine": "registry:dt/jasmine#2.2.0+20160621224255",
-    "jquery": "registry:dt/jquery#1.10.0+20160704162008",
-    "knex": "registry:dt/knex#0.0.0+20160812170915",
-    "node": "registry:dt/node#6.0.0+20160925070332",
+    "electron": "registry:env/electron#0.37.6+20160909065630",
+    "github-electron": "registry:dt/github-electron#1.4.2+20161012142539",
+    "jasmine": "registry:dt/jasmine#2.5.0+20161003201800",
+    "jquery": "registry:dt/jquery#1.10.0+20160929162922",
+    "knex": "registry:dt/knex#0.0.0+20160923124117",
+    "node": "registry:dt/node#6.0.0+20161014191813",
     "sqlite3": "registry:dt/sqlite3#2.2.3+20160724070935"
   }
 }
