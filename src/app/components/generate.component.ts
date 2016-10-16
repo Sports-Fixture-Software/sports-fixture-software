@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, Output, ViewChild, EventEmitter } from '@angular/core'
-import { ActivatedRoute, Router } from '@angular/router'
+import { ActivatedRoute, Router, Params } from '@angular/router'
 import { ButtonPopover } from './button_popover.component'
 import { Fixture } from '../models/fixture'
 import { League } from '../models/league'
@@ -19,8 +19,7 @@ import * as moment from 'moment'
     templateUrl: 'generate.template.html',
     // RoundService, MatchService not used in this file, but needs to be
     // 'provided' before SchedulerService is used
-    providers: [FixtureService, TeamService, SchedulerService, RoundService, MatchService],
-    directives: [ButtonPopover]
+    providers: [FixtureService, TeamService, SchedulerService, RoundService, MatchService]
 })
 
 export class GenerateComponent implements OnInit {
@@ -37,19 +36,18 @@ export class GenerateComponent implements OnInit {
     @ViewChild('generateButton') generateButton: ButtonPopover
 
     ngOnInit() {
-        this.router.routerState.parent(this.route)
-            .params.forEach(params => {
-                let id = +params['id']
-                this.fixtureService.getFixtureAndLeague(id).then(fixture => {
-                    this.fixture = fixture
-                    this.numberOfRounds = DateTime.getNumberOfRounds(this.fixture.startDate, this.fixture.endDate)
-                    this.league = fixture.leaguePreLoaded
-                    return this.teamService.countTeams(this.league)
-                }).then((res) => {
-                    this.numberOfTeams = res
-                    this.changeref.detectChanges()
-                })
+        this.route.params.subscribe((params: Params) => {
+            let id = +params['id']
+            this.fixtureService.getFixtureAndLeague(id).then(fixture => {
+                this.fixture = fixture
+                this.numberOfRounds = DateTime.getNumberOfRounds(this.fixture.startDate, this.fixture.endDate)
+                this.league = fixture.leaguePreLoaded
+                return this.teamService.countTeams(this.league)
+            }).then((res) => {
+                this.numberOfTeams = res
+                this.changeref.detectChanges()
             })
+        })
     }
 
     generate() {

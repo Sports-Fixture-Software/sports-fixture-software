@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef,NgZone } from '@angular/core'
-import { Validators } from '@angular/common'
 import { ActivatedRoute, Router } from '@angular/router'
-import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms'
+import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms'
 import { Team } from '../models/team'
 import { TeamConfig } from '../models/team_config'
 import { TeamService } from '../services/team.service'
@@ -10,14 +9,12 @@ import { ButtonPopover } from './button_popover.component'
 import { InputPopover } from './input_popover.component'
 import { TeamForm } from '../models/team.form'
 import { Validator } from '../util/validator'
-import { POPOVER_DIRECTIVES } from 'ng2-popover'
 import { Subscription } from 'rxjs/Subscription'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'team_details.template.html',
-    providers: [TeamService, TeamConfigService],
-    directives: [ButtonPopover, InputPopover, REACTIVE_FORM_DIRECTIVES, POPOVER_DIRECTIVES]
+    providers: [TeamService, TeamConfigService]
 })
 
 export class TeamDetailsComponent implements OnInit, OnDestroy {
@@ -48,8 +45,8 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             awayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
             awayGamesEnabled: new FormControl(),
         })
-        this.route.params.forEach(params => {
-            let id = +params['id']
+        this.route.params.subscribe(params => {
+            let id = +params['team_id']
             this.teamService.getTeamAndConfig(id).then(team => {
                 this.team = team
                 this.resetForm()
@@ -93,10 +90,10 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
      */
     onHomeGamesEnabledChange(value: boolean) {
         if (!value) {
-            let fc = this.teamForm.controls['homeGamesMin'] as FormControl
-            fc.updateValue(null, { emitEvent: false })
-            fc = this.teamForm.controls['homeGamesMax'] as FormControl
-            fc.updateValue(null, { emitEvent: false })
+            this.teamForm.patchValue({
+                homeGamesMin: null,
+                homeGamesMax: null
+            })
         }
     }
 
@@ -105,10 +102,10 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
      */
     onAwayGamesEnabledChange(value: boolean) {
         if (!value) {
-            let fc = this.teamForm.controls['awayGamesMin'] as FormControl
-            fc.updateValue(null, { emitEvent: false })
-            fc = this.teamForm.controls['awayGamesMax'] as FormControl
-            fc.updateValue(null, { emitEvent: false })
+            this.teamForm.patchValue({
+                awayGamesMin: null,
+                awayGamesMax: null
+            })
         }
     }
 
@@ -120,10 +117,10 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
     onFieldChange(value: any, element: InputPopover, control: FormControl, controlPair: FormControl, enableControl: FormControl) {
         // if value blank and the control's pair is blank, disable
         if (typeof value === 'string' && value.trim() == '' && typeof controlPair.value === 'string' && controlPair.value.trim() == '' && enableControl) {
-            enableControl.updateValue(false, { emitEvent: false })
+            enableControl.patchValue(false, { emitEvent: false })
         } else if (value && enableControl) {
             // user entered a value, assume they want enabled
-            enableControl.updateValue(true, { emitEvent: false })
+            enableControl.patchValue(true, { emitEvent: false })
         }
         if (control.valid) {
             element.hideError()
@@ -151,14 +148,12 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
         // if user checked the checkbox, but didn't enter a value, turn the
         // checked off
         if (form.homeGamesEnabled && (form.homeGamesMin == null || form.homeGamesMin == '') && (form.homeGamesMax == null || form.homeGamesMax == '')) {
-            let fc = this.teamForm.controls['homeGamesEnabled'] as FormControl
-            fc.updateValue(false, { emitEvent: false })
+            this.teamForm.patchValue({homeGamesEnabled: false});
         }
         // if user checked the checkbox, but didn't enter a value, turn the
         // checked off
         if (form.awayGamesEnabled && (form.awayGamesMin == null || form.awayGamesMin == '') && (form.awayGamesMax == null || form.awayGamesMax == '')) {
-            let fc = this.teamForm.controls['awayGamesEnabled'] as FormControl
-            fc.updateValue(false, { emitEvent: false })
+            this.teamForm.patchValue({awayGamesEnabled: false});            
         }
         this.teamService.addTeam(this.team).then(() => {
             return this.teamConfigService.addTeamConfig(config)
@@ -172,11 +167,20 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
     }
 
     private resetForm() {
-        let fc = this.teamForm.controls['name'] as FormControl
-        fc.updateValue(this.team.name)
+        this.teamForm.patchValue({
+            name: this.team.name,
+homeGamesEnabled: this.team.teamConfigPreLoaded && (this.team.teamConfigPreLoaded.homeGamesMin != null || this.team.teamConfigPreLoaded.homeGamesMax != null),
+awayGamesEnabled: this.team.teamConfigPreLoaded && (this.team.teamConfigPreLoaded.awayGamesMin != null || this.team.teamConfigPreLoaded.awayGamesMax != null)
+        })
         if (this.team.teamConfigPreLoaded) {
-            fc = this.teamForm.controls['homeGamesMin'] as FormControl
-            fc.updateValue(this.team.teamConfigPreLoaded.homeGamesMin)
+            this.teamForm.patchValue({
+                homeGamesMin: this.team.teamConfigPreLoaded.homeGamesMin,
+                homeGamesMax: this.team.teamConfigPreLoaded.homeGamesMax,
+                awayGamesMin: this.team.teamConfigPreLoaded.awayGamesMin,
+                awayGamesMax: this.team.teamConfigPreLoaded.awayGamesMax
+            })
+
+            let fc = this.teamForm.controls['homeGamesMin'] as FormControl
             if (!this.listeners.homeGamesMin) {
                 this.listeners.homeGamesMin = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.homeGamesMinInput, this.teamForm.controls['homeGamesMin'] as FormControl,
@@ -184,7 +188,6 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
                 })
             }
             fc = this.teamForm.controls['homeGamesMax'] as FormControl
-            fc.updateValue(this.team.teamConfigPreLoaded.homeGamesMax)
             if (!this.listeners.homeGamesMax) {
                 this.listeners.homeGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.homeGamesMaxInput, this.teamForm.controls['homeGamesMax'] as FormControl,
@@ -192,14 +195,12 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
                 })
             }
             fc = this.teamForm.controls['awayGamesMin'] as FormControl
-            fc.updateValue(this.team.teamConfigPreLoaded.awayGamesMin)
             if (!this.listeners.awayGamesMin) {
                 this.listeners.awayGamesMin = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.awayGamesMinInput, this.teamForm.controls['awayGamesMin'] as FormControl, this.teamForm.controls['awayGamesMax'] as FormControl, this.teamForm.controls['awayGamesEnabled'] as FormControl)
                 })
             }
             fc = this.teamForm.controls['awayGamesMax'] as FormControl
-            fc.updateValue(this.team.teamConfigPreLoaded.awayGamesMax)
             if (!this.listeners.awayGamesMax) {
                 this.listeners.awayGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.awayGamesMaxInput, this.teamForm.controls['awayGamesMax'] as FormControl,
@@ -207,15 +208,14 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
                 })
             }
         }
-        fc = this.teamForm.controls['homeGamesEnabled'] as FormControl
-        fc.updateValue(this.team.teamConfigPreLoaded && (this.team.teamConfigPreLoaded.homeGamesMin != null || this.team.teamConfigPreLoaded.homeGamesMax != null))
+
+        let fc = this.teamForm.controls['homeGamesEnabled'] as FormControl
         if (!this.listeners.homeGamesEnabled) {
             this.listeners.homeGamesEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onHomeGamesEnabledChange(evt)
             })
         }
         fc = this.teamForm.controls['awayGamesEnabled'] as FormControl
-        fc.updateValue(this.team.teamConfigPreLoaded && (this.team.teamConfigPreLoaded.awayGamesMin != null || this.team.teamConfigPreLoaded.awayGamesMax != null))
         if (!this.listeners.awayGamesEnabled) {
             this.listeners.awayGamesEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onAwayGamesEnabledChange(evt)

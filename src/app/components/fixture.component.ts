@@ -1,20 +1,17 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Router, ActivatedRoute, ROUTER_DIRECTIVES } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { NotifyService } from '../services/notify.service';
 import { Fixture } from '../models/fixture';
 import { FixtureService } from '../services/fixture.service';
 import { Collection }  from '../services/collection'
-import { Navbar } from './navbar.component';
 
-import { POPOVER_DIRECTIVES } from 'ng2-popover';
-import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
     templateUrl: 'fixture.template.html',
-    providers: [FixtureService, NotifyService],
-    directives: [Navbar, POPOVER_DIRECTIVES, MODAL_DIRECTIVES, ROUTER_DIRECTIVES]
+    providers: [FixtureService, NotifyService]
 })
 
 export class FixtureComponent implements OnInit, OnDestroy {

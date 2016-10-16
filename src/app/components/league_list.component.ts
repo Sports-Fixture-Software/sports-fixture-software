@@ -6,15 +6,12 @@ import { Collection }  from '../services/collection'
 import * as Promise from 'bluebird'
 import { Navbar } from './navbar.component';
 import { LeagueListItem } from './league_list_item.component';
-import { POPOVER_DIRECTIVES } from 'ng2-popover';
-import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 @Component({
-    moduleId: module.id.replace(/\\/g, '/'),
+    // moduleId: module.id.replace(/\\/g, '/'),
     templateUrl : 'league_list.template.html',
-    properties : ['leagues'],
-    providers: [LeagueService], 
-    directives: [Navbar, LeagueListItem, POPOVER_DIRECTIVES, MODAL_DIRECTIVES]
+    providers: [LeagueService]
 })
 
 export class LeagueListComponent implements OnInit {
