@@ -56,13 +56,10 @@ export class ConstraintFactory {
             var locked: boolean = false;
             
             // Checking prior games
-            for( var i: number = 1; i < max; i++ ){
+            for( var i: number = 0; i < max; i++ ){
                 count++;
                 if( fixture.getAwayTeamVs( proposedMatch.roundNum-(max-i), proposedMatch.homeTeam ) == -1 ){
                     count = 0;
-                }
-                if( count > max ){
-                    return false;
                 }
             }
 
@@ -130,13 +127,10 @@ export class ConstraintFactory {
             var locked: boolean = false;
             
             // Checking prior games
-            for( var i: number = 1; i < max; i++ ){
+            for( var i: number = 0; i < max; i++ ){
                 count++;
                 if( fixture.getHomeTeamVs( proposedMatch.roundNum-(max-i), proposedMatch.awayTeam ) == -1 ){
                     count = 0;
-                }
-                if( count > max ){
-                    return false;
                 }
             }
 
