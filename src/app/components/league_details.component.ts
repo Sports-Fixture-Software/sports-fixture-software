@@ -42,7 +42,7 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
             consecutiveAwayGamesMaxEnabled: new FormControl({value: null, disabled: true}),
             consecutiveAwayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)])
         })
-        this.route.parent.params.subscribe(params => {
+        this.routeSubscription = this.route.parent.params.subscribe(params => {
             let id = +params['id']
             this.leagueService.getLeagueAndConfig(id).then(league => {
                 this.league = league
@@ -57,6 +57,7 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
             let listener = this.listeners[i] as Subscription
             listener.unsubscribe()
         }
+        this.routeSubscription.unsubscribe();
     }
 
     onEditLeague() {
@@ -203,6 +204,7 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
 
     private league: League
     private listeners: ListenerType = {} as ListenerType
+    private routeSubscription: Subscription
 }
 
 interface ListenerType {

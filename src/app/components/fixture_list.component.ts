@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms'
+import { Subscription } from 'rxjs/Subscription';
 import { LeagueService } from '../services/league.service'
 import { FixtureService } from '../services/fixture.service'
 import { League } from '../models/league'
@@ -15,7 +16,7 @@ import { ButtonPopover } from './button_popover.component'
     templateUrl: 'fixture_list.template.html'
 })
 
-export class FixtureListComponent implements OnInit {
+export class FixtureListComponent implements OnInit, OnDestroy {
     constructor(private _changeref: ChangeDetectorRef,
         private _fixtureService: FixtureService,
         private _leagueService: LeagueService,
@@ -32,7 +33,7 @@ export class FixtureListComponent implements OnInit {
     set league(value: League) { this._league = value }
 
     ngOnInit() {
-        this.route.parent.params.subscribe((params: Params) => {
+        this.routeSubscription = this.route.parent.params.subscribe((params: Params) => {
             let id = +params['id'];
             this._leagueService.getLeagueAndFixtures(id).then((l) => {
                 this.league = l
@@ -44,6 +45,10 @@ export class FixtureListComponent implements OnInit {
                 description: new FormControl('')
             })
         })
+    }
+
+    ngOnDestroy() {
+        this.routeSubscription.unsubscribe();
     }
 
     createFixture(form: FixtureForm) {
@@ -75,4 +80,5 @@ export class FixtureListComponent implements OnInit {
 
     private _fixtures: Fixture[]
     private _league: League
+    private routeSubscription: Subscription    
 }

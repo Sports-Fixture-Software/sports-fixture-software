@@ -1,5 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef, Output, ViewChild, EventEmitter } from '@angular/core'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, Output, ViewChild, EventEmitter } from '@angular/core'
 import { ActivatedRoute, Router, Params } from '@angular/router'
+import { Subscription } from 'rxjs/Subscription';
 import { ButtonPopover } from './button_popover.component'
 import { Fixture } from '../models/fixture'
 import { League } from '../models/league'
@@ -22,7 +23,7 @@ import * as moment from 'moment'
     providers: [FixtureService, TeamService, SchedulerService, RoundService, MatchService]
 })
 
-export class GenerateComponent implements OnInit {
+export class GenerateComponent implements OnInit, OnDestroy {
 
     constructor(private fixtureService: FixtureService,
         private teamService: TeamService,
@@ -36,7 +37,7 @@ export class GenerateComponent implements OnInit {
     @ViewChild('generateButton') generateButton: ButtonPopover
 
     ngOnInit() {
-        this.route.parent.params.subscribe((params: Params) => {
+        this.routeSubscription = this.route.parent.params.subscribe((params: Params) => {
             let id = +params['id']
             this.fixtureService.getFixtureAndLeague(id).then(fixture => {
                 this.fixture = fixture
@@ -48,6 +49,10 @@ export class GenerateComponent implements OnInit {
                 this.changeref.detectChanges()
             })
         })
+    }
+
+    ngOnDestroy() {
+        this.routeSubscription.unsubscribe();
     }
 
     generate() {
@@ -70,4 +75,5 @@ export class GenerateComponent implements OnInit {
     private numberOfRounds: number
     private league: League
     private fixture: Fixture
+    private routeSubscription: Subscription;
 }

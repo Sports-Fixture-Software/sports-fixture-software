@@ -45,7 +45,7 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             awayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
             awayGamesEnabled: new FormControl({value: null, disabled: true}),
         })
-    this.route.params.subscribe(params => {
+        this.routeSubscription = this.route.params.subscribe(params => {
             let id = +params['team_id']
             this.teamService.getTeamAndConfig(id).then(team => {
                 this.team = team
@@ -60,6 +60,7 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             let listener = this.listeners[i] as Subscription
             listener.unsubscribe()
         }
+        this.routeSubscription.unsubscribe();
     }
 
     onEditTeam() {
@@ -232,6 +233,7 @@ awayGamesEnabled: this.team.teamConfigPreLoaded && (this.team.teamConfigPreLoade
 
     private team: Team
     private listeners: ListenerType = {} as ListenerType
+    private routeSubscription: Subscription
 }
 
 interface ListenerType {

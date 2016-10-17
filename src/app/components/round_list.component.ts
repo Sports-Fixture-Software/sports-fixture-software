@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms'
+import { Subscription } from 'rxjs/Subscription';
 import { FixtureService } from '../services/fixture.service'
 import { RoundService } from '../services/round.service'
 import { MatchConfigService } from '../services/match_config.service'
@@ -28,7 +29,7 @@ declare var jQuery: JQueryStatic
     templateUrl: 'round_list.template.html'
 })
 
-export class RoundListComponent implements OnInit {
+export class RoundListComponent implements OnInit, OnDestroy {
     constructor(private _changeref: ChangeDetectorRef,
         private _fixtureService: FixtureService,
         private _roundService: RoundService,
@@ -50,7 +51,8 @@ export class RoundListComponent implements OnInit {
             awayTeam: new FormControl('', [<any>Validators.required]),
             config: new FormControl()
         }, null, Validator.differentTeamsSelected)
-        this.route.parent.params.subscribe(params => {
+        
+        this.routeSubscription = this.route.parent.params.subscribe(params => {
             let id = +params['id'];
             this._fixtureService.getFixtureAndTeams(id).then((f) => {
                 this.fixture = f
@@ -72,6 +74,10 @@ export class RoundListComponent implements OnInit {
                 this._changeref.detectChanges()
             })
         })
+    }
+
+    ngOnDestroy() {
+        this.routeSubscription.unsubscribe();
     }
 
     /**
@@ -273,4 +279,5 @@ export class RoundListComponent implements OnInit {
     private awayTeamsAll: Team[]
     private fixture: Fixture
     private editing: boolean
+    private routeSubscription: Subscription
 }

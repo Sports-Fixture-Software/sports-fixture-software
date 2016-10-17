@@ -1,5 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
 import { FixtureService } from '../services/fixture.service'
 import { MatchService } from '../services/match.service'
 import { Collection } from '../services/collection'
@@ -24,7 +25,7 @@ import * as fs from 'fs'
     templateUrl: 'review.template.html'
 })
 
-export class ReviewComponent implements OnInit {
+export class ReviewComponent implements OnInit, OnDestroy {
     constructor(private _changeref: ChangeDetectorRef,
         private _fixtureService: FixtureService,
         private _matchService: MatchService,
@@ -46,7 +47,7 @@ export class ReviewComponent implements OnInit {
             awayTeam: new FormControl('', [<any>Validators.required]),
             match: new FormControl()
         }, null, Validator.differentTeamsSelected)
-        this.route.parent.params.subscribe(params => {
+        this.routeSubscription = this.route.parent.params.subscribe(params => {
             let id = +params['id'];
             this._fixtureService.getFixtureAndTeams(id).then((f) => {
                 this.fixture = f
@@ -65,6 +66,10 @@ export class ReviewComponent implements OnInit {
                 this._changeref.detectChanges()
             })
         })
+    }
+
+    ngOnDestroy() {
+        this.routeSubscription.unsubscribe();
     }
 
     onEditFixture() {
@@ -267,6 +272,7 @@ export class ReviewComponent implements OnInit {
     private homeTeamsAll: Team[]
     private awayTeamsAll: Team[]
     private fixture: Fixture
+    private routeSubscription: Subscription
     private static CREATE_MATCHUP: string = 'Create Match-up'
     private static EDIT_MATCHUP: string = 'Edit Match-up'
     private static EDIT_FIXTURE: string = 'Edit Fixture'

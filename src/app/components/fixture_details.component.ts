@@ -48,7 +48,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             consecutiveAwayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)])
         })
 
-        this.route.parent.params.subscribe(params => {
+        this.routeSubscription = this.route.parent.params.subscribe(params => {
             let id = +params['id']
                 this.fixtureService.getFixtureAndLeagueAndConfig(id).then(fixture => {
                     this.fixture = fixture
@@ -63,6 +63,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             let listener = this.listeners[i] as Subscription
             listener.unsubscribe()
         }
+        this.routeSubscription.unsubscribe();
     }
 
     onEditFixture() {
@@ -264,6 +265,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
 
     private fixture: Fixture
     private listeners: listenerType = {} as listenerType
+    private routeSubscription: Subscription    
 }
 
 interface listenerType {

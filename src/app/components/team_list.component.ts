@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'
 import { Router, ActivatedRoute } from '@angular/router'
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms'
+import { Subscription } from 'rxjs/Subscription';
 import { Team } from '../models/team'
 import { TeamForm } from '../models/team.form'
 import { League } from '../models/league'
@@ -21,7 +22,7 @@ import { ButtonHidden } from './button_hidden.component'
     providers: [LeagueService, TeamService]
 })
 
-export class TeamListComponent implements OnInit {
+export class TeamListComponent implements OnInit, OnDestroy {
     /**
      * ## API
      * - `changeref` (provided by the injector)
@@ -48,7 +49,7 @@ export class TeamListComponent implements OnInit {
     set league(value: League) { this._league = value }
 
     ngOnInit() {
-        this.route.parent.parent.params.subscribe(params => {
+        this.routeSubscription = this.route.parent.parent.params.subscribe(params => {
             let id = +params['id'];
             this._leagueService.getLeagueAndTeams(id).then((l) => {
                 this.league = l
@@ -60,6 +61,10 @@ export class TeamListComponent implements OnInit {
                 team: new FormControl()
             })
         })
+    }
+
+    ngOnDestroy() {
+        this.routeSubscription.unsubscribe();
     }
 
     prepareForm(team?: Team) {
@@ -119,4 +124,5 @@ export class TeamListComponent implements OnInit {
     private teamButtonText: string
     private _teams: Team[]
     private _league: League
+    private routeSubscription: Subscription
 }
