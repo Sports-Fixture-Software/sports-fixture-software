@@ -39,6 +39,49 @@ import { Match, Constraint, Team, MatchState, ConTable } from './fixture_constra
 export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbose: boolean = false ): Match[] {
     
     var permCounter: number = 1;
+    var matchupState: ConTable;
+
+    /**
+     * cmpMinConfMaxDom
+     * Comparison function for sorting matches by the min-confict and max-
+     * domain-size heuristics. Equal values are randomly placed to put 
+     * more variation in when generating identically configured fixtures.
+     *
+     * THIS IS A LOCAL FUNCTION AS IT REQUIRES THE matchupState VARIABLE TO 
+     * GATHER HEURISTIC DATA ABOUT THE COMPARED MATCHES.
+     *  
+     * Params:
+     * m1, first match
+     * m2, second match
+     * 
+     * Returns:
+     * <0 if m2 comes before m1
+     * >0 if m1 comes before m2
+     * (Should not return 0 as equal matches are to be randomly sorted)
+     */
+    var cmpMinConfMaxDom = function(m1: Match, m2: Match): number {
+        // Get the domain size of the round
+        var m1Heur: number = matchupState.domainOfRound[m1.roundNum];
+        var m2Heur: number = matchupState.domainOfRound[m2.roundNum];
+
+        if( m1Heur === m2Heur ){
+             // If the domain is equal, sort by minimum matchup conflict
+            if( m1.footPrnt === m2.footPrnt ){
+                // If both heuristics are equal, randomly give negative or positive
+                if( Math.random() < 0.5 ){
+                    return 0.5;
+                } else {
+                    return -0.5;
+                }
+            } else {
+                // Else, sort by minimum conflicts caused by the match
+                return m1.footPrnt - m2.footPrnt;
+            }
+        } else {
+            // Else, sort by maximum domain size 
+            return m1Heur - m2Heur;
+        }
+    }
 
     /**
      * fillFrom
@@ -130,13 +173,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
                 }
 
                 // Sorting the new mQueue by the min-conflicts max-domain-size heuristics
-                nextMQueue.sort(function(a: Match, b: Match): number {
-                    if( table.domainOfRound[a.roundNum] === table.domainOfRound[a.roundNum] ){
-                        return a.footPrnt - b.footPrnt;
-                    } else {
-                        return table.domainOfRound[a.roundNum] - table.domainOfRound[a.roundNum];
-                    }
-                });
+                nextMQueue.sort(cmpMinConfMaxDom);
 
                 // Reporting progress to console
                 if( verbose && crntMatchCount <= 7 ){
@@ -186,7 +223,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
     }
 
     // Creating and populating matrix that stores the matchup states.
-    var matchupState: ConTable = new ConTable( teams.length );
+    matchupState = new ConTable( teams.length );
     var successFlag: boolean = true;
 
     for( var i: number = 0; i < resvdMatches.length; i++ ){
@@ -235,13 +272,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
     }
     
     // Sorting the matchup queue by minimum variable domain, and then minimum value footprint
-    matchQueue.sort(function(a: Match, b: Match): number {
-        if( matchupState.domainOfRound[a.roundNum] === matchupState.domainOfRound[a.roundNum] ){
-            return a.footPrnt - b.footPrnt;
-        } else {
-            return matchupState.domainOfRound[a.roundNum] - matchupState.domainOfRound[a.roundNum];
-        }
-    });
+    matchQueue.sort(cmpMinConfMaxDom);
 
     // Populate the rest of the ConTable with fillFrom, starting the head of matchQueue
     var finalMatches: Match[] = resvdMatches.slice();
