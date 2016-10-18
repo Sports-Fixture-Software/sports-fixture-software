@@ -80,5 +80,5 @@ export class FixtureListComponent implements OnInit, OnDestroy {
 
     private _fixtures: Fixture[]
     private _league: League
-    private routeSubscription: Subscription    
+    private routeSubscription: Subscription
 }

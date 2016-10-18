@@ -11,7 +11,7 @@ import { RoundService } from '../services/round.service'
 import { MatchService } from '../services/match.service'
 // import { SchedulerService } from '../services/scheduler/random/scheduler.service'
 import { SchedulerService } from '../services/scheduler/dfs/scheduler.service'
-import { Collection }  from '../services/collection'
+import { Collection } from '../services/collection'
 import { DateTime } from '../util/date_time'
 import * as moment from 'moment'
 

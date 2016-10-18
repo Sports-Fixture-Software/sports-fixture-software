@@ -39,22 +39,22 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             name: new FormControl('', [<any>Validators.required]),
             description: new FormControl(''),
             startDate: new FormControl(),
-            startDateEnabled: new FormControl({value: false, disabled: true}),
+            startDateEnabled: new FormControl({ value: false, disabled: true }),
             endDate: new FormControl(),
-            endDateEnabled: new FormControl({value: false, disabled: true}),
-            consecutiveHomeGamesMaxEnabled: new FormControl({value: null, disabled: true}),
+            endDateEnabled: new FormControl({ value: false, disabled: true }),
+            consecutiveHomeGamesMaxEnabled: new FormControl({ value: null, disabled: true }),
             consecutiveHomeGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)]),
-            consecutiveAwayGamesMaxEnabled: new FormControl({value: null, disabled: true}),
+            consecutiveAwayGamesMaxEnabled: new FormControl({ value: null, disabled: true }),
             consecutiveAwayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)])
         })
 
         this.routeSubscription = this.route.parent.params.subscribe(params => {
             let id = +params['id']
-                this.fixtureService.getFixtureAndLeagueAndConfig(id).then(fixture => {
-                    this.fixture = fixture
-                    this.resetForm()
-                    this.changeref.detectChanges()
-                })
+            this.fixtureService.getFixtureAndLeagueAndConfig(id).then(fixture => {
+                this.fixture = fixture
+                this.resetForm()
+                this.changeref.detectChanges()
+            })
         });
     }
 
@@ -102,7 +102,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
      */
     onStartDateEnabledChange(value: boolean) {
         if (!value) {
-            this.fixtureForm.patchValue({startDate: null});
+            this.fixtureForm.patchValue({ startDate: null });
         }
     }
 
@@ -112,7 +112,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
      */
     onStartDateChange(value: string) {
         if (value) {
-            this.fixtureForm.patchValue({startDateEnabled: true});
+            this.fixtureForm.patchValue({ startDateEnabled: true });
         }
     }
 
@@ -121,7 +121,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
      */
     onEndDateEnabledChange(value: boolean) {
         if (!value) {
-            this.fixtureForm.patchValue({endDate: null});
+            this.fixtureForm.patchValue({ endDate: null });
         }
     }
 
@@ -131,7 +131,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
      */
     onEndDateChange(value: string) {
         if (value) {
-            this.fixtureForm.patchValue({endDateEnabled: true});
+            this.fixtureForm.patchValue({ endDateEnabled: true });
         }
     }
 
@@ -155,12 +155,12 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
         // if user checked the date, but didn't enter a date, turn the checked
         // off
         if (form.startDateEnabled && !form.startDate) {
-            this.fixtureForm.patchValue({startDateEnabled: false});
+            this.fixtureForm.patchValue({ startDateEnabled: false });
         }
         // if user checked the date, but didn't enter a date, turn the checked
         // off
         if (form.endDateEnabled && !form.endDate) {
-            this.fixtureForm.patchValue({endDateEnabled: false});
+            this.fixtureForm.patchValue({ endDateEnabled: false });
         }
         this.fixture.startDate = moment(form.startDate, 'YYYY-MM-DD')
         this.fixture.endDate = moment(form.endDate, 'YYYY-MM-DD')
@@ -174,7 +174,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             if (form.consecutiveHomeGamesMax == null || (typeof form.consecutiveHomeGamesMax === 'string' && form.consecutiveHomeGamesMax.trim() == '')) {
                 // if user checked the checkbox, but didn't enter a value, turn
                 // the checked off
-                this.fixtureForm.patchValue({consecutiveHomeGamesMaxEnabled: false});
+                this.fixtureForm.patchValue({ consecutiveHomeGamesMaxEnabled: false });
             }
             config.consecutiveHomeGamesMax = Number.parseInt(form.consecutiveHomeGamesMax)
             config.consecutiveHomeGamesMax = Number.isInteger(config.consecutiveHomeGamesMax) ? config.consecutiveHomeGamesMax : null
@@ -185,7 +185,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             if (form.consecutiveAwayGamesMax == null || (typeof form.consecutiveAwayGamesMax === 'string' && form.consecutiveAwayGamesMax.trim() == '')) {
                 // if user checked the checkbox, but didn't enter a value, turn
                 // the checked off
-                this.fixtureForm.patchValue({consecutiveAwayGamesMaxEnabled: false});
+                this.fixtureForm.patchValue({ consecutiveAwayGamesMaxEnabled: false });
             }
             config.consecutiveAwayGamesMax = Number.parseInt(form.consecutiveAwayGamesMax)
             config.consecutiveAwayGamesMax = Number.isInteger(config.consecutiveAwayGamesMax) ? config.consecutiveAwayGamesMax : null
@@ -221,27 +221,27 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             consecutiveHomeGamesMaxEnabled: this.fixture.fixtureConfigPreLoaded && this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax != null,
             consecutiveAwayGamesMaxEnabled: this.fixture.fixtureConfigPreLoaded && this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax != null
         });
-        
+
         if (!this.listeners.startDate) {
-            let fc = this.fixtureForm.controls['startDate'] as FormControl        
+            let fc = this.fixtureForm.controls['startDate'] as FormControl
             this.listeners.startDate = fc.valueChanges.subscribe((evt) => {
                 this.onStartDateChange(evt)
             })
         }
         if (!this.listeners.startDateEnabled) {
-            let fc = this.fixtureForm.controls['startDateEnabled'] as FormControl            
+            let fc = this.fixtureForm.controls['startDateEnabled'] as FormControl
             this.listeners.startDateEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onStartDateEnabledChange(evt)
             })
         }
         if (!this.listeners.endDate) {
-            let fc = this.fixtureForm.controls['endDate'] as FormControl        
+            let fc = this.fixtureForm.controls['endDate'] as FormControl
             this.listeners.endDate = fc.valueChanges.subscribe((evt) => {
                 this.onEndDateChange(evt)
             })
         }
         if (!this.listeners.endDateEnabled) {
-            let fc = this.fixtureForm.controls['endDateEnabled'] as FormControl            
+            let fc = this.fixtureForm.controls['endDateEnabled'] as FormControl
             this.listeners.endDateEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onEndDateEnabledChange(evt)
             })
@@ -249,7 +249,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
 
         if (this.fixture.fixtureConfigPreLoaded) {
             if (!this.listeners.consecutiveHomeGamesMax) {
-                let fc = this.fixtureForm.controls['consecutiveHomeGamesMax'] as FormControl                
+                let fc = this.fixtureForm.controls['consecutiveHomeGamesMax'] as FormControl
                 this.listeners.consecutiveHomeGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(this.consecutiveHomeGamesMaxInput, this.fixtureForm.controls['consecutiveHomeGamesMax'] as FormControl)
                 })
@@ -265,7 +265,7 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
 
     private fixture: Fixture
     private listeners: listenerType = {} as listenerType
-    private routeSubscription: Subscription    
+    private routeSubscription: Subscription
 }
 
 interface listenerType {

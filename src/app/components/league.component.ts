@@ -4,14 +4,14 @@ import { Subscription } from 'rxjs/subscription';
 
 import { League } from '../models/league';
 import { LeagueService } from '../services/league.service';
-import { Collection }  from '../services/collection'
+import { Collection } from '../services/collection'
 import { Navbar } from './navbar.component';
 
 import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
-    templateUrl : 'league.template.html',
+    templateUrl: 'league.template.html',
     providers: [LeagueService]
 })
 export class LeagueComponent implements OnInit, OnDestroy {
@@ -19,12 +19,12 @@ export class LeagueComponent implements OnInit, OnDestroy {
     private routeSubscription: Subscription;
 
     constructor(private router: Router,
-                public route: ActivatedRoute,
-                private leagueService: LeagueService,
-                private changeref: ChangeDetectorRef) {
+        public route: ActivatedRoute,
+        private leagueService: LeagueService,
+        private changeref: ChangeDetectorRef) {
     }
-    
-    ngOnInit() { 
+
+    ngOnInit() {
         this.routeSubscription = this.route.params.subscribe(params => {
             let id = +params['id'];
             this.leagueService.getLeague(id).then(league => {
@@ -32,9 +32,9 @@ export class LeagueComponent implements OnInit, OnDestroy {
                 this.changeref.detectChanges();
             })
         });
-     }
+    }
 
-     ngOnDestroy() {
-         this.routeSubscription.unsubscribe();
-     }
+    ngOnDestroy() {
+        this.routeSubscription.unsubscribe();
+    }
 }

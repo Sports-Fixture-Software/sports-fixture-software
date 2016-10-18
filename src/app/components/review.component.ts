@@ -111,7 +111,7 @@ export class ReviewComponent implements OnInit, OnDestroy {
         if (match && match.homeTeamPreLoaded) {
             for (let team of this.homeTeamsAll) {
                 if (team.id == match.homeTeamPreLoaded.id) {
-                    this.matchupForm.patchValue({homeTeam: team})
+                    this.matchupForm.patchValue({ homeTeam: team })
                     break
                 }
             }
@@ -119,7 +119,7 @@ export class ReviewComponent implements OnInit, OnDestroy {
         if (match && match.awayTeamPreLoaded) {
             for (let team of this.awayTeamsAll) {
                 if (team.id == match.awayTeamPreLoaded.id) {
-                    this.matchupForm.patchValue({awayTeam: team})
+                    this.matchupForm.patchValue({ awayTeam: team })
                     break
                 }
             }

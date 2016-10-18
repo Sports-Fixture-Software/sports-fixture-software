@@ -3,7 +3,7 @@ import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms'
 import { Router } from '@angular/router';
 import { League } from '../models/league';
 import { LeagueService } from '../services/league.service';
-import { Collection }  from '../services/collection'
+import { Collection } from '../services/collection'
 import { LeagueForm } from '../models/league.form'
 import * as Promise from 'bluebird'
 import { Navbar } from './navbar.component';
@@ -13,7 +13,7 @@ import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
-    templateUrl : 'league_list.template.html',
+    templateUrl: 'league_list.template.html',
     providers: [LeagueService]
 })
 
@@ -33,7 +33,7 @@ export class LeagueListComponent implements OnInit {
 
     @ViewChild('errorModal')
     @ViewChild('createLeaguePopover') createLeaguePopover: PopoverContent
-    errorModal : ModalComponent
+    errorModal: ModalComponent
     leagueForm: FormGroup
 
     newLeagueText: String
@@ -84,10 +84,10 @@ export class LeagueListComponent implements OnInit {
     }
 
     private resetForm() {
-        this.leagueForm.patchValue({name: null});
+        this.leagueForm.patchValue({ name: null });
     }
 
     private _leagueService: LeagueService
     private _changeref: ChangeDetectorRef
-    private _leagues : League[]
+    private _leagues: League[]
 }

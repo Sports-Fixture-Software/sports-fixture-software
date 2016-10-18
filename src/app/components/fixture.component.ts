@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { NotifyService, GenerateState } from '../services/notify.service';
 import { Fixture } from '../models/fixture';
 import { FixtureService } from '../services/fixture.service';
-import { Collection }  from '../services/collection'
+import { Collection } from '../services/collection'
 
 import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
@@ -39,8 +39,8 @@ export class FixtureComponent implements OnInit, OnDestroy {
         this.generateSubscription = this.notifyService.generateState$.subscribe((value) => {
             if (value == GenerateState.Generating) {
                 this.canReview = false
-            // if receive notification via the notify service that the fixture
-            // has been generated, make the review button active.
+                // if receive notification via the notify service that the fixture
+                // has been generated, make the review button active.
             } else if (value == GenerateState.Generated) {
                 this.canReview = true
                 this.changeref.detectChanges()

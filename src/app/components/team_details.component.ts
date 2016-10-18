@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef,NgZone } from '@angular/core'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef, NgZone } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms'
 import { Team } from '../models/team'
@@ -40,10 +40,10 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
             name: new FormControl('', [<any>Validators.required]),
             homeGamesMin: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
             homeGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
-            homeGamesEnabled: new FormControl({value: null, disabled: true}),
+            homeGamesEnabled: new FormControl({ value: null, disabled: true }),
             awayGamesMin: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
             awayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(0)]),
-            awayGamesEnabled: new FormControl({value: null, disabled: true}),
+            awayGamesEnabled: new FormControl({ value: null, disabled: true }),
         })
         this.routeSubscription = this.route.params.subscribe(params => {
             let id = +params['team_id']
@@ -154,12 +154,12 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
         // if user checked the checkbox, but didn't enter a value, turn the
         // checked off
         if (form.homeGamesEnabled && (form.homeGamesMin == null || form.homeGamesMin == '') && (form.homeGamesMax == null || form.homeGamesMax == '')) {
-            this.teamForm.patchValue({homeGamesEnabled: false});
+            this.teamForm.patchValue({ homeGamesEnabled: false });
         }
         // if user checked the checkbox, but didn't enter a value, turn the
         // checked off
         if (form.awayGamesEnabled && (form.awayGamesMin == null || form.awayGamesMin == '') && (form.awayGamesMax == null || form.awayGamesMax == '')) {
-            this.teamForm.patchValue({awayGamesEnabled: false});            
+            this.teamForm.patchValue({ awayGamesEnabled: false });
         }
         this.teamService.addTeam(this.team).then(() => {
             return this.teamConfigService.addTeamConfig(config)
@@ -177,8 +177,8 @@ export class TeamDetailsComponent implements OnInit, OnDestroy {
     private resetForm() {
         this.teamForm.patchValue({
             name: this.team.name,
-homeGamesEnabled: this.team.teamConfigPreLoaded && (this.team.teamConfigPreLoaded.homeGamesMin != null || this.team.teamConfigPreLoaded.homeGamesMax != null),
-awayGamesEnabled: this.team.teamConfigPreLoaded && (this.team.teamConfigPreLoaded.awayGamesMin != null || this.team.teamConfigPreLoaded.awayGamesMax != null)
+            homeGamesEnabled: this.team.teamConfigPreLoaded && (this.team.teamConfigPreLoaded.homeGamesMin != null || this.team.teamConfigPreLoaded.homeGamesMax != null),
+            awayGamesEnabled: this.team.teamConfigPreLoaded && (this.team.teamConfigPreLoaded.awayGamesMin != null || this.team.teamConfigPreLoaded.awayGamesMax != null)
         })
         if (this.team.teamConfigPreLoaded) {
             this.teamForm.patchValue({

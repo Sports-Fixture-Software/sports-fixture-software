@@ -7,7 +7,7 @@ import { TeamForm } from '../models/team.form'
 import { League } from '../models/league'
 import { LeagueService } from '../services/league.service'
 import { TeamService } from '../services/team.service'
-import { Collection }  from '../services/collection'
+import { Collection } from '../services/collection'
 import * as Promise from 'bluebird'
 import { Navbar } from './navbar.component';
 import { TeamListItem } from './team_list_item.component';
@@ -109,7 +109,7 @@ export class TeamListComponent implements OnInit, OnDestroy {
             this.teams = t.toArray()
             this.addTeamButton.nativeElement.focus()
             this._changeref.detectChanges()
-        }).catch((err : Error) => {
+        }).catch((err: Error) => {
             this.createTeamButton.showError('Error creating team', err.message)
             this._changeref.detectChanges()
         })

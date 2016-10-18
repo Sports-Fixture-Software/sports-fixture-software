@@ -5,8 +5,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 
-import {PopoverModule} from "ng2-popover";
-import {Ng2Bs3ModalModule} from 'ng2-bs3-modal/ng2-bs3-modal';
+import { PopoverModule } from "ng2-popover";
+import { Ng2Bs3ModalModule } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 import { LeagueListComponent } from './components/league_list.component';
 import { TeamListComponent } from './components/team_list.component';
@@ -31,40 +31,40 @@ import { TeamListItem } from './components/team_list_item.component';
 
 
 const routes: Routes = [
-        { path: '', redirectTo: 'league', pathMatch: 'full' },
-        { path: 'league', component: LeagueListComponent },
-        { 
-            path: 'league/:id',
-            component: LeagueComponent,
-            children: [
-                { path: '', redirectTo: 'details', pathMatch: 'full' },
-                { path: 'details', component: LeagueDetailsComponent },
-                {
-                    path: 'teams', children: [
-                        { path: '', component: TeamListComponent },
-                        { path: ':team_id', component: TeamDetailsComponent },
-                    ]
-                },
-                { path: 'fixtures', component: FixtureListComponent }
-            ]
-        },
-        {
-            path: 'fixture/:id',
-            component: FixtureComponent,
-            children: [
-                { path: '', redirectTo: 'details', pathMatch: 'full' },
-                { path: 'details', component: FixtureDetailsComponent },
-                { path: 'rounds', component: RoundListComponent },
-                { path: 'generate', component: GenerateComponent },
-                { path: 'review', component: ReviewComponent }
-            ]
-        }
-    ]
+    { path: '', redirectTo: 'league', pathMatch: 'full' },
+    { path: 'league', component: LeagueListComponent },
+    {
+        path: 'league/:id',
+        component: LeagueComponent,
+        children: [
+            { path: '', redirectTo: 'details', pathMatch: 'full' },
+            { path: 'details', component: LeagueDetailsComponent },
+            {
+                path: 'teams', children: [
+                    { path: '', component: TeamListComponent },
+                    { path: ':team_id', component: TeamDetailsComponent },
+                ]
+            },
+            { path: 'fixtures', component: FixtureListComponent }
+        ]
+    },
+    {
+        path: 'fixture/:id',
+        component: FixtureComponent,
+        children: [
+            { path: '', redirectTo: 'details', pathMatch: 'full' },
+            { path: 'details', component: FixtureDetailsComponent },
+            { path: 'rounds', component: RoundListComponent },
+            { path: 'generate', component: GenerateComponent },
+            { path: 'review', component: ReviewComponent }
+        ]
+    }
+]
 
 @NgModule({
     imports: [
         BrowserModule,
-        RouterModule.forRoot(routes, {useHash: true}),
+        RouterModule.forRoot(routes, { useHash: true }),
         PopoverModule,
         Ng2Bs3ModalModule,
         ReactiveFormsModule
@@ -92,4 +92,4 @@ const routes: Routes = [
     ],
     bootstrap: [AppComponent]
 })
-export class AppModule {};
+export class AppModule { };

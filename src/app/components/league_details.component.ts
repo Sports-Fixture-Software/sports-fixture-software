@@ -37,9 +37,9 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.leagueForm = new FormGroup({
             name: new FormControl('', [<any>Validators.required]),
-            consecutiveHomeGamesMaxEnabled: new FormControl({value: null, disabled: true}),
+            consecutiveHomeGamesMaxEnabled: new FormControl({ value: null, disabled: true }),
             consecutiveHomeGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)]),
-            consecutiveAwayGamesMaxEnabled: new FormControl({value: null, disabled: true}),
+            consecutiveAwayGamesMaxEnabled: new FormControl({ value: null, disabled: true }),
             consecutiveAwayGamesMax: new FormControl('', [Validator.integerGreaterEqualOrBlank(Validator.CONSECUTIVE_GAMES_MIN)])
         })
         this.routeSubscription = this.route.parent.params.subscribe(params => {
@@ -69,8 +69,8 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
 
     onRevert() {
         this.editing = false
-        this.leagueForm.get('consecutiveHomeGamesMaxEnabled').disable()   
-        this.leagueForm.get('consecutiveAwayGamesMaxEnabled').disable()             
+        this.leagueForm.get('consecutiveHomeGamesMaxEnabled').disable()
+        this.leagueForm.get('consecutiveAwayGamesMaxEnabled').disable()
         this.resetForm()
         this.changeref.detectChanges()
     }
@@ -92,7 +92,7 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
      */
     onConsecutiveHomeGamesMaxEnabledChange(value: boolean) {
         if (!value) {
-            this.leagueForm.patchValue({consecutiveHomeGamesMax: null});
+            this.leagueForm.patchValue({ consecutiveHomeGamesMax: null });
         }
     }
 
@@ -101,7 +101,7 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
      */
     onConsecutiveAwayGamesMaxEnabledChange(value: boolean) {
         if (!value) {
-            this.leagueForm.patchValue({consecutiveAwayGamesMax: null});
+            this.leagueForm.patchValue({ consecutiveAwayGamesMax: null });
         }
     }
 
@@ -122,7 +122,7 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
             if (control.valid) {
                 element.hideError()
             } else {
-                element.showError(`Please enter a number greater than ${Validator.CONSECUTIVE_GAMES_MIN-1}`)
+                element.showError(`Please enter a number greater than ${Validator.CONSECUTIVE_GAMES_MIN - 1}`)
             }
         }
     }
@@ -141,19 +141,19 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
         // if user checked the checkbox, but didn't enter a value, turn the
         // checked off
         if (form.consecutiveHomeGamesMaxEnabled && (form.consecutiveHomeGamesMax == null || (typeof form.consecutiveHomeGamesMax === 'string' && form.consecutiveHomeGamesMax.trim() == ''))) {
-            this.leagueForm.patchValue({consecutiveHomeGamesMaxEnabled: false});
+            this.leagueForm.patchValue({ consecutiveHomeGamesMaxEnabled: false });
         }
         // if user checked the checkbox, but didn't enter a value, turn the
         // checked off
         if (form.consecutiveAwayGamesMaxEnabled && (form.consecutiveAwayGamesMax == null || (typeof form.consecutiveAwayGamesMax === 'string' && form.consecutiveAwayGamesMax.trim() == ''))) {
-            this.leagueForm.patchValue({consecutiveAwayGamesMaxEnabled: false});            
+            this.leagueForm.patchValue({ consecutiveAwayGamesMaxEnabled: false });
         }
 
         this.leagueService.updateLeague(this.league).then(() => {
             return this.leagueConfigService.addLeagueConfig(config)
         }).then(() => {
             this.editing = false
-            this.leagueForm.get('consecutiveHomeGamesMaxEnabled').disable()   
+            this.leagueForm.get('consecutiveHomeGamesMaxEnabled').disable()
             this.leagueForm.get('consecutiveAwayGamesMaxEnabled').disable()
             this.changeref.detectChanges()
         }).catch((err: Error) => {
@@ -176,26 +176,26 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
             })
 
             if (!this.listeners.consecutiveHomeGamesMax) {
-                let fc = this.leagueForm.controls['consecutiveHomeGamesMax'] as FormControl                
+                let fc = this.leagueForm.controls['consecutiveHomeGamesMax'] as FormControl
                 this.listeners.consecutiveHomeGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.consecutiveHomeGamesMaxInput, this.leagueForm.controls['consecutiveHomeGamesMax'] as FormControl, this.leagueForm.controls['consecutiveHomeGamesMaxEnabled'] as FormControl)
                 })
             }
             if (!this.listeners.consecutiveAwayGamesMax) {
-                let fc = this.leagueForm.controls['consecutiveAwayGamesMax'] as FormControl                
+                let fc = this.leagueForm.controls['consecutiveAwayGamesMax'] as FormControl
                 this.listeners.consecutiveAwayGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.consecutiveAwayGamesMaxInput, this.leagueForm.controls['consecutiveAwayGamesMax'] as FormControl, this.leagueForm.controls['consecutiveAwayGamesMaxEnabled'] as FormControl)
                 })
             }
         }
         if (!this.listeners.consecutiveHomeGamesMaxEnabled) {
-            let fc = this.leagueForm.controls['consecutiveHomeGamesMaxEnabled'] as FormControl            
+            let fc = this.leagueForm.controls['consecutiveHomeGamesMaxEnabled'] as FormControl
             this.listeners.consecutiveHomeGamesMaxEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onConsecutiveHomeGamesMaxEnabledChange(evt)
             })
         }
         if (!this.listeners.consecutiveAwayGamesMaxEnabled) {
-            let fc = this.leagueForm.controls['consecutiveAwayGamesMaxEnabled'] as FormControl            
+            let fc = this.leagueForm.controls['consecutiveAwayGamesMaxEnabled'] as FormControl
             this.listeners.consecutiveAwayGamesMaxEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onConsecutiveAwayGamesMaxEnabledChange(evt)
             })

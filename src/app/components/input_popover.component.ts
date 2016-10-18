@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef} from '@angular/core'
+import { Component, Input, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef } from '@angular/core'
 import { FormGroup } from '@angular/forms'
 import * as twitterBootstrap from 'bootstrap'
 declare var jQuery: JQueryStatic;
@@ -73,7 +73,7 @@ export class InputPopover implements AfterViewInit, OnDestroy {
                     this.popover.popover('hide')
                 })
             }
-        }    
+        }
     }
 
     private popover: JQuery
