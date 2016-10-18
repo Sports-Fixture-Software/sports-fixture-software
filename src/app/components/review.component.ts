@@ -223,6 +223,7 @@ export class ReviewComponent implements OnInit, OnDestroy {
             electron.remote.dialog.showSaveDialog(
                 {
                     title: "Save Fixture",
+                    buttonLabel: "Save Fixture",
                     filters: [
                         { name: 'Comma-Separated Values (CSV)', extensions: ['csv'] },
                         { name: 'All Files', extensions: ['*'] }
