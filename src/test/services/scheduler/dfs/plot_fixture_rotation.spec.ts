@@ -1,5 +1,7 @@
 import { plotFixtureRotation } from '../../../../app/services/scheduler/dfs/plot_fixture_rotation';
 import { Match, Constraint, FixtureInterface, Team } from '../../../../app/services/scheduler/dfs/fixture_constraints';
+import * as child_process from 'child_process'
+import * as path from 'path'
 
 // No special constraints
 class TestTeamNoConstraints implements Team {
@@ -86,6 +88,13 @@ function testIfReservedMatchesCorrect(fixture: Match[], reservedMatches: Match[]
 }
 
 describe('services DFS scheduler plot fixture rotation', () => {
+    let worker: child_process.ChildProcess
+    let timeout: number = 5000 // each test has 5 seconds
+    afterEach(() => {
+        if (worker) {
+            worker.kill()
+        }
+    })
 
     it('invalid, 0 teams', () => {
         let reservedMatches: Match[] = []
@@ -105,18 +114,24 @@ describe('services DFS scheduler plot fixture rotation', () => {
         }).toThrowError('At least two teams are required to make a fixture.')
     })
 
-    it('2 teams, no constraints', () => {
+    it('2 teams, no constraints', (done) => {
         let reservedMatches: Match[] = []
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 2
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
+
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
 
     it('invalid, 3 teams', () => {
         let reservedMatches: Match[] = []
@@ -129,257 +144,371 @@ describe('services DFS scheduler plot fixture rotation', () => {
         }).toThrowError('Odd number of teams in the teams parameter. Add a bye to make it even.')
     })
 
-    it('4 teams, no constraints', () => {
+    it('4 teams, no constraints', (done) => {
         let reservedMatches: Match[] = []
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-    })
-
-    it('6 teams, no constraints', () => {
-        let reservedMatches: Match[] = []
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-    })
-
-    it('8 teams, no constraints', () => {
-        let reservedMatches: Match[] = []
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-    })
-
-    it('10 teams, no constraints', () => {
-        let reservedMatches: Match[] = []
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-    })
-
-    it('12 teams, no constraints', () => {
-        let reservedMatches: Match[] = []
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-    })
-
-    it('14 - 18 teams, no constraints', () => {
-        for (let i = 14; i <= 18; i += 2) {
-            let reservedMatches: Match[] = []
-            let testTeams: TestTeamNoConstraints[] = []
-            for (let j = 0; j < i; j++) {
-                testTeams.push(new TestTeamNoConstraints())
+        let numTeams = 4
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
             }
-            let numRounds = testTeams.length - 1
-            let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
+
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = testIfRoundsCorrect(testFixture, numRounds)
             expect(result.result).toBe(true, result.message)
-        }
-    })
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
 
-    /**
-     * This test takes a really long time. But 18 teams in near-instant.
-     */
-    it('22 teams, no constraints', () => {
+    it('6 teams, no constraints', (done) => {
         let reservedMatches: Match[] = []
-        let testTeams: TestTeamNoConstraints[] = []
-        for (let j = 0; j < 22; j++) {
-            testTeams.push(new TestTeamNoConstraints())
-        }
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 6
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    /*****************************************************************************
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('8 teams, no constraints', (done) => {
+        let reservedMatches: Match[] = []
+        let numTeams = 8
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
+
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('10 teams, no constraints', (done) => {
+        let reservedMatches: Match[] = []
+        let numTeams = 10
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
+
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('12 teams, no constraints', (done) => {
+        let reservedMatches: Match[] = []
+        let numTeams = 12
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
+
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('14 teams, no constraints', (done) => {
+        let reservedMatches: Match[] = []
+        let numTeams = 14
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
+
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('16 teams, no constraints', (done) => {
+        let reservedMatches: Match[] = []
+        let numTeams = 16
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
+
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('18 teams, no constraints', (done) => {
+        let reservedMatches: Match[] = []
+        let numTeams = 18
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
+
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('20 teams, no constraints', (done) => {
+        let reservedMatches: Match[] = []
+        let numTeams = 20
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
+
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('22 teams, no constraints', (done) => {
+        let reservedMatches: Match[] = []
+        let numTeams = 22
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
+
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    /*************************************************************************
      * Constraints - reserved matches
-     ****************************************************************************/
+     *************************************************************************/
 
-    it('2 teams, reserved matches, combo 1', () => {
+    it('2 teams, reserved matches, combo 1', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 0, 1)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 2
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('2 teams, reserved matches, combo 2', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('2 teams, reserved matches, combo 2', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 1, 0)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 2
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('4 teams, reserved matches, all round 0 reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('4 teams, reserved matches, all round 0 reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 0, 1),
             new Match(0, 2, 3)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 4
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('4 teams, reserved matches, last round reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('4 teams, reserved matches, last round reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(2, 3, 1),
             new Match(2, 2, 0)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 4
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('4 teams, reserved matches, reserved matches scattered, unordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('4 teams, reserved matches, reserved matches scattered, unordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(2, 2, 1),
             new Match(1, 2, 0),
             new Match(0, 0, 3)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 4
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('4 teams, reserved matches, reserved matches scattered, ordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('4 teams, reserved matches, reserved matches scattered, ordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 0, 3),
             new Match(1, 2, 0),
             new Match(2, 2, 1)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 4
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('4 teams, reserved matches, first and last rounds all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('4 teams, reserved matches, first and last rounds all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 0, 3),
             new Match(0, 2, 1),
             new Match(2, 3, 1),
             new Match(2, 1, 2)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 4
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('4 teams, reserved matches, all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('4 teams, reserved matches, all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 0, 3),
             new Match(0, 2, 1),
@@ -388,21 +517,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(2, 1, 0),
             new Match(2, 3, 2)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 4
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('invalid, 4 teams, reserved matches, team 0 plays twice in round 2', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('invalid, 4 teams, reserved matches, team 0 plays twice in round 2', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 0, 3),
             new Match(0, 2, 1),
@@ -411,59 +545,68 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(2, 1, 0),
             new Match(2, 3, 0)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        expect(() => {
-            let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        }).toThrowError('Reserved Matches clash with basic constraints in this rotation.')
-    })
+        let numTeams = 4
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            expect(testFixture.name).toBe('Error')
+            expect(testFixture.message).toBe('Reserved Matches clash with basic constraints in this rotation.')
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
 
-    it('6 teams, reserved matches, all round 0 reserved', () => {
+    it('6 teams, reserved matches, all round 0 reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 5, 1),
             new Match(0, 2, 0),
             new Match(0, 4, 3)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 6
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('6 teams, reserved matches, last round reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('6 teams, reserved matches, last round reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(4, 0, 1),
             new Match(4, 5, 2),
             new Match(4, 3, 4)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 6
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('6 teams, reserved matches, reserved matches scattered, unordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('6 teams, reserved matches, reserved matches scattered, unordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(2, 2, 1),
             new Match(1, 2, 0),
@@ -471,22 +614,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(3, 2, 3),
             new Match(0, 4, 5)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 6
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('6 teams, reserved matches, reserved matches scattered, ordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('6 teams, reserved matches, reserved matches scattered, ordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 0, 3),
             new Match(1, 2, 0),
@@ -494,22 +641,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(3, 5, 1),
             new Match(4, 4, 0)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 6
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('6 teams, reserved matches, first and last rounds all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('6 teams, reserved matches, first and last rounds all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 0, 3),
             new Match(0, 2, 1),
@@ -518,22 +669,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(4, 4, 1),
             new Match(4, 0, 2)
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 6
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('6 teams, reserved matches, all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('6 teams, reserved matches, all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 4, 3),
             new Match(0, 5, 2),
@@ -551,22 +706,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(4, 4, 5),
             new Match(4, 0, 2),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 6
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('invalid, 6 teams, reserved matches, team 5 plays twice in round 4', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('invalid, 6 teams, reserved matches, team 5 plays twice in round 4', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 4, 3),
             new Match(0, 5, 2),
@@ -584,64 +743,73 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(4, 4, 5),
             new Match(4, 5, 2),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        expect(() => {
-            let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        }).toThrowError('Reserved Matches clash with basic constraints in this rotation.')
-    })
+        let numTeams = 6
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            expect(testFixture.name).toBe('Error')
+            expect(testFixture.message).toBe('Reserved Matches clash with basic constraints in this rotation.')
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
 
-    it('8 teams, reserved matches, all round 0 reserved', () => {
+    it('8 teams, reserved matches, all round 0 reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 1, 4),
             new Match(0, 5, 2),
             new Match(0, 3, 6),
             new Match(0, 0, 7),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 8
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('8 teams, reserved matches, last round reserved', () => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('8 teams, reserved matches, last round reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(6, 0, 3),
             new Match(6, 2, 6),
             new Match(6, 7, 5),
             new Match(6, 4, 1),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 8
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('8 teams, reserved matches, reserved matches scattered, unordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('8 teams, reserved matches, reserved matches scattered, unordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(3, 3, 1),
             new Match(6, 0, 5),
@@ -651,23 +819,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(1, 4, 0),
             new Match(2, 1, 3),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 8
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('8 teams, reserved matches, reserved matches scattered, ordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('8 teams, reserved matches, reserved matches scattered, ordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 2, 0),
             new Match(1, 3, 2),
@@ -677,23 +848,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(5, 6, 7),
             new Match(6, 3, 1),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 8
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('8 teams, reserved matches, first and last rounds all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('8 teams, reserved matches, first and last rounds all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 5, 6),
             new Match(0, 4, 1),
@@ -704,23 +878,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(6, 6, 1),
             new Match(6, 4, 0),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 8
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('8 teams, reserved matches, all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('8 teams, reserved matches, all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 2, 0),
             new Match(0, 3, 5),
@@ -751,23 +928,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(6, 6, 3),
             new Match(6, 4, 5),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 8
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('invalid, 8 teams, reserved matches, team 1 plays twice in round 1', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('invalid, 8 teams, reserved matches, team 1 plays twice in round 1', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 5, 2),
             new Match(0, 6, 7),
@@ -798,19 +978,18 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(6, 1, 5),
             new Match(6, 7, 0),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        expect(() => {
-            let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        }).toThrowError('Reserved Matches clash with basic constraints in this rotation.')
-    })
+        let numTeams = 8
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            expect(testFixture.name).toBe('Error')
+            expect(testFixture.message).toBe('Reserved Matches clash with basic constraints in this rotation.')
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
 
-    it('10 teams, reserved matches, all round 0 reserved', () => {
+    it('10 teams, reserved matches, all round 0 reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 1, 3),
             new Match(0, 4, 2),
@@ -818,24 +997,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(0, 6, 7),
             new Match(0, 0, 8),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 10
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('10 teams, reserved matches, last round reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('10 teams, reserved matches, last round reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(8, 8, 1),
             new Match(8, 0, 4),
@@ -843,24 +1024,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(8, 3, 9),
             new Match(8, 2, 6),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 10
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('10 teams, reserved matches, reserved matches scattered, unordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('10 teams, reserved matches, reserved matches scattered, unordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(8, 6, 7),
             new Match(5, 5, 6),
@@ -872,24 +1055,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(2, 3, 4),
             new Match(1, 6, 2),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 10
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('10 teams, reserved matches, reserved matches scattered, ordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('10 teams, reserved matches, reserved matches scattered, ordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 5, 6),
             new Match(1, 2, 6),
@@ -901,24 +1086,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(7, 9, 0),
             new Match(8, 4, 8),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 10
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('10 teams, reserved matches, first and last rounds all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('10 teams, reserved matches, first and last rounds all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 6, 1),
             new Match(0, 2, 5),
@@ -931,24 +1118,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(8, 8, 1),
             new Match(8, 5, 0),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 10
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('10 teams, reserved matches, all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('10 teams, reserved matches, all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 2, 4),
             new Match(0, 7, 9),
@@ -996,24 +1185,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(8, 2, 6),
             new Match(8, 9, 1),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 10
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('invalid, 10 teams, reserved matches, team 6 plays twice in round 6', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('invalid, 10 teams, reserved matches, team 6 plays twice in round 6', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 8, 3),
             new Match(0, 7, 1),
@@ -1061,20 +1252,18 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(8, 9, 1),
             new Match(8, 6, 3),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        expect(() => {
-            let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        }).toThrowError('Reserved Matches clash with basic constraints in this rotation.')
-    })
+        let numTeams = 10
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            expect(testFixture.name).toBe('Error')
+            expect(testFixture.message).toBe('Reserved Matches clash with basic constraints in this rotation.')
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
 
-    it('12 teams, reserved matches, all round 0 reserved', () => {
+    it('12 teams, reserved matches, all round 0 reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 10, 6),
             new Match(0, 1, 7),
@@ -1083,25 +1272,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(0, 3, 11),
             new Match(0, 2, 0),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 12
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('12 teams, reserved matches, last round reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('12 teams, reserved matches, last round reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(10, 11, 1),
             new Match(10, 6, 10),
@@ -1110,25 +1300,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(10, 9, 2),
             new Match(10, 4, 0),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 12
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('12 teams, reserved matches, reserved matches scattered, unordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('12 teams, reserved matches, reserved matches scattered, unordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(9, 0, 5),
             new Match(10, 5, 9),
@@ -1142,25 +1333,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(2, 11, 0),
             new Match(0, 8, 4),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 12
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('12 teams, reserved matches, reserved matches scattered, ordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('12 teams, reserved matches, reserved matches scattered, ordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 11, 7),
             new Match(1, 3, 0),
@@ -1174,25 +1366,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(9, 4, 3),
             new Match(10, 4, 11),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 12
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('12 teams, reserved matches, first and last rounds all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('12 teams, reserved matches, first and last rounds all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 5, 4),
             new Match(0, 9, 6),
@@ -1207,25 +1400,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(10, 7, 4),
             new Match(10, 9, 3),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 12
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('12 teams, reserved matches, all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('12 teams, reserved matches, all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 10, 3),
             new Match(0, 6, 2),
@@ -1294,25 +1488,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(10, 2, 9),
             new Match(10, 11, 0),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 12
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('invalid, 12 teams, reserved matches, team 3 plays twice in round 8', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('invalid, 12 teams, reserved matches, team 3 plays twice in round 8', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 5, 0),
             new Match(0, 4, 10),
@@ -1381,21 +1576,18 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(10, 3, 9),
             new Match(10, 5, 7),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        expect(() => {
-            let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        }).toThrowError('Reserved Matches clash with basic constraints in this rotation.')
-    })
+        let numTeams = 12
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            expect(testFixture.name).toBe('Error')
+            expect(testFixture.message).toBe('Reserved Matches clash with basic constraints in this rotation.')
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
 
-    it('14 teams, reserved matches, all round 0 reserved', () => {
+    it('14 teams, reserved matches, all round 0 reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 13, 9),
             new Match(0, 12, 6),
@@ -1405,26 +1597,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(0, 11, 7),
             new Match(0, 0, 10),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 14
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('14 teams, reserved matches, last round reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('14 teams, reserved matches, last round reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(12, 4, 1),
             new Match(12, 12, 2),
@@ -1434,26 +1626,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(12, 3, 0),
             new Match(12, 6, 7),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 14
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('14 teams, reserved matches, reserved matches scattered, unordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('14 teams, reserved matches, reserved matches scattered, unordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(10, 0, 10),
             new Match(11, 7, 12),
@@ -1467,26 +1659,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(2, 1, 0),
             new Match(2, 11, 2),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 14
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('14 teams, reserved matches, reserved matches scattered, ordered', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('14 teams, reserved matches, reserved matches scattered, ordered', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 3, 2),
             new Match(1, 11, 1),
@@ -1502,26 +1694,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(11, 1, 7),
             new Match(12, 7, 3),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 14
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('14 teams, reserved matches, first and last rounds all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('14 teams, reserved matches, first and last rounds all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 13, 7),
             new Match(0, 9, 11),
@@ -1538,26 +1730,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(12, 2, 6),
             new Match(12, 5, 0),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 14
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('14 teams, reserved matches, all reserved', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('14 teams, reserved matches, all reserved', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 13, 7),
             new Match(0, 12, 10),
@@ -1651,26 +1843,26 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(12, 1, 2),
             new Match(12, 0, 13),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, testTeams.length)
-        expect(result.result).toBe(true, result.message)
-        result = testIfRoundsCorrect(testFixture, numRounds)
-        expect(result.result).toBe(true, result.message)
-        result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
-        expect(result.result).toBe(true, result.message)
-    })
+        let numTeams = 14
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                return fail(testFixture.message)
+            }
 
-    it('invalid, 14 teams, reserved matches, team 11 plays twice in round 10', () => {
+            let result = testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
+            expect(result.result).toBe(true, result.message)
+            result = testIfRoundsCorrect(testFixture, numRounds)
+            expect(result.result).toBe(true, result.message)
+            result = testIfReservedMatchesCorrect(testFixture, reservedMatches)
+            expect(result.result).toBe(true, result.message)
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
+    it('invalid, 14 teams, reserved matches, team 11 plays twice in round 10', (done) => {
         let reservedMatches: Match[] = [
             new Match(0, 2, 4),
             new Match(0, 3, 6),
@@ -1764,18 +1956,15 @@ describe('services DFS scheduler plot fixture rotation', () => {
             new Match(12, 8, 10),
             new Match(12, 9, 7),
         ]
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints(), new TestTeamNoConstraints()
-        ]
-        let numRounds = testTeams.length - 1
-        expect(() => {
-            let testFixture = plotFixtureRotation(testTeams, reservedMatches, false)
-        }).toThrowError('Reserved Matches clash with basic constraints in this rotation.')
-    })
+        let numTeams = 14
+        let numRounds = numTeams - 1
+        worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
+        worker.on('message', (testFixture: any) => {
+            expect(testFixture.name).toBe('Error')
+            expect(testFixture.message).toBe('Reserved Matches clash with basic constraints in this rotation.')
+            done()
+        })
+        worker.send([numTeams, reservedMatches, false])
+    }, timeout)
+
 })
