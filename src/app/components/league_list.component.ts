@@ -84,7 +84,6 @@ export class LeagueListComponent implements OnInit {
     }
 
     private resetForm() {
-        let fc = this.leagueForm.controls['name'] as FormControl
         this.leagueForm.patchValue({name: null});
     }
 

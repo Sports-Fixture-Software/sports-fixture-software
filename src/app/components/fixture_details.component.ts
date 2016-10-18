@@ -222,40 +222,40 @@ export class FixtureDetailsComponent implements OnInit, OnDestroy {
             consecutiveAwayGamesMaxEnabled: this.fixture.fixtureConfigPreLoaded && this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax != null
         });
         
-        let fc = this.fixtureForm.controls['startDate'] as FormControl
         if (!this.listeners.startDate) {
+            let fc = this.fixtureForm.controls['startDate'] as FormControl        
             this.listeners.startDate = fc.valueChanges.subscribe((evt) => {
                 this.onStartDateChange(evt)
             })
         }
-        fc = this.fixtureForm.controls['startDateEnabled'] as FormControl
         if (!this.listeners.startDateEnabled) {
+            let fc = this.fixtureForm.controls['startDateEnabled'] as FormControl            
             this.listeners.startDateEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onStartDateEnabledChange(evt)
             })
         }
-        fc = this.fixtureForm.controls['endDate'] as FormControl
         if (!this.listeners.endDate) {
+            let fc = this.fixtureForm.controls['endDate'] as FormControl        
             this.listeners.endDate = fc.valueChanges.subscribe((evt) => {
                 this.onEndDateChange(evt)
             })
         }
-        fc = this.fixtureForm.controls['endDateEnabled'] as FormControl
         if (!this.listeners.endDateEnabled) {
+            let fc = this.fixtureForm.controls['endDateEnabled'] as FormControl            
             this.listeners.endDateEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onEndDateEnabledChange(evt)
             })
         }
 
         if (this.fixture.fixtureConfigPreLoaded) {
-            fc = this.fixtureForm.controls['consecutiveHomeGamesMax'] as FormControl
             if (!this.listeners.consecutiveHomeGamesMax) {
+                let fc = this.fixtureForm.controls['consecutiveHomeGamesMax'] as FormControl                
                 this.listeners.consecutiveHomeGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(this.consecutiveHomeGamesMaxInput, this.fixtureForm.controls['consecutiveHomeGamesMax'] as FormControl)
                 })
             }
-            fc = this.fixtureForm.controls['consecutiveAwayGamesMax'] as FormControl
             if (!this.listeners.consecutiveAwayGamesMax) {
+                let fc = this.fixtureForm.controls['consecutiveAwayGamesMax'] as FormControl
                 this.listeners.consecutiveAwayGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(this.consecutiveAwayGamesMaxInput, this.fixtureForm.controls['consecutiveAwayGamesMax'] as FormControl)
                 })

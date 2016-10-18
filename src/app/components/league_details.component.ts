@@ -175,27 +175,27 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
                 consecutiveAwayGamesMax: this.league.leagueConfigPreLoaded.consecutiveAwayGamesMax
             })
 
-            let fc = this.leagueForm.controls['consecutiveHomeGamesMax'] as FormControl
             if (!this.listeners.consecutiveHomeGamesMax) {
+                let fc = this.leagueForm.controls['consecutiveHomeGamesMax'] as FormControl                
                 this.listeners.consecutiveHomeGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.consecutiveHomeGamesMaxInput, this.leagueForm.controls['consecutiveHomeGamesMax'] as FormControl, this.leagueForm.controls['consecutiveHomeGamesMaxEnabled'] as FormControl)
                 })
             }
-            fc = this.leagueForm.controls['consecutiveAwayGamesMax'] as FormControl
             if (!this.listeners.consecutiveAwayGamesMax) {
+                let fc = this.leagueForm.controls['consecutiveAwayGamesMax'] as FormControl                
                 this.listeners.consecutiveAwayGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.consecutiveAwayGamesMaxInput, this.leagueForm.controls['consecutiveAwayGamesMax'] as FormControl, this.leagueForm.controls['consecutiveAwayGamesMaxEnabled'] as FormControl)
                 })
             }
         }
-        let fc = this.leagueForm.controls['consecutiveHomeGamesMaxEnabled'] as FormControl
         if (!this.listeners.consecutiveHomeGamesMaxEnabled) {
+            let fc = this.leagueForm.controls['consecutiveHomeGamesMaxEnabled'] as FormControl            
             this.listeners.consecutiveHomeGamesMaxEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onConsecutiveHomeGamesMaxEnabledChange(evt)
             })
         }
-        fc = this.leagueForm.controls['consecutiveAwayGamesMaxEnabled'] as FormControl
         if (!this.listeners.consecutiveAwayGamesMaxEnabled) {
+            let fc = this.leagueForm.controls['consecutiveAwayGamesMaxEnabled'] as FormControl            
             this.listeners.consecutiveAwayGamesMaxEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onConsecutiveAwayGamesMaxEnabledChange(evt)
             })

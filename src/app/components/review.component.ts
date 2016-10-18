@@ -108,21 +108,18 @@ export class ReviewComponent implements OnInit, OnDestroy {
             round: round,
             match: match
         })
-        let fc = this.matchupForm.controls['match'] as FormControl
         if (match && match.homeTeamPreLoaded) {
-            fc = this.matchupForm.controls['homeTeam'] as FormControl
             for (let team of this.homeTeamsAll) {
                 if (team.id == match.homeTeamPreLoaded.id) {
-                    fc.patchValue(team)
+                    this.matchupForm.patchValue({homeTeam: team})
                     break
                 }
             }
         }
         if (match && match.awayTeamPreLoaded) {
-            fc = this.matchupForm.controls['awayTeam'] as FormControl
             for (let team of this.awayTeamsAll) {
                 if (team.id == match.awayTeamPreLoaded.id) {
-                    fc.patchValue(team)
+                    this.matchupForm.patchValue({awayTeam: team})
                     break
                 }
             }

@@ -188,28 +188,28 @@ awayGamesEnabled: this.team.teamConfigPreLoaded && (this.team.teamConfigPreLoade
                 awayGamesMax: this.team.teamConfigPreLoaded.awayGamesMax
             })
 
-            let fc = this.teamForm.controls['homeGamesMin'] as FormControl
             if (!this.listeners.homeGamesMin) {
+                let fc = this.teamForm.controls['homeGamesMin'] as FormControl                
                 this.listeners.homeGamesMin = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.homeGamesMinInput, this.teamForm.controls['homeGamesMin'] as FormControl,
                         this.teamForm.controls['homeGamesMax'] as FormControl, this.teamForm.controls['homeGamesEnabled'] as FormControl)
                 })
             }
-            fc = this.teamForm.controls['homeGamesMax'] as FormControl
             if (!this.listeners.homeGamesMax) {
+                let fc = this.teamForm.controls['homeGamesMax'] as FormControl                
                 this.listeners.homeGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.homeGamesMaxInput, this.teamForm.controls['homeGamesMax'] as FormControl,
                         this.teamForm.controls['homeGamesMin'] as FormControl, this.teamForm.controls['homeGamesEnabled'] as FormControl)
                 })
             }
-            fc = this.teamForm.controls['awayGamesMin'] as FormControl
             if (!this.listeners.awayGamesMin) {
+                let fc = this.teamForm.controls['awayGamesMin'] as FormControl                
                 this.listeners.awayGamesMin = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.awayGamesMinInput, this.teamForm.controls['awayGamesMin'] as FormControl, this.teamForm.controls['awayGamesMax'] as FormControl, this.teamForm.controls['awayGamesEnabled'] as FormControl)
                 })
             }
-            fc = this.teamForm.controls['awayGamesMax'] as FormControl
             if (!this.listeners.awayGamesMax) {
+                let fc = this.teamForm.controls['awayGamesMax'] as FormControl                
                 this.listeners.awayGamesMax = fc.valueChanges.subscribe((evt) => {
                     this.onFieldChange(evt, this.awayGamesMaxInput, this.teamForm.controls['awayGamesMax'] as FormControl,
                         this.teamForm.controls['awayGamesMin'] as FormControl, this.teamForm.controls['awayGamesEnabled'] as FormControl)
@@ -217,14 +217,14 @@ awayGamesEnabled: this.team.teamConfigPreLoaded && (this.team.teamConfigPreLoade
             }
         }
 
-        let fc = this.teamForm.controls['homeGamesEnabled'] as FormControl
         if (!this.listeners.homeGamesEnabled) {
+            let fc = this.teamForm.controls['homeGamesEnabled'] as FormControl            
             this.listeners.homeGamesEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onHomeGamesEnabledChange(evt)
             })
         }
-        fc = this.teamForm.controls['awayGamesEnabled'] as FormControl
         if (!this.listeners.awayGamesEnabled) {
+            let fc = this.teamForm.controls['awayGamesEnabled'] as FormControl        
             this.listeners.awayGamesEnabled = fc.valueChanges.subscribe((evt) => {
                 this.onAwayGamesEnabledChange(evt)
             })
