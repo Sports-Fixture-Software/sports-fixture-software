@@ -45,7 +45,7 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
     /**
      * Needed by bookshelf to setup relationship
      */
-   protected teams(): Collection<Team> {
+    protected teams(): Collection<Team> {
         return this.hasMany(Team)
     }
     /**

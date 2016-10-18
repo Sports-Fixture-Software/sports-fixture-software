@@ -7,7 +7,7 @@ const install = require("gulp-install");
 const livereload = require('gulp-livereload');
 const runElectron = require("gulp-run-electron");
 const rebuildElectron = require('electron-rebuild');
-const electron = require("electron-prebuilt");
+const electron = require("electron");
 const jasmine = require('gulp-jasmine');
 const reporters = require('jasmine-reporters');
 const tscConfig = require('./tsconfig.json');
@@ -45,8 +45,8 @@ gulp.task('rebuild', ['install'], function() {
                     console.log("No build required");
                     return true;
                 }                
-                return rebuildElectron.installNodeHeaders('1.3.1').then(function() {
-                    return rebuildElectron.rebuildNativeModules('1.3.1', './build/node_modules');                
+                return rebuildElectron.installNodeHeaders('1.4.1').then(function() {
+                    return rebuildElectron.rebuildNativeModules('1.4.1', './build/node_modules');                
                 });
             })
 });
