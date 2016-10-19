@@ -18,7 +18,7 @@ describe('services DFS scheduler', () => {
             new TestTeamNoConstraints(), new TestTeamNoConstraints(), new TestTeamNoConstraints(),
             new TestTeamNoConstraints(), new TestTeamNoConstraints(), new TestTeamNoConstraints()
         ];
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, true);
+        let testFixture = plotFixtureRotation(testTeams, reservedMatches, testTeams.length - 1, true);
         expect(testFixture).toBeDefined()
         console.log("Success. Printing fixture:");
         for (var i: number = 0; i < testFixture.length; i++) {
@@ -35,7 +35,7 @@ describe('services DFS scheduler', () => {
             new TestTeamNoConstraints(), new TestTeamNoConstraints(), new TestTeamNoConstraints(),
             new TestTeamNoConstraints(), new TestTeamNoConstraints(), new TestTeamNoConstraints()
         ];
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, true);
+        let testFixture = plotFixtureRotation(testTeams, reservedMatches, testTeams.length - 1, true);
         expect(testFixture).toBeDefined()
         console.log("Success. Printing fixture:");
         for (var i: number = 0; i < testFixture.length; i++) {
@@ -55,7 +55,7 @@ describe('services DFS scheduler', () => {
             new TestTeamNoConstraints(), new TestTeamNoConstraints(), new TestTeamNoConstraints(),
             new TestTeamNoConstraints(), new TestTeamNoConstraints(), new TestTeamNoConstraints()
         ];
-        let testFixture = plotFixtureRotation(testTeams, reservedMatches, true);
+        let testFixture = plotFixtureRotation(testTeams, reservedMatches, testTeams.length - 1, true);
         expect(testFixture).toBeDefined()
         console.log("Success. Printing fixture:");
         for (var i: number = 0; i < testFixture.length; i++) {
