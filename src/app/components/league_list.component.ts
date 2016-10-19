@@ -7,9 +7,11 @@ import { Collection } from '../services/collection'
 import { LeagueForm } from '../models/league.form'
 import * as Promise from 'bluebird'
 import { Navbar } from './navbar.component';
+import { AppConfig } from '../util/app_config'
 import { LeagueListItem } from './league_list_item.component';
 import { PopoverContent } from 'ng2-popover';
 import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { ButtonPopover } from './button_popover.component'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -31,12 +33,10 @@ export class LeagueListComponent implements OnInit {
         this._changeref = changeref
     }
 
-    @ViewChild('errorModal')
+    @ViewChild('errorModal') errorModal : ModalComponent
     @ViewChild('createLeaguePopover') createLeaguePopover: PopoverContent
-    errorModal: ModalComponent
+    @ViewChild('createLeagueButton') createLeagueButton: ButtonPopover
     leagueForm: FormGroup
-
-    newLeagueText: String
     lastError: Error
 
     get leagues(): League[] { return this._leagues }
@@ -55,8 +55,10 @@ export class LeagueListComponent implements OnInit {
                 this.leagues = l.toArray()
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
-                this.lastError = err
+                this.lastError = new Error(`A error occurred loading the database "${AppConfig.getDatabaseFilename()}" . ${AppConfig.DatabaseErrorGuidance}`)
+                AppConfig.log(err)
                 this.errorModal.open()
+                this._changeref.detectChanges()
             })
         }
     }
@@ -70,8 +72,10 @@ export class LeagueListComponent implements OnInit {
                 this.resetForm()
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
-                this.lastError = err
-                this.errorModal.open()
+                this.createLeagueButton.showError('Error creating league',
+                    'A database error occurred when creating the league. ' + AppConfig.DatabaseErrorGuidance)
+                AppConfig.log(err)
+                this.changeref.detectChanges()
             })
     }
 

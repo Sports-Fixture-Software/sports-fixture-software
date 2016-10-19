@@ -18,6 +18,7 @@ import { DateTime } from '../util/date_time'
 import { DaysOfWeek } from '../util/days_of_week'
 import { Search } from '../util/search'
 import { Validator } from '../util/validator'
+import { AppConfig } from '../util/app_config'
 import { PopoverContent } from 'ng2-popover';
 import * as moment from 'moment'
 import * as twitterBootstrap from 'bootstrap'
@@ -69,8 +70,8 @@ export class RoundListComponent implements OnInit, OnDestroy {
                 this.awayTeams = this.homeTeamsAll.slice(0) //copy
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
-                let detail = err ? err.message : ''
-                this.error = new Error(`Error loading rounds: ${detail}`)
+                this.error = new Error('A database error occurred when reading the fixture. ' + AppConfig.DatabaseErrorGuidance)
+                AppConfig.log(err)
                 this._changeref.detectChanges()
             })
         })
@@ -164,7 +165,9 @@ export class RoundListComponent implements OnInit, OnDestroy {
             this.createMatchupPopover.hide()
             this._changeref.detectChanges()
         }).catch((err: Error) => {
-            this.createMatchupButton.showError('Error creating match-up', err.message)
+            this.createMatchupButton.showError('Error creating match-up',
+                'A database error occurred when creating the match-up. ' + AppConfig.DatabaseErrorGuidance)
+            AppConfig.log(err)
         })
     }
 
@@ -178,10 +181,13 @@ export class RoundListComponent implements OnInit, OnDestroy {
                 this.createMatchupPopover.hide()
                 this._changeref.detectChanges()
             }).catch((err: Error) => {
-                this.deleteMatchupButton.showError('Error deleting match-up', err.message)
+                this.deleteMatchupButton.showError('Error deleting match-up',
+                    'A database error occurred when deleting the match-up. ' + AppConfig.DatabaseErrorGuidance)
+                AppConfig.log(err)
             })
         } else {
-            this.deleteMatchupButton.showError('Error deleting match-up', 'The match-up could not be found')
+            this.deleteMatchupButton.showError('Error deleting match-up', 'The match-up could not be found.')
+            AppConfig.log('The match-up could not be found. ' + JSON.stringify(form))
         }
     }
 

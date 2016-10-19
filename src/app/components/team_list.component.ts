@@ -15,6 +15,7 @@ import { PopoverContent } from 'ng2-popover';
 import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 import { ButtonPopover } from './button_popover.component'
 import { ButtonHidden } from './button_hidden.component'
+import { AppConfig } from '../util/app_config'
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
@@ -110,7 +111,9 @@ export class TeamListComponent implements OnInit, OnDestroy {
             this.addTeamButton.nativeElement.focus()
             this._changeref.detectChanges()
         }).catch((err: Error) => {
-            this.createTeamButton.showError('Error creating team', err.message)
+            this.createTeamButton.showError('Error creating team',
+                'A database error occurred when creating the team. ' + AppConfig.DatabaseErrorGuidance)
+            AppConfig.log(err)
             this._changeref.detectChanges()
         })
     }
