@@ -1,23 +1,20 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { REACTIVE_FORM_DIRECTIVES, FormGroup, FormControl, FormBuilder } from '@angular/forms';
-import { Validators } from '@angular/common';
+import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { League } from '../models/league';
 import { LeagueService } from '../services/league.service';
-import { Collection }  from '../services/collection'
+import { Collection } from '../services/collection'
 import { LeagueForm } from '../models/league.form'
 import * as Promise from 'bluebird'
 import { Navbar } from './navbar.component';
 import { LeagueListItem } from './league_list_item.component';
-import { POPOVER_DIRECTIVES, PopoverContent } from 'ng2-popover';
-import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { PopoverContent } from 'ng2-popover';
+import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
-    templateUrl : 'league_list.template.html',
-    properties : ['leagues'],
-    providers: [LeagueService], 
-    directives: [Navbar, LeagueListItem, POPOVER_DIRECTIVES, MODAL_DIRECTIVES, REACTIVE_FORM_DIRECTIVES]
+    templateUrl: 'league_list.template.html',
+    providers: [LeagueService]
 })
 
 export class LeagueListComponent implements OnInit {
@@ -36,7 +33,7 @@ export class LeagueListComponent implements OnInit {
 
     @ViewChild('errorModal')
     @ViewChild('createLeaguePopover') createLeaguePopover: PopoverContent
-    errorModal : ModalComponent
+    errorModal: ModalComponent
     leagueForm: FormGroup
 
     newLeagueText: String
@@ -87,11 +84,10 @@ export class LeagueListComponent implements OnInit {
     }
 
     private resetForm() {
-        let fc = this.leagueForm.controls['name'] as FormControl
-        fc.updateValue(null)
+        this.leagueForm.patchValue({ name: null });
     }
 
     private _leagueService: LeagueService
     private _changeref: ChangeDetectorRef
-    private _leagues : League[]
+    private _leagues: League[]
 }
