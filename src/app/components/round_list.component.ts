@@ -127,8 +127,6 @@ export class RoundListComponent implements OnInit, OnDestroy {
                     break
                 }
             }
-        }
-        if (config) {
             for (let team of this.awayTeamsAll) {
                 if (team.id == config.awayTeam_id) {
                     this.matchupForm.patchValue({ awayTeam: team })
