@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef} from '@angular/core'
+import { Component, Input, Output, EventEmitter, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef } from '@angular/core'
 import * as twitterBootstrap from 'bootstrap'
 declare var jQuery: JQueryStatic;
 

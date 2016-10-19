@@ -1,5 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef, Output, ViewChild, EventEmitter } from '@angular/core'
-import { ActivatedRoute, Router } from '@angular/router'
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, Output, ViewChild, EventEmitter } from '@angular/core'
+import { ActivatedRoute, Router, Params } from '@angular/router'
+import { Subscription } from 'rxjs/Subscription';
 import { ButtonPopover } from './button_popover.component'
 import { Fixture } from '../models/fixture'
 import { League } from '../models/league'
@@ -10,7 +11,7 @@ import { RoundService } from '../services/round.service'
 import { MatchService } from '../services/match.service'
 // import { SchedulerService } from '../services/scheduler/random/scheduler.service'
 import { SchedulerService } from '../services/scheduler/dfs/scheduler.service'
-import { Collection }  from '../services/collection'
+import { Collection } from '../services/collection'
 import { DateTime } from '../util/date_time'
 import { AppConfig } from '../util/app_config'
 import * as moment from 'moment'
@@ -20,11 +21,10 @@ import * as moment from 'moment'
     templateUrl: 'generate.template.html',
     // RoundService, MatchService not used in this file, but needs to be
     // 'provided' before SchedulerService is used
-    providers: [FixtureService, TeamService, SchedulerService, RoundService, MatchService],
-    directives: [ButtonPopover]
+    providers: [FixtureService, TeamService, SchedulerService, RoundService, MatchService]
 })
 
-export class GenerateComponent implements OnInit {
+export class GenerateComponent implements OnInit, OnDestroy {
 
     constructor(private fixtureService: FixtureService,
         private teamService: TeamService,
@@ -38,19 +38,22 @@ export class GenerateComponent implements OnInit {
     @ViewChild('generateButton') generateButton: ButtonPopover
 
     ngOnInit() {
-        this.router.routerState.parent(this.route)
-            .params.forEach(params => {
-                let id = +params['id']
-                this.fixtureService.getFixtureAndLeague(id).then(fixture => {
-                    this.fixture = fixture
-                    this.numberOfRounds = DateTime.getNumberOfRounds(this.fixture.startDate, this.fixture.endDate)
-                    this.league = fixture.leaguePreLoaded
-                    return this.teamService.countTeams(this.league)
-                }).then((res) => {
-                    this.numberOfTeams = res
-                    this.changeref.detectChanges()
-                })
+        this.routeSubscription = this.route.parent.params.subscribe((params: Params) => {
+            let id = +params['id']
+            this.fixtureService.getFixtureAndLeague(id).then(fixture => {
+                this.fixture = fixture
+                this.numberOfRounds = DateTime.getNumberOfRounds(this.fixture.startDate, this.fixture.endDate)
+                this.league = fixture.leaguePreLoaded
+                return this.teamService.countTeams(this.league)
+            }).then((res) => {
+                this.numberOfTeams = res
+                this.changeref.detectChanges()
             })
+        })
+    }
+
+    ngOnDestroy() {
+        this.routeSubscription.unsubscribe();
     }
 
     generate() {
@@ -74,4 +77,5 @@ export class GenerateComponent implements OnInit {
     private numberOfRounds: number
     private league: League
     private fixture: Fixture
+    private routeSubscription: Subscription;
 }
