@@ -70,8 +70,8 @@ export class ConstraintFactory {
             } else if ( count == max ){
                 // Checking if this match prevents the home team from playing both home or away in the following rounds.
                 locked = true;
-                for( var i: number = 1; i < max; i++ ){
-                    if( fixture.getHomeTeamVs( proposedMatch.roundNum+i, proposedMatch.homeTeam ) == -1 ){
+                for( var i: number = 0; i < max; i++ ){
+                    if( fixture.getHomeTeamVs( proposedMatch.roundNum+2+i, proposedMatch.homeTeam ) == -1 ){
                         locked = false;
                         break;
                     } 
@@ -82,9 +82,9 @@ export class ConstraintFactory {
             }
 
             // Checking future games. The count should carry over.
-            for( var i: number = 1; i < max; i++ ){
+            for( var i: number = 0; i < max; i++ ){
                 count++;
-                if( fixture.getAwayTeamVs( proposedMatch.roundNum+i, proposedMatch.homeTeam ) == -1 ){
+                if( fixture.getAwayTeamVs( proposedMatch.roundNum+1+i, proposedMatch.homeTeam ) == -1 ){
                     count = 0;
                 }
                 if( count > max ){
@@ -92,8 +92,8 @@ export class ConstraintFactory {
                 } else if ( count == max ){
                     // Checking if this match prevents the home team from playing both home or away in the previous rounds.
                     locked = true;
-                    for( var i: number = 1; i < max; i++ ){
-                        if( fixture.getHomeTeamVs( proposedMatch.roundNum-i, proposedMatch.homeTeam ) == -1 ){
+                    for( var j: number = 0; j < max; j++ ){
+                        if( fixture.getHomeTeamVs( proposedMatch.roundNum-2-j, proposedMatch.homeTeam ) == -1 ){
                             locked = false;
                             break;
                         } 
@@ -141,8 +141,8 @@ export class ConstraintFactory {
             } else if ( count == max ){
                 // Checking if this match prevents the home team from playing both home or away in the following rounds.
                 locked = true;
-                for( var i: number = 1; i < max; i++ ){
-                    if( fixture.getAwayTeamVs( proposedMatch.roundNum+i, proposedMatch.awayTeam ) == -1 ){
+                for( var i: number = 0; i < max; i++ ){
+                    if( fixture.getAwayTeamVs( proposedMatch.roundNum+2+i, proposedMatch.awayTeam ) == -1 ){
                         locked = false;
                         break;
                     } 
@@ -153,9 +153,9 @@ export class ConstraintFactory {
             }
 
             // Checking future games. The count should carry over.
-            for( var i: number = 1; i < max; i++ ){
+            for( var i: number = 0; i < max; i++ ){
                 count++;
-                if( fixture.getHomeTeamVs( proposedMatch.roundNum+i, proposedMatch.awayTeam ) == -1 ){
+                if( fixture.getHomeTeamVs( proposedMatch.roundNum+1+i, proposedMatch.awayTeam ) == -1 ){
                     count = 0;
                 }
                 if( count > max ){
@@ -163,8 +163,8 @@ export class ConstraintFactory {
                 } else if ( count == max ){
                     // Checking if this match prevents the home team from playing both home or away in the previous rounds.
                     locked = true;
-                    for( var i: number = 1; i < max; i++ ){
-                        if( fixture.getAwayTeamVs( proposedMatch.roundNum-i, proposedMatch.awayTeam ) == -1 ){
+                    for( var j: number = 0; j < max; j++ ){
+                        if( fixture.getAwayTeamVs( proposedMatch.roundNum-2-j, proposedMatch.awayTeam ) == -1 ){
                             locked = false;
                             break;
                         } 
