@@ -11,6 +11,9 @@ import { Team } from '../../app/models/team'
 import { FixtureConfig } from '../../app/models/fixture_config'
 import * as Promise from 'bluebird'
 
+/**
+ * Unit tests for the FixtureService
+ */
 describe('services FixtureService', () => {
     beforeEach((done) => {
         let databaseService = databaseInjector.get(DatabaseService)
@@ -43,7 +46,7 @@ describe('services FixtureService', () => {
             return leagueService.getLeagues()
         }).then((l) => {
             leagues = l.toArray()
-            fixture.setLeague(leagues[0].id)
+            fixture.setLeague(leagues[0])
             return fixtureService.addFixture(fixture)
         }).then(() => {
             return fixtureService.getFixtures()
@@ -285,7 +288,7 @@ describe('services FixtureService', () => {
         }).then((l) => {
             leagues = l.toArray()
             for (let fixture of fixtures) {
-                fixture.setLeague(leagues[2])
+                fixture.setLeague(leagues[0])
             }
             return Promise.each(fixtures, (item, index, len) => {
                 return fixtureService.addFixture(item)
@@ -301,7 +304,7 @@ describe('services FixtureService', () => {
             }))
             return fixtureService.deleteFixture(fixtures[3])
         }).then(() => {
-            fixtures.splice(2, 1)
+            fixtures.splice(3, 1)
             return fixtureService.getFixtures()
         }).then((l) => {
             expect(l.toArray().length).toBe(4)
