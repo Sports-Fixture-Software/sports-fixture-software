@@ -2,6 +2,9 @@ import { DatabaseService } from '../../app/services/database.service'
 import { AppConfig } from '../../app/util/app_config'
 import * as fs from 'fs'
 
+/**
+ * Unit tests for the DatabaseService
+ */
 describe('services DatabaseService', () => {
     beforeEach(() => {
         try {

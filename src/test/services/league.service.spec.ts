@@ -11,6 +11,9 @@ import { Team } from '../../app/models/team'
 import { LeagueConfig } from '../../app/models/league_config'
 import * as Promise from 'bluebird'
 
+/**
+ * Unit tests for the LeagueService
+ */
 describe('services LeagueService', () => {
     beforeEach((done) => {
         let databaseService = databaseInjector.get(DatabaseService)
