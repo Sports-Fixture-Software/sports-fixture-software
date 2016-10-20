@@ -7,7 +7,7 @@ import * as Promise from 'bluebird'
 @Injectable()
 export class TeamService {
 
-    getTeams(league: League): Promise<Collection<Team>> {
+    getTeams(league?: League): Promise<Collection<Team>> {
         if (league) {
             return league.fetch({
                 withRelated: [
