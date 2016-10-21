@@ -1,17 +1,8 @@
-import { plotFixtureRotation } from '../../../../app/services/scheduler/dfs/plot_fixture_rotation'
-import { Match, FixtureInterface, Team } from '../../../../app/services/scheduler/dfs/fixture_constraints'
-import { Constraint } from '../../../../app/util/constraint_factory'
+import { plotFixtureRotation } from '../../../../../app/services/scheduler/dfs/plot_fixture_rotation'
+import { Team } from '../../../../../app/services/scheduler/dfs/fixture_constraints'
+import { Constraint } from '../../../../../app/util/constraint_factory'
+import { TestTeamNoConstraints } from './test_util'
 import * as process from 'process'
-
-// No special constraints
-class TestTeamNoConstraints implements Team {
-
-    constructor() { }
-
-    constraintsSatisfied(fixture: FixtureInterface, proposedMatch: Match, home: boolean): Constraint {
-        return Constraint.SATISFIED;
-    }
-}
 
 process.on('message', (args: any[]) => {
     // can't send functions to processes, so create teams in this process
