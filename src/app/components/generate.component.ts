@@ -13,6 +13,7 @@ import { MatchService } from '../services/match.service'
 import { SchedulerService } from '../services/scheduler/dfs/scheduler.service'
 import { Collection } from '../services/collection'
 import { DateTime } from '../util/date_time'
+import { AppConfig } from '../util/app_config'
 import * as moment from 'moment'
 
 @Component({
@@ -65,7 +66,8 @@ export class GenerateComponent implements OnInit, OnDestroy {
                 this.notifyService.emitGenerateState(GenerateState.Generated)
             }).catch((err: Error) => {
                 this.generateButton.showError('Error generating fixture',
-                    err.message)
+                    'A database error occurred when generating the fixture. ' + AppConfig.DatabaseErrorGuidance)
+                AppConfig.log(err)
                 this.changeref.detectChanges()
             })
         }

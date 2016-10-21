@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs/subscription';
-
+import { Subscription } from 'rxjs/Subscription';
 import { League } from '../models/league';
 import { LeagueService } from '../services/league.service';
 import { Collection } from '../services/collection'

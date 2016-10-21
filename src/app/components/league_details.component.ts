@@ -9,6 +9,7 @@ import { ButtonPopover } from './button_popover.component'
 import { InputPopover } from './input_popover.component'
 import { LeagueForm } from '../models/league.form'
 import { Validator } from '../util/validator'
+import { AppConfig } from '../util/app_config'
 import { PopoverContent } from 'ng2-popover'
 import { Subscription } from 'rxjs/Subscription'
 
@@ -82,7 +83,8 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
             })
         }).catch((err: Error) => {
             this.deleteLeagueButton.showError('Error deleting league',
-                err.message)
+                'A database error occurred when deleting the league. ' + AppConfig.DatabaseErrorGuidance)
+            AppConfig.log(err)
             this.changeref.detectChanges()
         })
     }
@@ -157,7 +159,9 @@ export class LeagueDetailsComponent implements OnInit, OnDestroy {
             this.leagueForm.get('consecutiveAwayGamesMaxEnabled').disable()
             this.changeref.detectChanges()
         }).catch((err: Error) => {
-            this.saveChangesButton.showError('Error saving changes', err.message)
+            this.saveChangesButton.showError('Error saving changes',
+                'A database error occurred when saving the league. ' + AppConfig.DatabaseErrorGuidance)
+            AppConfig.log(err)
             this.changeref.detectChanges()
         })
     }

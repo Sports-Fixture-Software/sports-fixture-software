@@ -1,4 +1,4 @@
-import { databaseInjector } from '../bootstrap'
+import { databaseInjector } from '../services/database_injector'
 import { DatabaseService } from '../services/database.service'
 import { League } from './league'
 import { TeamConfig } from './team_config'
@@ -25,6 +25,9 @@ export class Team extends (databaseInjector.get(DatabaseService) as DatabaseServ
     get teamConfigPreLoaded(): TeamConfig {
         return this.related('teamConfig') as TeamConfig
     }
+
+    static ANY_TEAM_ID = -1
+    static BYE_TEAM_ID: number = null
 
     /**
      * Needed by bookshelf to setup relationship

@@ -7,6 +7,7 @@ import { FixtureService } from '../services/fixture.service'
 import { League } from '../models/league'
 import { Fixture } from '../models/fixture'
 import { FixtureForm } from '../models/fixture.form'
+import { AppConfig } from '../util/app_config'
 import { PopoverContent } from 'ng2-popover';
 import { ButtonPopover } from './button_popover.component'
 
@@ -62,7 +63,9 @@ export class FixtureListComponent implements OnInit, OnDestroy {
             this.resetForm()
             this._changeref.detectChanges()
         }).catch((err: Error) => {
-            this.createFixtureButton.showError('Error creating fixture', err.message)
+            this.createFixtureButton.showError('Error creating fixture',
+                'A database error occurred when creating the fixture. ' + AppConfig.DatabaseErrorGuidance)
+            AppConfig.log(err)
             this._changeref.detectChanges()
         })
     }
