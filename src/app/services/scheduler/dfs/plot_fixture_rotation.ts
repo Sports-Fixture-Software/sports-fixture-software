@@ -1,4 +1,5 @@
-import { Match, Constraint, Team, MatchState, ConTable } from './fixture_constraints';
+import { Match, Team, MatchState, ConTable } from './fixture_constraints';
+import { Constraint } from '../../../util/constraint_factory'
 
 /**
  * plotFixtureRotation

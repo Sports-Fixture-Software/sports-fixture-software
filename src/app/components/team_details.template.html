@@ -1,4 +1,4 @@
-<form [formGroup]="teamForm" novalidate (ngSubmit)="updateTeam(teamForm.value)">
+<form [formGroup]="teamForm" novalidate (ngSubmit)="updateTeam(teamForm.value)" aria-label="Edit Team Form">
     <div class="row">
         <div class="col-xs-6">
             <h2>Team Details</h2>
@@ -14,18 +14,18 @@
                     <button class="btn btn-default horiz-sep" type="button" (click)="deleteTeamPopover.hide()">
                         Cancel
                     </button>
-                    <button-popover #deleteTeamButton btn-class="btn btn-primary" type="button" (click)="onDeleteTeam()">
+                    <button-popover #deleteTeamButton btn-class="btn btn-primary" type="button" (click)="onDeleteTeam()" aria-label="Confirm Delete Team">
                         Delete Team
                     </button-popover>
                 </div>
             </popover-content>
 
             <div class="pull-right">
-                <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditTeam()" type="button">Edit Team</button>
-                <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteTeamPopover" popoverPlacement="bottom">Delete Team</button>
+                <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditTeam()" type="button" aria-label="Edit Team">Edit Team</button>
+                <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteTeamPopover" popoverPlacement="bottom" aria-label="Delete Team">Delete Team</button>
                 <button-popover #saveChangesButton btn-class="btn btn-primary horiz-sep vert-sep pull-right" *ngIf="editing" type="submit"
                     [disabled]="!teamForm.valid">Save Changes</button-popover>
-                <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()">Revert</button>
+                <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()" aria-label="Revert">Revert</button>
             </div>
         </div>
     </div>
@@ -40,19 +40,19 @@
             <tr>
                 <td></td>
                 <td>
-                    <div class="form-title"><strong>Name</strong></div>
+                    <div class="form-title" id="teamName"><strong>Name</strong></div>
                 </td>
                 <td *ngIf="!editing" colspan="2">
-                    <div class="form-title-ro">{{ team?.name }}</div>
+                    <div class="form-title-ro" aria-labelledby="teamName">{{ team?.name }}</div>
                 </td>
                 <td *ngIf="editing" colspan="2">
-                    <input type="text" class="form-control" formControlName="name" />
+                    <input type="text" class="form-control" formControlName="name" aria-labelledby="teamName"/>
                 </td>
             </tr>
             <tr>
                 <td rowspan="2">
                     <div class="form-control-ro">
-                        <input type="checkbox" [disabled]="!editing" formControlName="homeGamesEnabled" />
+                        <input type="checkbox" formControlName="homeGamesEnabled" />
                     </div>
                 </td>
                 <td rowspan="2">
@@ -86,7 +86,7 @@
             <tr>
                 <td rowspan="2">
                     <div class="form-control-ro">
-                        <input type="checkbox" [disabled]="!editing" formControlName="awayGamesEnabled" />
+                        <input type="checkbox" formControlName="awayGamesEnabled" />
                     </div>
                 </td>
                 <td rowspan="2">

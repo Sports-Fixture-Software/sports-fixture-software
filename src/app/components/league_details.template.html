@@ -1,4 +1,4 @@
-<form [formGroup]="leagueForm" novalidate (ngSubmit)="updateLeague(leagueForm.value)">
+<form [formGroup]="leagueForm" novalidate (ngSubmit)="updateLeague(leagueForm.value)" aria-label="Edit League Form">
     <div class="row">
         <div class="col-xs-6">
             <h2>League Details</h2>
@@ -14,17 +14,17 @@
                     <button class="btn btn-default horiz-sep" type="button" (click)="deleteLeaguePopover.hide()">
                         Cancel
                     </button>
-                    <button-popover #deleteLeagueButton btn-class="btn btn-primary" type="button" (click)="onDeleteLeague()">
+                    <button-popover #deleteLeagueButton btn-class="btn btn-primary" type="button" (click)="onDeleteLeague()" aria-label="Confirm Delete League">
                         Delete League
                     </button-popover>
                 </div>
             </popover-content>
 
             <div class="pull-right">
-                <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditLeague()" type="button">Edit League</button>
-                <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteLeaguePopover" popoverPlacement="bottom">Delete League</button>
-                <button-popover #saveChangesButton *ngIf="editing" btn-class="btn btn-primary horiz-sep vert-sep pull-right" type="submit" [disabled]="!leagueForm.valid">Save Changes</button-popover>
-                <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()">Revert</button>
+                <button *ngIf="!editing" class="btn btn-primary horiz-sep vert-sep pull-right" (click)="onEditLeague()" type="button" aria-label="Edit League">Edit League</button>
+                <button *ngIf="!editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" [popover]="deleteLeaguePopover" popoverPlacement="bottom" aria-label="Delete League">Delete League</button>
+                <button-popover #saveChangesButton *ngIf="editing" btn-class="btn btn-primary horiz-sep vert-sep pull-right" type="submit" [disabled]="!leagueForm.valid" aria-label="Save Changes">Save Changes</button-popover>
+                <button *ngIf="editing" class="btn btn-default horiz-sep vert-sep pull-right" type="button" (click)="onRevert()" aria-label="Revert">Revert</button>
             </div>
         </div>
     </div>
@@ -39,19 +39,19 @@
             <tr>
                 <td></td>
                 <td>
-                    <div class="form-title"><strong>Name</strong></div>
+                    <div id="leagueName" class="form-title"><strong>Name</strong></div>
                 </td>
                 <td *ngIf="!editing" colspan="2">
-                    <div class="form-title-ro">{{ league?.name }}</div>
+                    <div class="form-title-ro" aria-labelledby="leagueName">{{ league?.name }}</div>
                 </td>
                 <td *ngIf="editing" colspan="2">
-                    <input type="text" class="form-control" formControlName="name" />
+                    <input type="text" class="form-control" formControlName="name" aria-labelledby="leagueName" />
                 </td>
             </tr>
             <tr>
                 <td>
                     <div class="form-control-ro">
-                        <input type="checkbox" [disabled]="!editing" formControlName="consecutiveHomeGamesMaxEnabled" />
+                        <input type="checkbox" formControlName="consecutiveHomeGamesMaxEnabled" />
                     </div>
                 </td>
                 <td>
@@ -72,7 +72,7 @@
             <tr>
                 <td>
                     <div class="form-control-ro">
-                        <input type="checkbox" [disabled]="!editing" formControlName="consecutiveAwayGamesMaxEnabled" />
+                        <input type="checkbox" formControlName="consecutiveAwayGamesMaxEnabled" />
                     </div>
                 </td>
                 <td>
