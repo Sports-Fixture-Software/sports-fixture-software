@@ -215,9 +215,15 @@ export class ConTable implements FixtureInterface {
 
         // Setting this match in the fixture
         for(var i: number = 0; i < this.roundCount; i++){
+            if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] -= 1;    
+            }
             this.games[i][match.homeTeam][match.awayTeam] |= state;
+            
+            if( this.games[i][match.awayTeam][match.homeTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] -= 1;    
+            }
             this.games[i][match.awayTeam][match.homeTeam] |= state;
-            this.domainOfRound[i] -= 2;
         }
 
         // Informing the rest of the possible matches in the round of the set match.
@@ -263,8 +269,7 @@ export class ConTable implements FixtureInterface {
      */
     clearMatch(match: Match): boolean {
         // Checking for an illegal matchup
-        if( this.getMask(match) === MatchState.ILLEGAL ||
-            this.getMask(match) === MatchState.OPEN ){
+        if( (this.getMask(match) & MatchState.MATCH_IN_ROUND) === MatchState.MATCH_IN_ROUND ){
             return false;
         }
         
@@ -275,7 +280,6 @@ export class ConTable implements FixtureInterface {
         for(var i: number = 0; i < this.teamsCount-1; i++){
             this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
             this.games[i][match.awayTeam][match.homeTeam] &= MatchState.NOT_SET;
-            this.domainOfRound[i] += 2;
         }
 
         // Informing the rest of the possible matches in the round of the cleared match.
