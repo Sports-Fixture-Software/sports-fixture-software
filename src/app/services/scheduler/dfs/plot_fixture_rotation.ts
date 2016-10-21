@@ -61,16 +61,12 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
      * (Should not return 0 as equal matches are to be randomly sorted)
      */
     var cmpMinConfMaxDom = function(m1: Match, m2: Match): number {
-        // Get the domain size of the round
-        var m1Heur: number = matchupState.domainOfRound[m1.roundNum];
-        var m2Heur: number = matchupState.domainOfRound[m2.roundNum];
-
-        if( m1Heur === m2Heur ){
-             // If the domain is equal, sort by minimum matchup conflict
-            return m1.footPrnt - m2.footPrnt;
+        if( m1.footPrnt == m2.footPrnt ){
+             // If the minimum matchup conflict is equal, sort by maximum domain size
+            return matchupState.domainOfRound[m2.roundNum] - matchupState.domainOfRound[m1.roundNum];
         } else {
-            // Else, sort by maximum domain size 
-            return m1Heur - m2Heur;
+            // Else, sort by minimum matchup conflict 
+            return m1.footPrnt - m2.footPrnt;
         }
     }
 
