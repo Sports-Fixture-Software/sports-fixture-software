@@ -211,8 +211,11 @@ export class ConTable implements FixtureInterface {
         // Setting this match in the round
         this.games[match.roundNum][match.homeTeam][match.awayTeam] |= MatchState.MATCH_IN_ROUND;
 
+        let gamesPerRound = this.teamsCount - 1
+        let rotationNum = Math.floor(match.roundNum / gamesPerRound)
+
         // Setting this match in the fixture
-        for(var i: number = 0; i < this.roundCount; i++){
+        for(var i: number = rotationNum*gamesPerRound; i < Math.min((rotationNum*gamesPerRound) + gamesPerRound, this.roundCount); i++){
             this.games[i][match.homeTeam][match.awayTeam] |= state;
             this.games[i][match.awayTeam][match.homeTeam] |= state;
             this.domainOfRound[i] -= 2;
@@ -269,8 +272,11 @@ export class ConTable implements FixtureInterface {
         // Clearing this match in the round
         this.games[match.roundNum][match.homeTeam][match.awayTeam] &= MatchState.NOT_MIR;
 
+        let gamesPerRound = this.teamsCount - 1
+        let rotationNum = Math.floor(match.roundNum / gamesPerRound)
+
         // Clearing this match in the fixture
-        for(var i: number = 0; i < this.teamsCount-1; i++){
+        for(var i: number = rotationNum*gamesPerRound; i < Math.min((rotationNum*gamesPerRound) + gamesPerRound, this.roundCount); i++){
             this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
             this.games[i][match.awayTeam][match.homeTeam] &= MatchState.NOT_SET;
             this.domainOfRound[i] += 2;
@@ -321,8 +327,11 @@ export class ConTable implements FixtureInterface {
     calcFootPrint(match: Match): number {
         var openGamesOverlapped: number = 0;
 
+        let gamesPerRound = this.teamsCount - 1
+        let rotationNum = Math.floor(match.roundNum / gamesPerRound)
+
         // Footprint throughout other rounds
-        for(var i: number = 0; i < this.roundCount; i++){
+        for(var i: number = rotationNum*gamesPerRound; i < Math.min((rotationNum*gamesPerRound) + gamesPerRound, this.roundCount); i++){
             if( i != match.roundNum ){
                 if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
                     openGamesOverlapped += 1;
