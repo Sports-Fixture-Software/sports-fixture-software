@@ -1,6 +1,6 @@
 import { League } from '../models/league';
 import * as sqlite from 'sqlite3'
-import { databaseInjector } from '../bootstrap'
+import { databaseInjector } from './database_injector'
 import { DatabaseService } from './database.service'
 import { Collection } from './collection'
 import { Injectable } from '@angular/core'
