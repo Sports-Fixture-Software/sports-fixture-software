@@ -1,5 +1,6 @@
 import { plotFixtureRotation } from '../../../../app/services/scheduler/dfs/plot_fixture_rotation';
-import { Match, Constraint, FixtureInterface, Team } from '../../../../app/services/scheduler/dfs/fixture_constraints';
+import { Match, FixtureInterface, Team } from '../../../../app/services/scheduler/dfs/fixture_constraints';
+import { Constraint } from '../../../../app/util/constraint_factory'
 
 // No special constraints
 class TestTeamNoConstraints implements Team {

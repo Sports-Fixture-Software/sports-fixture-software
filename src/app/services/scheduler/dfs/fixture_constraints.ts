@@ -1,23 +1,10 @@
+import { Constraint } from '../../../util/constraint_factory'
 
 export class Match {
     constructor( 
         public roundNum: number,
         public homeTeam: number,
         public awayTeam: number ){}
-}
-
-/**
- * PLACEHOLDER FOR THE CONSTRAINT ENUMERATION THAT COMES WITH THE CONSTRAINT
- * FUNCTION FACTORY TO BE DEVELOPED LATER ON. 
- */
-export enum Constraint {
-    SATISFIED = 0,
-    MAX_HOME = 1,
-    MIN_HOME = 2,
-    MAX_AWAY = 3,
-    MIN_AWAY = 4,
-    MAX_CONSEC_HOME = 5,
-    MAX_CONSEC_AWAY = 6
 }
 
 /**
@@ -76,9 +63,11 @@ export enum MatchState {
     AWAY_PLAYING_AWAY = 1 << 2, // The AWAY team in this matchup is in another AWAY match this round and is unavailable
     HOME_PLAYING_AWAY = 1 << 3, // The HOME team in this matchup is in another AWAY match this round and is unavailable
     MATCH_SET = 1 << 4,         // This match has already been set in this rotation, perhaps in another round 
-    RESERVED = 1 << 5,          // This match has been set from the start and may not be changed
-    ILLEGAL = 1 << 6,           // Matchup cannot be used (negative team/round number, etc.)
+    MATCH_IN_ROUND = 1 << 5,    // This match has already been set in this round 
+    RESERVED = 1 << 6,          // This match has been set from the start and may not be changed
+    ILLEGAL = 1 << 7,           // Matchup cannot be used (negative team/round number, etc.)
     NOT_SET = 0xFFFF^MATCH_SET, // Inverse bitmasks. Used for clearing matches from a ConTable.
+    NOT_MIR = 0xFFFF^MATCH_IN_ROUND,
     NOT_HPH = 0xFFFF^HOME_PLAYING_HOME,
     NOT_APH = 0xFFFF^AWAY_PLAYING_HOME,
     NOT_APA = 0xFFFF^AWAY_PLAYING_AWAY,
@@ -122,7 +111,7 @@ export class ConTable implements FixtureInterface {
               awayTeam >= this.teamsCount || awayTeam < 0)){
             
             for( var i: number = 0; i < this.teamsCount; i++ ){
-                if( (this.games[round][i][awayTeam] & MatchState.MATCH_SET) === MatchState.MATCH_SET ){
+                if( (this.games[round][i][awayTeam] & MatchState.MATCH_IN_ROUND) === MatchState.MATCH_IN_ROUND ){
                     return i;
                 }
             }
@@ -137,7 +126,7 @@ export class ConTable implements FixtureInterface {
               homeTeam >= this.teamsCount || homeTeam < 0)){
             
             for( var i: number = 0; i < this.teamsCount; i++ ){
-                if( (this.games[round][homeTeam][i] & MatchState.MATCH_SET) === MatchState.MATCH_SET ){
+                if( (this.games[round][homeTeam][i] & MatchState.MATCH_IN_ROUND) === MatchState.MATCH_IN_ROUND ){
                     return i;
                 }
             }
@@ -210,7 +199,10 @@ export class ConTable implements FixtureInterface {
         if( this.getMask(match) !== MatchState.OPEN ){
             return false;
         }
-        
+                
+        // Setting this match in the round
+        this.games[match.roundNum][match.homeTeam][match.awayTeam] |= MatchState.MATCH_IN_ROUND;
+
         // Setting this match in the fixture
         for(var i: number = 0; i < this.roundCount; i++){
             this.games[i][match.homeTeam][match.awayTeam] |= state;
@@ -245,6 +237,9 @@ export class ConTable implements FixtureInterface {
             return false;
         }
         
+        // Clearing this match in the round
+        this.games[match.roundNum][match.homeTeam][match.awayTeam] &= MatchState.NOT_MIR;
+
         // Clearing this match in the fixture
         for(var i: number = 0; i < this.teamsCount-1; i++){
             this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
