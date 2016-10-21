@@ -187,10 +187,14 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
                    footprint of remaining matches.
                  */
                 var nextMQueue: Match[] = new Array();
-                var domainOfFixture: number = mQueue.length; // Sum of domain of all rounds in the ConTable
+                var domainOfFixture: number = 0; // Sum of domain of all rounds in the ConTable
                 var matchesRemaining: number = matchCount - crntMatchCount - 1; // The -1 is for the match set in table.setMatch above
                 var minRemainingFtpt: number = (2*(matchesRemaining-1)); // Minimum footprint of all remaining matches sans the one added to the queue
                 
+                for( var j: number = 0; j < roundCount; j++ ){
+                    domainOfFixture += table.domainOfRound[j];
+                }
+
                 for( var j: number = 0; j < mQueue.length; j++ ){
                     if( table.getMask( mQueue[j] ) === MatchState.OPEN &&
                         table.calcFootPrint( mQueue[j] ) + minRemainingFtpt <= domainOfFixture ){
