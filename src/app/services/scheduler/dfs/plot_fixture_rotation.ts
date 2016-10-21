@@ -67,17 +67,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
 
         if( m1Heur === m2Heur ){
              // If the domain is equal, sort by minimum matchup conflict
-            if( m1.footPrnt === m2.footPrnt ){
-                // If both heuristics are equal, randomly give negative or positive
-                if( Math.random() < 0.5 ){
-                    return 0.5;
-                } else {
-                    return -0.5;
-                }
-            } else {
-                // Else, sort by minimum conflicts caused by the match
-                return m1.footPrnt - m2.footPrnt;
-            }
+            return m1.footPrnt - m2.footPrnt;
         } else {
             // Else, sort by maximum domain size 
             return m1Heur - m2Heur;
@@ -123,12 +113,15 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
     function fillFrom( table: ConTable, teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[] ): boolean {
         var teamsCount: number = teams.length;
         var roundCount: number = teamsCount - 1;
+        var matchCount: number = (roundCount*(teamsCount/2));
         
         // Checking if we are recursing past our limit. This should not happen.
-        if( crntMatchCount > roundCount * (teamsCount/2) ){
+        if( crntMatchCount > matchCount ){
             throw new Error("Max search depth exceeded.");
         }
         
+        var equalStack: Match[] = [];
+        var eqMatchIndex: number;
         var matchFound: boolean = false;
         var currentMatch: Match;
         var awayCnsnt: Constraint;
@@ -136,8 +129,31 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
 
         // Trying each matchup in the mQueue
         for( var i: number = 0; i < mQueue.length; i++ ){
-            currentMatch = mQueue[i];
+            
+            // Matches are selected in random order if equal
+            // The random order is set up below where required
+            if( equalStack.length <= 0 ){
+                // Gathering all matches of equal best heuristic
+                eqMatchIndex = i;
+                equalStack = [];
+                while( eqMatchIndex < mQueue.length && cmpMinConfMaxDom(mQueue[i], mQueue[eqMatchIndex]) === 0 ){
+                    equalStack.push(mQueue[eqMatchIndex]);
+                    eqMatchIndex++;
+                }
 
+                // Scramble the order of equal matches
+                equalStack.sort(function(a: Match, b: Match): number {
+                    if( Math.random() > 0.5 ){
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                });
+            }
+
+            // Getting next random match of equal heuristic priority
+            currentMatch = equalStack.pop();
+            
             // Checking constraints
             awayCnsnt = teams[currentMatch.awayTeam].constraintsSatisfied(table,currentMatch,false);
             if( awayCnsnt !== Constraint.SATISFIED ){
@@ -152,17 +168,35 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
             // Our match will work now if all team constraints are satisfied. 
             if( homeCnsnt === Constraint.SATISFIED && awayCnsnt === Constraint.SATISFIED ){
                 
+                // Reporting progress to console
+                if( verbose && crntMatchCount <= 153 ){
+                    console.log(" Search Level " + crntMatchCount + " out of " + matchCount + ". i=" + i + ". Setting match R" + currentMatch.roundNum + ", H" + currentMatch.homeTeam + ", A" + currentMatch.awayTeam);
+                    var domainOfFixture: number = 0;
+                    for( var s: number = 0; s < roundCount; s++ ){
+                        domainOfFixture += table.domainOfRound[s];
+                    }
+                    console.log("Round domain sum before = " + domainOfFixture + ", Match ftprnt = " + currentMatch.footPrnt + ", Matches Left To Be Set = " + (matchCount - crntMatchCount) );
+                }
+
                 // Set the match up
                 table.setMatch(currentMatch);
                 
                 /* Making a new mQueue for the next level of the search tree.
                    No new matches are made available by adding a match, so we 
                    can reuse the matches from the mQueue given to us, if they 
-                   are still legal.
+                   are still legal and usable. Usable  matches must not have 
+                   a bigger footprint than the number of matches remaining that
+                   must set.
                  */
                 var nextMQueue: Match[] = new Array();
+                var domainOfFixture: number = 0;
+                var matchesRemaining: number = matchCount - crntMatchCount;
+                for( var j: number = 0; j < roundCount; j++ ){
+                    domainOfFixture += table.domainOfRound[j];
+                }
                 for( var j: number = 0; j < mQueue.length; j++ ){
-                    if( table.getMask( mQueue[j] ) === MatchState.OPEN ){
+                    if( table.getMask( mQueue[j] ) === MatchState.OPEN &&
+                        domainOfFixture - table.calcFootPrint( mQueue[j] ) >= (matchesRemaining-2) ){
                         // Legal matches are duplicated and updated for the next recursion level
                         nextMQueue.push( new Match(
                             mQueue[j].roundNum, 
@@ -175,12 +209,6 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
 
                 // Sorting the new mQueue by the min-conflicts max-domain-size heuristics
                 nextMQueue.sort(cmpMinConfMaxDom);
-
-                // Reporting progress to console
-                if( verbose && crntMatchCount <= 7 ){
-                    console.log("Search Level " + crntMatchCount + " out of " + (roundCount * (teamsCount/2)) + " (Showing further levels slows the program down)");
-                    console.log("Set match R" + currentMatch.roundNum + ", H" + currentMatch.homeTeam + ", A" + currentMatch.awayTeam);
-                }
 
                 if( verbose ) {
                     permCounter++;
@@ -200,7 +228,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
         }
 
         // Checking if the conTable is fully filled. (Only true at bottom of recursion tree.)
-        if( crntMatchCount === (roundCount*(teamsCount/2)) ){
+        if( crntMatchCount === matchCount ){
             // If so, we can go up the recursion stack with success
             matchFound = true;
         }
@@ -275,7 +303,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
     // Sorting the matchup queue by minimum variable domain, and then minimum value footprint
     matchQueue.sort(cmpMinConfMaxDom);
 
-    // Populate the rest of the ConTable with fillFrom, starting the head of matchQueue
+    // Populate the rest of the ConTable with fillFrom, starting from a random round
     var finalMatches: Match[] = resvdMatches.slice();
     if( fillFrom(matchupState, teams, finalMatches, resvdMatches.length, matchQueue ) ){
         if( verbose ){
