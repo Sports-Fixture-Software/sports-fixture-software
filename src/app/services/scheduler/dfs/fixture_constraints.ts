@@ -211,6 +211,9 @@ export class ConTable implements FixtureInterface {
         }
                 
         // Setting this match in the round
+        if( this.games[match.roundNum][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
+                this.domainOfRound[match.roundNum] -= 1;    
+        }
         this.games[match.roundNum][match.homeTeam][match.awayTeam] |= MatchState.MATCH_IN_ROUND;
 
         // Setting this match in the fixture
@@ -218,11 +221,13 @@ export class ConTable implements FixtureInterface {
             if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
                 this.domainOfRound[i] -= 1;    
             }
+
             this.games[i][match.homeTeam][match.awayTeam] |= state;
             
             if( this.games[i][match.awayTeam][match.homeTeam] == MatchState.OPEN ){
                 this.domainOfRound[i] -= 1;    
             }
+
             this.games[i][match.awayTeam][match.homeTeam] |= state;
         }
 
@@ -269,7 +274,7 @@ export class ConTable implements FixtureInterface {
      */
     clearMatch(match: Match): boolean {
         // Checking for an illegal matchup
-        if( (this.getMask(match) & MatchState.MATCH_IN_ROUND) === MatchState.MATCH_IN_ROUND ){
+        if( (this.getMask(match) & MatchState.MATCH_IN_ROUND) !== MatchState.MATCH_IN_ROUND ){
             return false;
         }
         
@@ -279,7 +284,14 @@ export class ConTable implements FixtureInterface {
         // Clearing this match in the fixture
         for(var i: number = 0; i < this.teamsCount-1; i++){
             this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
+            if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] += 1;
+            }
+
             this.games[i][match.awayTeam][match.homeTeam] &= MatchState.NOT_SET;
+            if( this.games[i][match.awayTeam][match.homeTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] += 1;
+            }
         }
 
         // Informing the rest of the possible matches in the round of the cleared match.
