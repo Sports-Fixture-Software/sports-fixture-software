@@ -16,9 +16,6 @@ import { Constraint } from '../../../util/constraint_factory'
  *               teams or odd teams + bye)
  * resvdMatches: Match[] The matches that are already locked in before 
  *                       generation begins. Order not needed.
- * numRounds: The number of rounds to generate. If greater than the number of
- *            teams minus one, the fixture will be broken into "chunks" and the
- *            DFS solver run on each chunk.
  * verbose: boolean Set to true if you want the function to post progress to 
  *                  the console.
  * 
@@ -40,7 +37,7 @@ import { Constraint } from '../../../util/constraint_factory'
  * fillfrom() errors
  * ConTable.x() errors 
  */
-export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRounds: number, verbose: boolean = false ): Match[] {
+export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbose: boolean = false ): Match[] {
     
     var permCounter: number = 1;
     var matchupState: ConTable;
@@ -226,92 +223,73 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
         throw new Error('Odd number of teams in the teams parameter. Add a bye to make it even.');
     }
 
-    let finalMatches: Match[] = []
-    
-    let gamesPerChunk = teams.length - 1
-    let numChunk = Math.ceil(numRounds / gamesPerChunk)
-    for (let chunk = 0; chunk < numChunk; chunk++) {
+    // Creating and populating matrix that stores the matchup states.
+    matchupState = new ConTable( teams.length );
+    var successFlag: boolean = true;
 
-        let chunkMatches: Match[] = []
-
-        // Creating and populating matrix that stores the matchup states.
-        matchupState = new ConTable(teams.length);
-        var successFlag: boolean = true;
-
-        for (var i: number = 0; i < resvdMatches.length; i++) {
-            // translate the round number to align with this chunk
-            if (resvdMatches[i].roundNum >= chunk * gamesPerChunk && resvdMatches[i].roundNum < chunk * gamesPerChunk + gamesPerChunk) {
-                let match = new Match(resvdMatches[i].roundNum - (gamesPerChunk * chunk), resvdMatches[i].homeTeam, resvdMatches[i].awayTeam)
-                chunkMatches.push(match)
-                successFlag = matchupState.setMatch(match, (MatchState.MATCH_SET | MatchState.RESERVED));
-                if (!successFlag) {
-                    throw new Error('Reserved Matches clash with basic constraints in this rotation.');
-                }
-            }
+    for( var i: number = 0; i < resvdMatches.length; i++ ){
+        successFlag = matchupState.setMatch(resvdMatches[i], (MatchState.MATCH_SET | MatchState.RESERVED));
+        if( !successFlag ){
+            throw new Error('Reserved Matches clash with basic constraints in this rotation.');
         }
+    }
 
-        // Initialising Look-ahead queue. Uses a min-conflicts -> max-domain-size heuristic
-        var lookMatch: Match = new Match(0, 0, 0);
-        var matchMask: number = matchupState.getMask(lookMatch);
-        var matchQueue: Match[] = new Array();
+    // Initialising Look-ahead queue. Uses a min-conflicts -> max-domain-size heuristic
+    var lookMatch: Match = new Match(0,0,0);
+    var matchMask: number = matchupState.getMask(lookMatch);
+    var matchQueue: Match[] = new Array();
     
-        // Checking available matchups for the number of conflicts they would cause (min-conflicts heuristic)
-        // Rounds
-        for (var i: number = 0; i < teams.length - 1; i++) {
-            if (matchupState.domainOfRound[i] > 0) {
-                lookMatch.roundNum = i;
+    // Checking available matchups for the number of conflicts they would cause (min-conflicts heuristic)
+    // Rounds
+    for( var i: number = 0; i < teams.length-1; i++ ){
+        if( matchupState.domainOfRound[i] > 0 ){
+            lookMatch.roundNum = i;
             
-                // Home Teams
-                for (var j: number = 0; j < teams.length; j++) {
-                    lookMatch.homeTeam = j;
-                    matchMask = matchupState.getMask(lookMatch);
-                    if ((matchMask & MatchState.HOME_PLAYING_AWAY) === 0 &&
-                        (matchMask & MatchState.HOME_PLAYING_HOME) === 0) {
+            // Home Teams
+            for( var j: number = 0; j < teams.length; j++ ){
+                lookMatch.homeTeam = j;
+                matchMask = matchupState.getMask(lookMatch);
+                if( (matchMask & MatchState.HOME_PLAYING_AWAY) === 0 &&
+                    (matchMask & MatchState.HOME_PLAYING_HOME) === 0 ){
                     
-                        // Away Teams
-                        for (var k: number = 0; k < teams.length; k++) {
-                            lookMatch.awayTeam = k;
-                            matchMask = matchupState.getMask(lookMatch);
-                            if (j !== k && matchMask === MatchState.OPEN) {
-                                // This match is in the domain of the current round.
+                    // Away Teams
+                    for( var k: number = 0; k < teams.length; k++ ){
+                        lookMatch.awayTeam = k;
+                        matchMask = matchupState.getMask(lookMatch);
+                        if( j !== k && matchMask === MatchState.OPEN ){
+                            // This match is in the domain of the current round.
                             
-                                // Calculating the number of conflicts that the match will cause
-                                lookMatch.footPrnt = matchupState.calcFootPrint(lookMatch);
+                            // Calculating the number of conflicts that the match will cause
+                            lookMatch.footPrnt = matchupState.calcFootPrint( lookMatch );
 
-                                // Adding to match queue
-                                matchQueue.push(new Match(i, j, k, lookMatch.footPrnt));
+                            // Adding to match queue
+                            matchQueue.push( new Match(i,j,k,lookMatch.footPrnt) );
 
-                            }
                         }
                     }
                 }
             }
         }
+    }
     
-        // Sorting the matchup queue by minimum variable domain, and then minimum value footprint
-        matchQueue.sort(cmpMinConfMaxDom);
+    // Sorting the matchup queue by minimum variable domain, and then minimum value footprint
+    matchQueue.sort(cmpMinConfMaxDom);
 
-        // Populate the rest of the ConTable with fillFrom, starting the head of matchQueue
-        if (fillFrom(matchupState, teams, chunkMatches, chunkMatches.length, matchQueue)) {
-            if (verbose) {
-                console.log(`Solution found after ${permCounter} permutations (chunk ${chunk}).`)
-            }
-            for (let match of chunkMatches) {
-                match.roundNum = match.roundNum + (gamesPerChunk * chunk)
-                if (match.roundNum < numRounds) {
-                    finalMatches.push(match)
-                }
-            }
-        } else {
-            if (verbose) {
-                console.log(`No solution found after ${permCounter} permutations (chunk ${chunk}).`)
-            }
-
-            throw new Error("Solution could not be found in the search space.");
+    // Populate the rest of the ConTable with fillFrom, starting the head of matchQueue
+    var finalMatches: Match[] = resvdMatches.slice();
+    if( fillFrom(matchupState, teams, finalMatches, resvdMatches.length, matchQueue ) ){
+        if( verbose ){
+            console.log("Solution found after " + permCounter + " permutations.")
         }
+        
+        // Sorting finalMatches by round and returning
+        finalMatches.sort(function(a: Match, b: Match): number {return a.roundNum-b.roundNum});
+        return finalMatches;
     }
 
-    // Sorting finalMatches by round and returning
-    finalMatches.sort(function (a: Match, b: Match): number { return a.roundNum - b.roundNum });
-    return finalMatches;
+    if( verbose ){
+        console.log("No solution found after " + permCounter + " permutations.")
+    }
+
+    throw new Error("Solution could not be found in the search space.");
 }
