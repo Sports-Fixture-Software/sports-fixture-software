@@ -16,6 +16,7 @@ import { Constraint } from '../../../util/constraint_factory'
  *               teams or odd teams + bye)
  * resvdMatches: Match[] The matches that are already locked in before 
  *                       generation begins. Order not needed.
+ * numRounds: The number of rounds to generate.
  * verbose: boolean Set to true if you want the function to post progress to 
  *                  the console.
  * 
@@ -37,7 +38,7 @@ import { Constraint } from '../../../util/constraint_factory'
  * fillfrom() errors
  * ConTable.x() errors 
  */
-export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbose: boolean = false ): Match[] {
+export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRounds: number, verbose: boolean = false ): Match[] {
     
     var permCounter: number = 1;
     var matchupState: ConTable;
@@ -120,9 +121,8 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
      *    this function.
      * ConTable.x() errors
      */
-    function fillFrom( table: ConTable, teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[] ): boolean {
+    function fillFrom( table: ConTable, roundCount: number, teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[] ): boolean {
         var teamsCount: number = teams.length;
-        var roundCount: number = teamsCount - 1;
         
         // Checking if we are recursing past our limit. This should not happen.
         if( crntMatchCount > roundCount * (teamsCount/2) ){
@@ -187,7 +187,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
                 }
 
                 // Recurse to set the rest of the table. True if filled, false if no solution.
-                matchFound = fillFrom( table, teams, matches, crntMatchCount+1, nextMQueue );
+                matchFound = fillFrom( table, roundCount, teams, matches, crntMatchCount+1, nextMQueue );
                 
                 // If match found add to final match set. Else this is not the solution, backtrack and keep looking.
                 if( matchFound ){
@@ -224,7 +224,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
     }
 
     // Creating and populating matrix that stores the matchup states.
-    matchupState = new ConTable( teams.length );
+    matchupState = new ConTable( teams.length, numRounds );
     var successFlag: boolean = true;
 
     for( var i: number = 0; i < resvdMatches.length; i++ ){
@@ -241,7 +241,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
     
     // Checking available matchups for the number of conflicts they would cause (min-conflicts heuristic)
     // Rounds
-    for( var i: number = 0; i < teams.length-1; i++ ){
+    for( var i: number = 0; i < numRounds; i++ ){
         if( matchupState.domainOfRound[i] > 0 ){
             lookMatch.roundNum = i;
             
@@ -277,7 +277,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
 
     // Populate the rest of the ConTable with fillFrom, starting the head of matchQueue
     var finalMatches: Match[] = resvdMatches.slice();
-    if( fillFrom(matchupState, teams, finalMatches, resvdMatches.length, matchQueue ) ){
+    if( fillFrom(matchupState, numRounds, teams, finalMatches, resvdMatches.length, matchQueue ) ){
         if( verbose ){
             console.log("Solution found after " + permCounter + " permutations.")
         }
