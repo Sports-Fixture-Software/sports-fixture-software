@@ -169,13 +169,14 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
             if( homeCnsnt === Constraint.SATISFIED && awayCnsnt === Constraint.SATISFIED ){
                 
                 // Reporting progress to console
-                if( verbose && crntMatchCount <= 153 ){
-                    console.log(" Search Level " + crntMatchCount + " out of " + matchCount + ". i=" + i + ". Setting match R" + currentMatch.roundNum + ", H" + currentMatch.homeTeam + ", A" + currentMatch.awayTeam);
+                if( verbose && crntMatchCount <= 143 ){
                     var domainOfFixture: number = 0;
                     for( var s: number = 0; s < roundCount; s++ ){
                         domainOfFixture += table.domainOfRound[s];
                     }
-                    console.log("Round domain sum before = " + domainOfFixture + ", Match ftprnt = " + currentMatch.footPrnt + ", Matches Left To Be Set = " + (matchCount - crntMatchCount) );
+                    //console.log("Round domain sum before = " + domainOfFixture + ", Match ftprnt = " + currentMatch.footPrnt + ", Matches Left To Be Set = " + (matchCount - crntMatchCount) );
+                    var domLeeway: number = 2*(matchCount - crntMatchCount - 1); // Domain after minimum footprint is taken
+                    console.log("- Level " + crntMatchCount + "/" + matchCount + ". i=" + i + "/" + mQueue.length + ". Setting match R" + currentMatch.roundNum + ", H" + currentMatch.homeTeam + ", A" + currentMatch.awayTeam + " : Domain leeway = " + (domainOfFixture - currentMatch.footPrnt - domLeeway));
                 }
 
                 // Set the match up
@@ -184,19 +185,23 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
                 /* Making a new mQueue for the next level of the search tree.
                    No new matches are made available by adding a match, so we 
                    can reuse the matches from the mQueue given to us, if they 
-                   are still legal and usable. Usable  matches must not have 
-                   a bigger footprint than the number of matches remaining that
-                   must set.
+                   are still legal and usable. Usable matches must not have a
+                   bigger footprint than the number of matches remaining that
+                   must set. The footprint is augmented by the minimum expected
+                   footprint of remaining matches.
                  */
                 var nextMQueue: Match[] = new Array();
-                var domainOfFixture: number = 0;
-                var matchesRemaining: number = matchCount - crntMatchCount;
+                var domainOfFixture: number = 0; // Sum of domain of all rounds in the ConTable
+                var matchesRemaining: number = matchCount - crntMatchCount - 1; // The -1 is for the match set in table.setMatch above
+                var minRemainingFtpt: number = (2*(matchesRemaining-1)); // Minimum footprint of all remaining matches sans the one added to the queue
+                
                 for( var j: number = 0; j < roundCount; j++ ){
                     domainOfFixture += table.domainOfRound[j];
                 }
+
                 for( var j: number = 0; j < mQueue.length; j++ ){
                     if( table.getMask( mQueue[j] ) === MatchState.OPEN &&
-                        domainOfFixture - table.calcFootPrint( mQueue[j] ) >= (matchesRemaining-2) ){
+                        table.calcFootPrint( mQueue[j] ) + minRemainingFtpt <= domainOfFixture ){
                         // Legal matches are duplicated and updated for the next recursion level
                         nextMQueue.push( new Match(
                             mQueue[j].roundNum, 
