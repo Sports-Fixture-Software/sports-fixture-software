@@ -1,7 +1,7 @@
 /**
  * League
  */
-import { databaseInjector } from '../bootstrap'
+import { databaseInjector } from '../services/database_injector'
 import { DatabaseService } from '../services/database.service'
 import { Collection } from '../services/collection'
 import { Fixture } from './fixture'

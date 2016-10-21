@@ -55,7 +55,7 @@ export class ReviewComponent implements OnInit, OnDestroy {
                 this.homeTeamsAll = this.fixture.leaguePreLoaded.teamsPreLoaded.toArray()
                 this.awayTeamsAll = this.homeTeamsAll.slice(0)
                 let byeTeam = new Team('Bye')
-                byeTeam.id = null
+                byeTeam.id = Team.BYE_TEAM_ID
                 this.awayTeamsAll.push(byeTeam)
                 return this._fixtureService.getRoundsAndMatches(f)
             }).then((rounds: Collection<Round>) => {
@@ -255,7 +255,7 @@ export class ReviewComponent implements OnInit, OnDestroy {
      * false otherwise.
      */
     isTeamRepeated(round: Round, team: Team): boolean {
-        if (team.id == null) { // bye
+        if (team.id == Team.BYE_TEAM_ID) {
             return false
         }
         let count = 0

@@ -63,9 +63,12 @@ export class RoundListComponent implements OnInit, OnDestroy {
                 DateTime.fillInRounds(this.fixture, this.rounds, true)
                 this.homeTeamsAll = this.fixture.leaguePreLoaded.teamsPreLoaded.toArray()
                 this.awayTeamsAll = this.homeTeamsAll.slice(0) //copy
-                let byeTeam = new Team('Bye')
-                byeTeam.id = null
-                this.awayTeamsAll.push(byeTeam)
+                let anyTeam = new Team('Any')
+                anyTeam.id = Team.ANY_TEAM_ID
+                this.homeTeamsAll.push(anyTeam)
+                this.byeTeam = new Team('Bye')
+                this.byeTeam.id = Team.BYE_TEAM_ID
+                this.awayTeamsAll.push(this.byeTeam)
                 this.homeTeams = this.homeTeamsAll.slice(0) //copy
                 this.awayTeams = this.homeTeamsAll.slice(0) //copy
                 this._changeref.detectChanges()
@@ -79,6 +82,9 @@ export class RoundListComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.routeSubscription.unsubscribe();
+        if (this.homeTeamChange) {
+            this.homeTeamChange.unsubscribe()
+        }
     }
 
     /**
@@ -115,25 +121,47 @@ export class RoundListComponent implements OnInit, OnDestroy {
             config: config
         })
 
-        if (config && config.homeTeamPreLoaded) {
+        if (config) {
             for (let team of this.homeTeamsAll) {
-                if (team.id == config.homeTeamPreLoaded.id) {
+                if (team.id == config.homeTeam_id) {
                     this.matchupForm.patchValue({ homeTeam: team })
                     break
                 }
             }
-        }
-        if (config && config.awayTeamPreLoaded) {
             for (let team of this.awayTeamsAll) {
-                if (team.id == config.awayTeamPreLoaded.id) {
+                if (team.id == config.awayTeam_id) {
                     this.matchupForm.patchValue({ awayTeam: team })
                     break
                 }
             }
         }
-        this.removeTeamsAsAlreadyReserved(round,
+        this.removeHomeTeamsAsAlreadyReserved(round,
             config ? config.homeTeamPreLoaded : null,
             config ? config.awayTeamPreLoaded : null)
+        this.removeAwayTeamsAsAlreadyReserved(round,
+            config ? config.homeTeamPreLoaded : null,
+            config ? config.awayTeamPreLoaded : null)
+        this._changeref.detectChanges()
+        if (!config || !config.homeTeamPreLoaded) {
+            this.matchupForm.patchValue({ homeTeam: null })
+        }
+        if (!config || !config.awayTeamPreLoaded) {
+            this.matchupForm.patchValue({ awayTeam: null })
+        }
+
+        if (!this.homeTeamChange) {
+            let fc = this.matchupForm.controls['homeTeam'] as FormControl
+            this.homeTeamChange = fc.valueChanges.subscribe((evt: Team) => {
+                if (evt && evt.id == Team.ANY_TEAM_ID) {
+                    this.awayTeams = [this.byeTeam]
+                    this.matchupForm.patchValue({ awayTeam: this.byeTeam })
+                } else {
+                    this.removeAwayTeamsAsAlreadyReserved(round,
+                        config ? config.homeTeamPreLoaded : null,
+                        config ? config.awayTeamPreLoaded : null)
+                }
+            })
+        }
     }
 
     /**
@@ -192,27 +220,27 @@ export class RoundListComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Remove teams from the drop-down home and away teams list.
+     * Remove teams from the drop-down home teams list.
      *
      * If the user has reserved a match-up, remove from the list so the user
      * can't reserve the same team again on the same round.
-     * 
+     *
      * `round` the round containing the match-ups
      * `homeTeam` (optional) Do not remove this home team from the home list,
      *      because the user is editing.
      * `awayTeam` (optional) Do not remove this away team from the away list,
      *      because the user is editing.
      */
-    private removeTeamsAsAlreadyReserved(round: Round, homeTeam?: Team, awayTeam?: Team) {
+    private removeHomeTeamsAsAlreadyReserved(round: Round, homeTeam?: Team, awayTeam?: Team) {
         let configs = round.matchConfigsPreLoaded
         this.homeTeams = this.homeTeamsAll.slice(0) //copy
-        this.awayTeams = this.awayTeamsAll.slice(0) //copy
         // config null if matchConfigsPreLoaded fails. If fails, show all teams
         if (configs) {
             for (let config of configs) {
                 let count = 0
                 for (let i = this.homeTeams.length - 1; i >= 0; i--) {
-                    if ((this.homeTeams[i].id == config.homeTeam_id &&
+                    if ((config.homeTeam_id != Team.ANY_TEAM_ID &&
+                        this.homeTeams[i].id == config.homeTeam_id &&
                         // don't delete the homeTeam as requested
                         !(homeTeam && homeTeam.id == this.homeTeams[i].id))
                         ||
@@ -226,10 +254,32 @@ export class RoundListComponent implements OnInit, OnDestroy {
                         }
                     }
                 }
-                count = 0
+            }
+        }
+    }
+
+    /**
+     * Remove teams from the drop-down away teams list.
+     *
+     * If the user has reserved a match-up, remove from the list so the user
+     * can't reserve the same team again on the same round.
+     * 
+     * `round` the round containing the match-ups
+     * `homeTeam` (optional) Do not remove this home team from the home list,
+     *      because the user is editing.
+     * `awayTeam` (optional) Do not remove this away team from the away list,
+     *      because the user is editing.
+     */
+    private removeAwayTeamsAsAlreadyReserved(round: Round, homeTeam?: Team, awayTeam?: Team) {
+        let configs = round.matchConfigsPreLoaded
+        this.awayTeams = this.awayTeamsAll.slice(0) //copy
+        // config null if matchConfigsPreLoaded fails. If fails, show all teams
+        if (configs) {
+            for (let config of configs) {
+                let count = 0
                 for (let i = this.awayTeams.length - 1; i >= 0; i--) {
                     // don't delete the bye from the away teams
-                    if ((config.awayTeam_id && // not the bye
+                    if ((config.awayTeam_id != Team.BYE_TEAM_ID &&
                         this.awayTeams[i].id == config.awayTeam_id &&
                         // don't delete the awayTeam as requested
                         !(awayTeam && awayTeam.id == this.awayTeams[i].id))
@@ -245,13 +295,6 @@ export class RoundListComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-        }
-        this._changeref.detectChanges()
-        if (!homeTeam) {
-            this.matchupForm.patchValue({ homeTeam: null })
-        }
-        if (!awayTeam) {
-            this.matchupForm.patchValue({ awayTeam: null })
         }
     }
 
@@ -283,7 +326,9 @@ export class RoundListComponent implements OnInit, OnDestroy {
     private homeTeamsAll: Team[]
     private awayTeams: Team[]
     private awayTeamsAll: Team[]
+    private byeTeam : Team
     private fixture: Fixture
     private editing: boolean
+    private homeTeamChange: Subscription
     private routeSubscription: Subscription
 }

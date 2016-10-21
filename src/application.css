@@ -153,13 +153,15 @@ body {
 }
 .form-s {
     width: 35vw;
-    /* max-width set because ng2-popover has a hard-coded max-width of 500 */
     max-width: 460px;
 }
 .form-l {
     width: 48vw;
-    /* max-width set because ng2-popover has a hard-coded max-width of 500 */
     max-width: 460px;
+}
+select.form-control {
+    width:21vw;
+    max-width: 213px;
 }
 .form-number {
     text-align: right;
