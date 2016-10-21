@@ -7,18 +7,9 @@ import * as Promise from 'bluebird'
 export class RoundConfigService {
 
     /**
-     * adds the config, but won't add if the key/value already exists.
-     *
-     * Returns the added config, or the existing `RoundConfig` that has the
-     * same key/value pair.
+     * adds the config to the database
      */
     addConfig(config: RoundConfig): Promise<RoundConfig> {
-        return config.where({ key: config.key, value: config.value }).fetch().then((res) => {
-            if (res) {
-                return res
-            } else {
-                return config.save()
-            }
-        })
+        return config.save()
     }
 }

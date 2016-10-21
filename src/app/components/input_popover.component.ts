@@ -1,13 +1,12 @@
-import { Component, Input, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef} from '@angular/core'
-import { REACTIVE_FORM_DIRECTIVES, FormGroup } from '@angular/forms'
+import { Component, Input, ViewChild, OnDestroy, AfterViewInit, ElementRef, ChangeDetectorRef } from '@angular/core'
+import { FormGroup } from '@angular/forms'
 import * as twitterBootstrap from 'bootstrap'
 declare var jQuery: JQueryStatic;
 
 @Component({
     selector: 'input-popover',
     moduleId: module.id.replace(/\\/g, '/'),
-    templateUrl: 'input_popover.template.html',
-    directives: [REACTIVE_FORM_DIRECTIVES],
+    templateUrl: 'input_popover.template.html'
 })
 
 /**
@@ -74,7 +73,7 @@ export class InputPopover implements AfterViewInit, OnDestroy {
                     this.popover.popover('hide')
                 })
             }
-        }    
+        }
     }
 
     private popover: JQuery

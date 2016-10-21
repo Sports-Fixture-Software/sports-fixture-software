@@ -49,7 +49,8 @@ export class DatabaseService {
         }
     }
 
-    private cleanDatabase(): Promise<any> {
+    cleanDatabase(): Promise<any> {
+        this._initCalled = false
         return this.get().knex.select('name').from('sqlite_master')
             .where('type', 'table').andWhere('name', '<>', 'sqlite_sequence')
             .then((res) => {

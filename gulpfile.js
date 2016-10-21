@@ -7,14 +7,15 @@ const install = require("gulp-install");
 const livereload = require('gulp-livereload');
 const runElectron = require("gulp-run-electron");
 const rebuildElectron = require('electron-rebuild');
-const electron = require("electron-prebuilt");
+const electron = require("electron");
 const jasmine = require('gulp-jasmine');
 const reporters = require('jasmine-reporters');
 const tscConfig = require('./tsconfig.json');
 const exit = require('gulp-exit');
 const runSequence = require('run-sequence');
-const process = require('child_process');
+const childProcess = require('child_process');
 const path = require('path')
+const process = require('process')
 
 /**
  * Removes all build artifacts
@@ -45,8 +46,8 @@ gulp.task('rebuild', ['install'], function() {
                     console.log("No build required");
                     return true;
                 }                
-                return rebuildElectron.installNodeHeaders('1.3.1').then(function() {
-                    return rebuildElectron.rebuildNativeModules('1.3.1', './build/node_modules');                
+                return rebuildElectron.installNodeHeaders('1.4.1').then(function() {
+                    return rebuildElectron.rebuildNativeModules('1.4.1', './build/node_modules');                
                 });
             })
 });
@@ -118,7 +119,8 @@ gulp.task('run', ['build'], function() {
         .pipe(runElectron(['--debug']));
 })
 
-gulp.task('unittest:services', ['copy:test-modules'], () => {
+gulp.task('unittest:services', () => {
+    process.argv.push('--database=test-unit.database')
     return gulp.src([
         'build/test/init.js',
         'build/test/services/**/*.js',
@@ -153,7 +155,7 @@ gulp.task('test:all', () => {
  * Build the binary modules required for running the unit tests.
  */
 gulp.task('rebuild:test-modules', ['install'], (done) => {
-    return process.exec(path.join('node_modules', '.bin', 'node-pre-gyp')
+    return childProcess.exec(path.join('node_modules', '.bin', 'node-pre-gyp')
         + ' --fallback-to-build install',
         { cwd: './node_modules/sqlite3' }, (err, stdout, stderr) => {
         done(err);
@@ -173,7 +175,7 @@ gulp.task('copy:test-modules', ['rebuild:test-modules'], () => {
 gulp.task('watch', ['build:watch', 'run'])
 gulp.task('build', ['copy:assets', 'install', 'rebuild', 'compile']);
 gulp.task('unittest', () => {
-    runSequence('build', 'unittest:services')
+    runSequence('build', ['copy:test-modules'], 'unittest:services')
 })
 gulp.task('unittester', ['unittest:services']);
 gulp.task('end2end', () => {

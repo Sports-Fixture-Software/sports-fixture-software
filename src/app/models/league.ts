@@ -1,7 +1,7 @@
 /**
  * League
  */
-import { databaseInjector } from '../bootstrap'
+import { databaseInjector } from '../services/database_injector'
 import { DatabaseService } from '../services/database.service'
 import { Collection } from '../services/collection'
 import { Fixture } from './fixture'
@@ -45,7 +45,7 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
     /**
      * Needed by bookshelf to setup relationship
      */
-   protected teams(): Collection<Team> {
+    protected teams(): Collection<Team> {
         return this.hasMany(Team)
     }
     /**

@@ -53,6 +53,17 @@ export class AppConfig {
         return this.databaseFilename
     }
 
+    static log(err: Error | string) {
+        if (this.isDeveloperMode()) {
+            console.log(err)
+        }
+    }
+
+    static DatabaseErrorGuidance: string = `There may be a problem with the
+        database file. Try restoring the database file from a backup, if
+        available.`
+    static FileErrorGuidance: string = `Check file permissions or try a different file.`
+
     private static DATABASE_FILENAME_DEFAULT = 'sanfl_fixture_software.database'
     private static databaseFilename: string
     private static developerMode: boolean

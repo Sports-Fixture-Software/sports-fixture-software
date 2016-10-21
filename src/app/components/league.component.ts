@@ -1,32 +1,29 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Router, ActivatedRoute, ROUTER_DIRECTIVES } from '@angular/router';
-import { Subscription } from 'rxjs/subscription';
-
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
 import { League } from '../models/league';
 import { LeagueService } from '../services/league.service';
-import { Collection }  from '../services/collection'
+import { Collection } from '../services/collection'
 import { Navbar } from './navbar.component';
 
-import { POPOVER_DIRECTIVES } from 'ng2-popover';
-import { MODAL_DIRECTIVES, ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
+import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
 
 @Component({
     moduleId: module.id.replace(/\\/g, '/'),
-    templateUrl : 'league.template.html',
-    providers: [LeagueService], 
-    directives: [Navbar, POPOVER_DIRECTIVES, MODAL_DIRECTIVES, ROUTER_DIRECTIVES]
+    templateUrl: 'league.template.html',
+    providers: [LeagueService]
 })
 export class LeagueComponent implements OnInit, OnDestroy {
     private league: League;
     private routeSubscription: Subscription;
 
     constructor(private router: Router,
-                public route: ActivatedRoute,
-                private leagueService: LeagueService,
-                private changeref: ChangeDetectorRef) {
+        public route: ActivatedRoute,
+        private leagueService: LeagueService,
+        private changeref: ChangeDetectorRef) {
     }
-    
-    ngOnInit() { 
+
+    ngOnInit() {
         this.routeSubscription = this.route.params.subscribe(params => {
             let id = +params['id'];
             this.leagueService.getLeague(id).then(league => {
@@ -34,9 +31,9 @@ export class LeagueComponent implements OnInit, OnDestroy {
                 this.changeref.detectChanges();
             })
         });
-     }
+    }
 
-     ngOnDestroy() {
-         this.routeSubscription.unsubscribe();
-     }
+    ngOnDestroy() {
+        this.routeSubscription.unsubscribe();
+    }
 }

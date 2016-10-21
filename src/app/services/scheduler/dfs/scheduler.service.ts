@@ -7,7 +7,8 @@ import { FixtureService } from '../../fixture.service'
 import { RoundService } from '../../round.service'
 import { MatchService } from '../../match.service'
 import { Collection } from '../../collection'
-import { Team as DFSTeam, Match as DFSMatch, FixtureInterface, Constraint }  from './fixture_constraints'
+import { Team as DFSTeam, Match as DFSMatch, FixtureInterface }  from './fixture_constraints'
+import { Constraint } from '../../../util/constraint_factory'
 import { plotFixtureRotation } from './plot_fixture_rotation'
 import { Search } from '../../../util/search'
 import { DateTime } from '../../../util/date_time'
@@ -93,13 +94,23 @@ export class SchedulerService {
         let reservedMatches: DFSMatch[] = []
         for (let round of rounds) {
             for (let config of round.matchConfigsPreLoaded) {
-                let homeId = this.teamtoDfsTeamMap.get(config.homeTeam_id)
-                if (homeId == undefined) {
-                    throw new Error(`cannot find team id ${config.homeTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
+                let homeId: number
+                if (config.homeTeam_id == Team.ANY_TEAM_ID || config.homeTeam_id == Team.BYE_TEAM_ID) {
+                    homeId = config.homeTeam_id
+                } else {
+                    homeId = this.teamtoDfsTeamMap.get(config.homeTeam_id)
+                    if (homeId == undefined) {
+                        throw new Error(`cannot find team id ${config.homeTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
+                    }
                 }
-                let awayId = this.teamtoDfsTeamMap.get(config.awayTeam_id)
-                if (awayId == undefined) {
-                    throw new Error(`cannot find team id ${config.awayTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
+                let awayId: number
+                if (config.awayTeam_id == Team.ANY_TEAM_ID || config.awayTeam_id == Team.BYE_TEAM_ID) {
+                    awayId = config.awayTeam_id
+                } else {
+                    awayId = this.teamtoDfsTeamMap.get(config.awayTeam_id)
+                    if (awayId == undefined) {
+                        throw new Error(`cannot find team id ${config.awayTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
+                    }
                 }
                 reservedMatches.push(new DFSMatch(round.number - 1, homeId, awayId))
             }
