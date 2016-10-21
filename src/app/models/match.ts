@@ -17,6 +17,29 @@ export class Match extends (databaseInjector.get(DatabaseService) as DatabaseSer
     get awayTeam_id(): number { return this.get('awayTeam_id') }
     set awayTeam_id(value: number) { this.set('awayTeam_id', value) }
 
+    get homeTeamName(): string {
+        if (this.homeTeam_id == Team.ANY_TEAM_ID) {
+            return 'Any'
+        } else if (this.homeTeam_id == Team.BYE_TEAM_ID) {
+            return 'Bye'
+        } else if (this.homeTeamPreLoaded) {
+            return this.homeTeamPreLoaded.name
+        } else {
+            return 'undefined'
+        }
+    }
+    get awayTeamName(): string {
+        if (this.awayTeam_id == Team.ANY_TEAM_ID) {
+            return 'Any'
+        } else if (this.awayTeam_id == Team.BYE_TEAM_ID) {
+            return 'Bye'
+        } else if (this.awayTeamPreLoaded) {
+            return this.awayTeamPreLoaded.name
+        } else {
+            return 'undefined'
+        }
+    }
+
     setRound(value: Round) { this.set('round_id', value.id) }
     set round_id(value: number) { this.set('round_id', value) }
 

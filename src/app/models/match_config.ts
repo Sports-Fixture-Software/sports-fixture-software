@@ -19,6 +19,29 @@ export class MatchConfig extends (databaseInjector.get(DatabaseService) as Datab
     get awayTeam_id(): number { return this.get('awayTeam_id') }
     set awayTeam_id(value: number) { this.set('awayTeam_id', value) }
 
+    get homeTeamName(): string {
+        if (this.homeTeam_id == Team.ANY_TEAM_ID) {
+            return 'Any'
+        } else if (this.homeTeam_id == Team.BYE_TEAM_ID) {
+            return 'Bye'
+        } else if (this.homeTeamPreLoaded) {
+            return this.homeTeamPreLoaded.name
+        } else {
+            return 'undefined'
+        }
+    }
+    get awayTeamName(): string {
+        if (this.awayTeam_id == Team.ANY_TEAM_ID) {
+            return 'Any'
+        } else if (this.awayTeam_id == Team.BYE_TEAM_ID) {
+            return 'Bye'
+        } else if (this.awayTeamPreLoaded) {
+            return this.awayTeamPreLoaded.name
+        } else {
+            return 'undefined'
+        }
+    }
+
     getRound(): Promise<Round> {
         return this.fetch({ withRelated: ['round'] }).then((res) => {
             return res.related('round') as Round
