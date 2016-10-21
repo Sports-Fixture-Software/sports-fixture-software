@@ -87,11 +87,9 @@ export enum MatchState {
 export class ConTable implements FixtureInterface {
     
     private games: number[][][]; //[round][Home Team Index][Away Team Index]
-    private roundCount: number;
     domainOfRound: number[];
 
-    constructor(private teamsCount: number){ 
-        this.roundCount = teamsCount-1;
+    constructor(private teamsCount: number, private roundCount: number){
         this.domainOfRound = new Array(this.roundCount);
         // Instantiates the round matrices to zero in all entries
         // Table is big enough for a full rotation over all teams.
