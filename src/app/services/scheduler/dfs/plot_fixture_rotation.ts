@@ -69,7 +69,17 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
 
         if( m1Heur === m2Heur ){
              // If the domain is equal, sort by minimum matchup conflict
-            return m1.footPrnt - m2.footPrnt;
+            if( m1.footPrnt === m2.footPrnt ){
+                // If both heuristics are equal, randomly give negative or positive
+                if( Math.random() < 0.5 ){
+                    return 0.5;
+                } else {
+                    return -0.5;
+                }
+            } else {
+                // Else, sort by minimum conflicts caused by the match
+                return m1.footPrnt - m2.footPrnt;
+            }
         } else {
             // Else, sort by maximum domain size 
             return m1Heur - m2Heur;
@@ -112,7 +122,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
      *    this function.
      * ConTable.x() errors
      */
-    function fillFrom( table: ConTable, matchesPerRound: number[], teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[], byeQueue: Match[] ): boolean {
+    function fillFrom( table: ConTable, matchesPerRound: number[], teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[] ): boolean {
         var teamsCount: number = teams.length;
         let roundCount = matchesPerRound.length
         
@@ -179,48 +189,22 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
                 }
 
                 // Recurse to set the rest of the table. True if filled, false if no solution.
-                matchFound = fillFrom( table, matchesPerRound, teams, matches, crntMatchCount+1, nextMQueue, byeQueue );
+                matchFound = fillFrom( table, matchesPerRound, teams, matches, crntMatchCount+1, nextMQueue );
                 
                 // If match found add to final match set. Else this is not the solution, backtrack and keep looking.
                 if (matchFound) {
 
-                    let byeMatchesThisRound = teamsCount / 2 - matchesPerRound[currentMatch.roundNum]
-                    let byesInQueueThisRound = 0
-                    for (let byeTeam of byeQueue) {
-                        if (byeTeam.roundNum == currentMatch.roundNum) {
-                            byesInQueueThisRound++
+                    let matchesInThisRoundCount = 0
+                    for (let match of matches) {
+                        if (match.roundNum == currentMatch.roundNum) {
+                            matchesInThisRoundCount++
                         }
                     }
-                    let inByeQueue = false
-                    if (byesInQueueThisRound < byeMatchesThisRound) {
-                        let teamsInByeQueue = false
-                        for (let byeTeam of byeQueue) {
-                            if (byeTeam.homeTeam == currentMatch.homeTeam ||
-                                byeTeam.homeTeam == currentMatch.awayTeam ||
-                                byeTeam.awayTeam == currentMatch.homeTeam ||
-                                byeTeam.awayTeam == currentMatch.awayTeam) {
-                                teamsInByeQueue = true
-                                break
-                            }
-                        }
-                        if (!teamsInByeQueue) {
-                            byeQueue.push(currentMatch)
-                            inByeQueue = true
-                        }
-                    }
-                    if (!inByeQueue) {
-                        let matchesThisRound = 0
-                        for (let match of matches) {
-                            if (match.roundNum == currentMatch.roundNum) {
-                                matchesThisRound++
-                            }
-                        }
-                        if (matchesThisRound < matchesPerRound[currentMatch.roundNum]) {
-                            matches.push(currentMatch);
-                        } else {
-                            byeQueue.push(currentMatch)
-                            inByeQueue = true
-                        }
+
+                    if (matchesInThisRoundCount >= matchesPerRound[currentMatch.roundNum]) {
+                        table.clearMatch(currentMatch)
+                    } else {
+                        matches.push(currentMatch);
                     }
                     break;
                 } else {
@@ -255,6 +239,10 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
         throw new Error('Odd number of teams in the teams parameter. Add a bye to make it even.');
     }
 
+    // Creating and populating matrix that stores the matchup states.
+    matchupState = new ConTable( teams.length, numRounds );
+    var successFlag: boolean = true;
+
     let reservedByesPerRound: number[] = new Array(numRounds)
     for (let i = 0; i < reservedByesPerRound.length; i++) {
         reservedByesPerRound[i] = 0
@@ -269,15 +257,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
             } else if (verbose) {
                 console.log(`Round ${resvdMatches[i].roundNum} is outside the total number of rounds (${numRounds}).`)
             }
-        }
-    }
-
-    // Creating and populating matrix that stores the matchup states.
-    matchupState = new ConTable(teams.length, numRounds, reservedByesPerRound);
-    var successFlag: boolean = true;
-
-    for (var i: number = 0; i < resvdMatches.length; i++) {
-        if (resvdMatches[i].homeTeam != TeamModel.ANY_TEAM_ID) {
+        } else {
             finalMatches.push(resvdMatches[i])
             successFlag = matchupState.setMatch(resvdMatches[i], (MatchState.MATCH_SET | MatchState.RESERVED));
             if (!successFlag) {
@@ -335,7 +315,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
     matchQueue.sort(cmpMinConfMaxDom);
 
     // Populate the rest of the ConTable with fillFrom, starting the head of matchQueue
-    if( fillFrom(matchupState, matchesPerRound, teams, finalMatches, finalMatches.length, matchQueue, [] ) ){
+    if( fillFrom(matchupState, matchesPerRound, teams, finalMatches, finalMatches.length, matchQueue ) ){
         if( verbose ){
             console.log("Solution found after " + permCounter + " permutations.")
         }
