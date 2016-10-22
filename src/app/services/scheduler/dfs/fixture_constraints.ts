@@ -58,6 +58,11 @@ export interface Team {
     constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match, home: boolean ): Constraint; 
 }
 
+interface RotationRange {
+    startRound: number,
+    endRound: number
+}
+
 /**
  * MatchState
  * Enumeration to help with updating matches in the ConTable class.
@@ -87,30 +92,100 @@ export enum MatchState {
 export class ConTable implements FixtureInterface {
     
     private games: number[][][]; //[round][Home Team Index][Away Team Index]
+    private rotations: RotationRange[] // the start and end round for each
+    // rotation
     domainOfRound: number[];
 
-    constructor(private teamsCount: number, private roundCount: number){
+    constructor(private teamsCount: number, private roundCount: number, reservedByesPerRound: number[]) {
         this.domainOfRound = new Array(this.roundCount);
         // Instantiates the round matrices to zero in all entries
         // Table is big enough for a full rotation over all teams.
         this.games = new Array(this.roundCount);
-        for(var i: number = 0; i < this.roundCount; i++ ){ // Round
+        for (var i: number = 0; i < this.roundCount; i++) { // Round
             this.games[i] = new Array(teamsCount);
-            this.domainOfRound[i] = (teamsCount*teamsCount) - teamsCount;
+            this.domainOfRound[i] = (teamsCount * teamsCount) - teamsCount;
 
-            for(var j: number = 0; j < teamsCount; j++ ){ // Home
+            for (var j: number = 0; j < teamsCount; j++) { // Home
                 this.games[i][j] = new Array(teamsCount);
 
-                for(var k: number = 0; k < teamsCount; k++ ){ // Away
-                    if( k === j ){
-                        this.games[i][j][k] = MatchState.ILLEGAL; 
+                for (var k: number = 0; k < teamsCount; k++) { // Away
+                    if (k === j) {
+                        this.games[i][j][k] = MatchState.ILLEGAL;
                     } else {
                         this.games[i][j][k] = MatchState.OPEN;
                     }
                 }
             }
-
         }
+
+        let gamesPerRound = teamsCount / 2
+        let roundsPerRotationWithoutByes = teamsCount - 1
+        for (let i = 0; i < roundCount; i += roundsPerRotationWithoutByes) {
+            this.rotations.push({ startRound: i, endRound: Math.min(i + roundsPerRotationWithoutByes - 1, roundCount - 1)}) 
+        }
+        for (let i = 0; i < this.rotations.length; i++) {
+            let extraRounds = 0
+            let byeCount = 0
+            let rotation = this.rotations[i]
+            let shuffleAmount = rotation.endRound
+            for (let j = rotation.startRound; j <= rotation.endRound; j++) {
+                // if there is only one less bye that games per round, then
+                // there is only 
+                if (gamesPerRound - reservedByesPerRound[j] <= 1) {
+                    extraRounds++
+                } else {
+                    byeCount += reservedByesPerRound[j]
+                }
+            }
+            // determine bye overflow rounds, remembering there may be user set
+            // byes in the overflow rounds
+            for (j = rotation.endRound + 1; j < reservedByesPerRound.length; j++) {
+                byeCount -= (gamesPerRound - reservedByesPerRound[j])
+                if (byeCount <= 0) {
+                    rotation.endRound = j
+                    break
+                }
+            }
+            // determine extra rounds, remembering there may be user set
+            // byes in the extra rounds
+            for (j = rotation.endRound + 1; j < reservedByesPerRound.length; j++) {
+                if (gamesPerRound - reservedByesPerRound[j] > 0) {
+                    extraRounds--
+                }
+                if (extraRounds <= 0) {
+                    rotation.endRound = j
+                    break
+                }
+            }
+            if (byeCount > 0 || extraRounds > 0) {
+                rotation.endRound = roundCount - 1
+                break
+            }
+            // shuffle
+            shuffleAmount = rotation.endRound - shuffleAmount
+            if (shuffleAmount > 0) {
+                for (j = i + 1; j < this.rotations.length; j++) {
+                    this.rotations[j].startRound += shuffleAmount
+                    this.rotations[j].endRound = Math.min(this.rotations[j].endRound + shuffleAmount, roundCount - 1)
+                }
+            }    
+        }
+        for (let i = 0; i < this.rotations.length; i++) {
+            if (this.rotations[i].endRound >= roundCount &&
+                i + 1 < this.rotations.length) {
+                this.rotations.splice(i + 1, this.rotations.length - i + 1)
+                break
+            }
+        }
+    }
+
+    private getRotation(roundNum: number) {
+        for (let i = 0; i < this.rotations.length; i++) {
+            if (roundNum >= this.rotations[i].startRound && roundNum <= this.rotations[i].endRound) {
+                return i
+            }
+        }
+        return 0
     }
 
     // INTERFACE FUNCTIONS
