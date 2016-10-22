@@ -1,8 +1,27 @@
 import { Match, Team, MatchState, ConTable } from './fixture_constraints';
 import { Constraint } from '../../../util/constraint_factory'
 
+///////////////////////////// CONFIG VARIABLES ////////////////////////////////
+
 /**
- * plotFixtureRotation
+ * The inverse of the proportion of the search space to be covered in the
+ * time given to plotFixture. Make this large enough or else each branch 
+ * will run out of alloted time before it can reach any leaf nodes.
+ * 
+ * The time given to a single branch is equal to: 
+ *   [Time budget of parent branch]
+ * ----------------------------------   x  SEARCH_PRPORTN
+ * [Number of siblings of the branch]
+ */ 
+const SEARCH_PRPORTN: number = 1000
+
+// Milliseconds before the algorithm gives up.
+const DEFAULT_SEARCH_TIMEOUT: number = 60000;
+
+//////////////////////// THE FIXTURE ALGORITHM ////////////////////////////////
+
+/**
+ * plotFixture
  * 
  * Plots a fixture with enough rounds for each team to play every other at most
  * once. Uses DFS through the solution space, pruning branches that break 
@@ -18,6 +37,13 @@ import { Constraint } from '../../../util/constraint_factory'
  *                       generation begins. Order not needed.
  * verbose: boolean Set to true if you want the function to post progress to 
  *                  the console.
+ * searchTimeout: number Milliseconds of time given for the search. The 
+ *                       function will spread this time sparsely over the
+ *                       search space. Do not set too low or the function will
+ *                       not have time to find any solutions. 60000 is the 
+ *                       default and should suffice unless many teams are in 
+ *                       the fixture (order of 100 or more), in which case 
+ *                       memory will become just as big a problem.
  * 
  * Returns:
  * Match[] A complete and legal fixture. Ordering is not guaranteed. Sort by 
@@ -37,30 +63,10 @@ import { Constraint } from '../../../util/constraint_factory'
  * fillfrom() errors
  * ConTable.x() errors 
  */
-export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbose: boolean = false ): Match[] {
+export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbose: boolean = false, searchTimeout: number = DEFAULT_SEARCH_TIMEOUT ): Match[] {
     
     var permCounter: number = 1;
     var matchupState: ConTable;
-
-    /**
-     * Used to configure the behaviour of plotFixture
-     * 
-     * The time given to a single branch is equal to: 
-     *   [Time budget of parent branch]
-     * ----------------------------------   x  SEARCH_PRPORTN
-     * [Number of siblings of the branch]
-     */
-    enum pfrConfig {
-        // Miliseconds before the algorithm gives up on a search branch
-        // This is the time budget of the root of the search tree
-        SEARCH_TIMEOUT = 60000,
-
-        /* The inverse of the proportion of the search space to be covered in the
-           BRANCH_TIMEOUT given above. Make this large enough or else each branch 
-           will run out of alloted time before it can reach any leaf nodes.
-        */ 
-        SEARCH_PRPORTN = 20
-    }
 
     /**
      * cmpMinConfMaxDom
@@ -158,8 +164,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
             // Checking against our time budget
             if( Date.now() - timeStart > timeBudget ){
                 if( verbose ) {
-                    console.log("### TIMEOUT on level " + crntMatchCount + "/" + matchCount);
-                    console.log("Date.now() = " + Date.now() + ", timeBudget = " + timeBudget);
+                    console.log("### TIMEOUT on level " + crntMatchCount + "/" + matchCount + " Date.now() = " + Date.now() + ", timeBudget = " + timeBudget);
                 }
                 return false;
             }
@@ -204,13 +209,13 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
                 
                 // Reporting progress to console
                 if( verbose && crntMatchCount <= 153 ){
-                    var domainOfFixture: number = 0;
-                    for( var s: number = 0; s < roundCount; s++ ){
-                        domainOfFixture += table.domainOfRound[s];
-                    }
+                    //var domainOfFixture: number = 0;
+                    //for( var s: number = 0; s < roundCount; s++ ){
+                    //    domainOfFixture += table.domainOfRound[s];
+                    //}
                     //console.log("Round domain sum before = " + domainOfFixture + ", Match ftprnt = " + currentMatch.footPrnt + ", Matches Left To Be Set = " + (matchCount - crntMatchCount) );
-                    var domLeeway: number = domainOfFixture - currentMatch.footPrnt - 2*(matchCount - crntMatchCount - 1); // Domain after minimum footprint is taken
-                    console.log("- Level " + crntMatchCount + "/" + matchCount + ". i=" + i + "/" + mQueue.length + ". Setting match R" + currentMatch.roundNum + ", H" + currentMatch.homeTeam + ", A" + currentMatch.awayTeam + " : Domain leeway = " + domLeeway);
+                    //var domLeeway: number = domainOfFixture - currentMatch.footPrnt - 2*(matchCount - crntMatchCount - 1); // Domain after minimum footprint is taken
+                    console.log("- Level " + crntMatchCount + "/" + matchCount + ". timeBudget = " + timeBudget + " i=" + i + "/" + mQueue.length + ". Setting match R" + currentMatch.roundNum + ", H" + currentMatch.homeTeam + ", A" + currentMatch.awayTeam);
                 }
 
                 // Set the match up
@@ -255,8 +260,13 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
                     permCounter++;
                 }
 
-                // Set the time budget for the next branch. This is explained up in the pfrConfig enum.
-                let branchTime: number = (timeBudget/(mQueue.length))*pfrConfig.SEARCH_PRPORTN;
+                // Set the time budget for the next branch.
+                let branchTime: number;
+                if( mQueue.length < SEARCH_PRPORTN ){
+                    branchTime = timeBudget / mQueue.length;
+                } else {
+                    branchTime = timeBudget /(mQueue.length / SEARCH_PRPORTN); 
+                }
 
                 // Recurse to set the rest of the table. True if filled, false if no solution.
                 matchFound = fillFrom( table, teams, matches, crntMatchCount+1, nextMQueue, branchTime );
@@ -349,7 +359,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
 
     // Populate the rest of the ConTable with fillFrom, starting from a random round
     var finalMatches: Match[] = resvdMatches.slice();
-    if( fillFrom(matchupState, teams, finalMatches, resvdMatches.length, matchQueue, pfrConfig.SEARCH_TIMEOUT ) ){
+    if( fillFrom(matchupState, teams, finalMatches, resvdMatches.length, matchQueue, searchTimeout ) ){
         if( verbose ){
             console.log("Solution found after " + permCounter + " permutations.")
         }
