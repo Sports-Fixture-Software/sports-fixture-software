@@ -43,11 +43,30 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
     var matchupState: ConTable;
 
     /**
+     * Used to configure the behaviour of plotFixture
+     * 
+     * The time given to a single branch is equal to: 
+     *   [Time budget of parent branch]
+     * ----------------------------------   x  SEARCH_PRPORTN
+     * [Number of siblings of the branch]
+     */
+    enum pfrConfig {
+        // Miliseconds before the algorithm gives up on a search branch
+        // This is the time budget of the root of the search tree
+        SEARCH_TIMEOUT = 60000,
+
+        /* The inverse of the proportion of the search space to be covered in the
+           BRANCH_TIMEOUT given above. Make this large enough or else each branch 
+           will run out of alloted time before it can reach any leaf nodes.
+        */ 
+        SEARCH_PRPORTN = 20
+    }
+
+    /**
      * cmpMinConfMaxDom
      * Comparison function for sorting matches by the min-confict and max-
-     * domain-size heuristics. Equal values are randomly placed to put 
-     * more variation in when generating identically configured fixtures.
-     *
+     * domain-size heuristics.
+     * 
      * THIS IS A LOCAL FUNCTION AS IT REQUIRES THE matchupState VARIABLE TO 
      * GATHER HEURISTIC DATA ABOUT THE COMPARED MATCHES.
      *  
@@ -58,7 +77,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
      * Returns:
      * <0 if m2 comes before m1
      * >0 if m1 comes before m2
-     * (Should not return 0 as equal matches are to be randomly sorted)
+     * 0 if equal
      */
     var cmpMinConfMaxDom = function(m1: Match, m2: Match): number {
         if( m1.footPrnt == m2.footPrnt ){
@@ -75,6 +94,12 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
      * Fills out the given ConTable by DFS and backtracking. Finds a match and
      * recurses until the entire rotation is filled. Obeys the constraints of 
      * the teams supplied in the Team array. This _might_ take a while to run.
+     * 
+     * Due to the timeout feature of this search, it is not guaranteed to find 
+     * a solution, but it is very likely to. If no solution is found, there are
+     * either so few solutions that one could not be found in the given time, 
+     * or there is was no possible solution to begin with. Knowing this in 
+     * advance is an NP-complete problem :(.
      * 
      * This also mutates a bunch of its paramers, so pay attention:
      * 
@@ -95,6 +120,9 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
      * mQueue is a queue of legal matchup considerations ordered via heuristics 
      *   calculated by a Look-Ahead technique. Matches are always considered in
      *   order of this queue on its respective recursion level.
+     * timeBudget maximum time in milliseconds that the fillFrom call can run 
+     *   in total. It spreads this time over a proportion of its search 
+     *   branches as specified in pfrConfig.SEARCH_PRPORTN.
      * 
      * Returns:
      * True if the ConTable was successfully filled.
@@ -106,11 +134,12 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
      *    this function.
      * ConTable.x() errors
      */
-    function fillFrom( table: ConTable, teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[] ): boolean {
+    function fillFrom( table: ConTable, teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[], timeBudget: number ): boolean {
         var teamsCount: number = teams.length;
         var roundCount: number = teamsCount - 1;
         var matchCount: number = (roundCount*(teamsCount/2));
-        
+        var timeStart: number = Date.now();
+
         // Checking if we are recursing past our limit. This should not happen.
         if( crntMatchCount > matchCount ){
             throw new Error("Max search depth exceeded.");
@@ -122,9 +151,18 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
         var currentMatch: Match;
         var awayCnsnt: Constraint;
         var homeCnsnt: Constraint;
-
-        // Trying each matchup in the mQueue
+        
+        // Trying each matchups in the mQueue
         for( var i: number = 0; i < mQueue.length; i++ ){
+            
+            // Checking against our time budget
+            if( Date.now() - timeStart > timeBudget ){
+                if( verbose ) {
+                    console.log("### TIMEOUT on level " + crntMatchCount + "/" + matchCount);
+                    console.log("Date.now() = " + Date.now() + ", timeBudget = " + timeBudget);
+                }
+                return false;
+            }
             
             // Matches are selected in random order if equal
             // The random order is set up below where required
@@ -165,14 +203,14 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
             if( homeCnsnt === Constraint.SATISFIED && awayCnsnt === Constraint.SATISFIED ){
                 
                 // Reporting progress to console
-                if( verbose && crntMatchCount <= 143 ){
+                if( verbose && crntMatchCount <= 153 ){
                     var domainOfFixture: number = 0;
                     for( var s: number = 0; s < roundCount; s++ ){
                         domainOfFixture += table.domainOfRound[s];
                     }
                     //console.log("Round domain sum before = " + domainOfFixture + ", Match ftprnt = " + currentMatch.footPrnt + ", Matches Left To Be Set = " + (matchCount - crntMatchCount) );
-                    var domLeeway: number = 2*(matchCount - crntMatchCount - 1); // Domain after minimum footprint is taken
-                    console.log("- Level " + crntMatchCount + "/" + matchCount + ". i=" + i + "/" + mQueue.length + ". Setting match R" + currentMatch.roundNum + ", H" + currentMatch.homeTeam + ", A" + currentMatch.awayTeam + " : Domain leeway = " + (domainOfFixture - currentMatch.footPrnt - domLeeway));
+                    var domLeeway: number = domainOfFixture - currentMatch.footPrnt - 2*(matchCount - crntMatchCount - 1); // Domain after minimum footprint is taken
+                    console.log("- Level " + crntMatchCount + "/" + matchCount + ". i=" + i + "/" + mQueue.length + ". Setting match R" + currentMatch.roundNum + ", H" + currentMatch.homeTeam + ", A" + currentMatch.awayTeam + " : Domain leeway = " + domLeeway);
                 }
 
                 // Set the match up
@@ -189,21 +227,23 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
                 var nextMQueue: Match[] = new Array();
                 var domainOfFixture: number = 0; // Sum of domain of all rounds in the ConTable
                 var matchesRemaining: number = matchCount - crntMatchCount - 1; // The -1 is for the match set in table.setMatch above
+                var currentFtPt: number;
                 var minRemainingFtpt: number = (2*(matchesRemaining-1)); // Minimum footprint of all remaining matches sans the one added to the queue
                 
                 for( var j: number = 0; j < roundCount; j++ ){
                     domainOfFixture += table.domainOfRound[j];
                 }
-
+                
                 for( var j: number = 0; j < mQueue.length; j++ ){
+                    currentFtPt = table.calcFootPrint( mQueue[j] );
                     if( table.getMask( mQueue[j] ) === MatchState.OPEN &&
-                        table.calcFootPrint( mQueue[j] ) + minRemainingFtpt <= domainOfFixture ){
+                        currentFtPt + minRemainingFtpt <= domainOfFixture ){
                         // Legal matches are duplicated and updated for the next recursion level
                         nextMQueue.push( new Match(
                             mQueue[j].roundNum, 
                             mQueue[j].homeTeam, 
                             mQueue[j].awayTeam, 
-                            table.calcFootPrint( mQueue[j] )
+                            currentFtPt
                         ));
                     }
                 }
@@ -215,8 +255,11 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
                     permCounter++;
                 }
 
+                // Set the time budget for the next branch. This is explained up in the pfrConfig enum.
+                let branchTime: number = (timeBudget/(mQueue.length))*pfrConfig.SEARCH_PRPORTN;
+
                 // Recurse to set the rest of the table. True if filled, false if no solution.
-                matchFound = fillFrom( table, teams, matches, crntMatchCount+1, nextMQueue );
+                matchFound = fillFrom( table, teams, matches, crntMatchCount+1, nextMQueue, branchTime );
                 
                 // If match found add to final match set. Else this is not the solution, backtrack and keep looking.
                 if( matchFound ){
@@ -306,7 +349,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
 
     // Populate the rest of the ConTable with fillFrom, starting from a random round
     var finalMatches: Match[] = resvdMatches.slice();
-    if( fillFrom(matchupState, teams, finalMatches, resvdMatches.length, matchQueue ) ){
+    if( fillFrom(matchupState, teams, finalMatches, resvdMatches.length, matchQueue, pfrConfig.SEARCH_TIMEOUT ) ){
         if( verbose ){
             console.log("Solution found after " + permCounter + " permutations.")
         }
