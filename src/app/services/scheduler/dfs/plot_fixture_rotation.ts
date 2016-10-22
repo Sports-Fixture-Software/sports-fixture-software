@@ -1,5 +1,6 @@
 import { Match, Team, MatchState, ConTable } from './fixture_constraints';
 import { Constraint } from '../../../util/constraint_factory'
+import { Team as TeamModel } from '../../../models/team'
 
 /**
  * plotFixtureRotation
@@ -121,8 +122,9 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
      *    this function.
      * ConTable.x() errors
      */
-    function fillFrom( table: ConTable, roundCount: number, teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[] ): boolean {
+    function fillFrom( table: ConTable, matchesPerRound: number[], teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[] ): boolean {
         var teamsCount: number = teams.length;
+        let roundCount = matchesPerRound.length
         
         // Checking if we are recursing past our limit. This should not happen.
         if( crntMatchCount > roundCount * (teamsCount/2) ){
@@ -187,11 +189,23 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
                 }
 
                 // Recurse to set the rest of the table. True if filled, false if no solution.
-                matchFound = fillFrom( table, roundCount, teams, matches, crntMatchCount+1, nextMQueue );
+                matchFound = fillFrom( table, matchesPerRound, teams, matches, crntMatchCount+1, nextMQueue );
                 
                 // If match found add to final match set. Else this is not the solution, backtrack and keep looking.
-                if( matchFound ){
-                    matches.push(currentMatch);
+                if (matchFound) {
+
+                    let matchesInThisRoundCount = 0
+                    for (let match of matches) {
+                        if (match.roundNum == currentMatch.roundNum) {
+                            matchesInThisRoundCount++
+                        }
+                    }
+
+                    if (matchesInThisRoundCount >= matchesPerRound[currentMatch.roundNum]) {
+                        table.clearMatch(currentMatch)
+                    } else {
+                        matches.push(currentMatch);
+                    }
                     break;
                 } else {
                     table.clearMatch(currentMatch);
@@ -199,7 +213,9 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
             }
         }
 
-        // Checking if the conTable is fully filled. (Only true at bottom of recursion tree.)
+        // Checking if the conTable is fully filled. (Only true at bottom
+        // of recursion tree.) Don't include spread byes in this check because
+        // a spread bye is a success and adds to the crntMatchCount
         if( crntMatchCount === (roundCount*(teamsCount/2)) ){
             // If so, we can go up the recursion stack with success
             matchFound = true;
@@ -227,13 +243,36 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
     matchupState = new ConTable( teams.length, numRounds );
     var successFlag: boolean = true;
 
-    for( var i: number = 0; i < resvdMatches.length; i++ ){
-        successFlag = matchupState.setMatch(resvdMatches[i], (MatchState.MATCH_SET | MatchState.RESERVED));
-        if( !successFlag ){
-            throw new Error('Reserved Matches clash with basic constraints in this rotation.');
+    let reservedByesPerRound: number[] = new Array(numRounds)
+    for (let i = 0; i < reservedByesPerRound.length; i++) {
+        reservedByesPerRound[i] = 0
+    }
+
+    var finalMatches: Match[] = []
+    // pick out the byes and matches from the reserved matches
+    for (var i: number = 0; i < resvdMatches.length; i++) {
+        if (resvdMatches[i].homeTeam == TeamModel.ANY_TEAM_ID) {
+            if (resvdMatches[i].roundNum >= 0 && resvdMatches[i].roundNum < numRounds) {
+                reservedByesPerRound[resvdMatches[i].roundNum]++
+            } else if (verbose) {
+                console.log(`Round ${resvdMatches[i].roundNum} is outside the total number of rounds (${numRounds}).`)
+            }
+        } else {
+            finalMatches.push(resvdMatches[i])
+            successFlag = matchupState.setMatch(resvdMatches[i], (MatchState.MATCH_SET | MatchState.RESERVED));
+            if (!successFlag) {
+                throw new Error('Reserved Matches clash with basic constraints in this rotation.');
+            }
         }
     }
 
+    let matchesPerRound: number[] = new Array(numRounds)
+    for (let i = 0; i < matchesPerRound.length; i++) {
+        // if user specifies 2 of "any vs bye" that means 1 less match, so
+        // divide reservedByes per round by 2 (and round up because 1
+        // reservedBye assumes the user wants 1 bye)
+        matchesPerRound[i] = (teams.length / 2) - Math.ceil(reservedByesPerRound[i] / 2)
+    }
     // Initialising Look-ahead queue. Uses a min-conflicts -> max-domain-size heuristic
     var lookMatch: Match = new Match(0,0,0);
     var matchMask: number = matchupState.getMask(lookMatch);
@@ -276,8 +315,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
     matchQueue.sort(cmpMinConfMaxDom);
 
     // Populate the rest of the ConTable with fillFrom, starting the head of matchQueue
-    var finalMatches: Match[] = resvdMatches.slice();
-    if( fillFrom(matchupState, numRounds, teams, finalMatches, resvdMatches.length, matchQueue ) ){
+    if( fillFrom(matchupState, matchesPerRound, teams, finalMatches, finalMatches.length, matchQueue ) ){
         if( verbose ){
             console.log("Solution found after " + permCounter + " permutations.")
         }
