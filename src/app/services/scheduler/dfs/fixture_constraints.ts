@@ -335,8 +335,17 @@ export class ConTable implements FixtureInterface {
      * 
      * Returns:
      * integer >= 0, number of open matches that would be set to 'not available'
+     * integer -1 if the matchup is illegal
      */
     calcFootPrint(match: Match): number {
+        // Checking for an illegal matchup
+        if( match.roundNum >= this.roundCount || match.roundNum < 0 ||
+            match.homeTeam >= this.teamsCount || match.homeTeam < 0 ||
+            match.awayTeam >= this.teamsCount || match.awayTeam < 0 ||
+            match.homeTeam === match.awayTeam ){
+            return -1;
+        }
+        
         var openGamesOverlapped: number = 0;
 
         // Footprint throughout other rounds
@@ -377,7 +386,8 @@ export class ConTable implements FixtureInterface {
 
         }
 
-        return openGamesOverlapped;
+        // Two must be taken from the sum as 'match' and its reverse was counted twice
+        return openGamesOverlapped-2;
     }
 
 
