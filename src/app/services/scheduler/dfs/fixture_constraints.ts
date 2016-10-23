@@ -214,11 +214,11 @@ export class ConTable implements FixtureInterface {
         }
         this.games[match.roundNum][match.homeTeam][match.awayTeam] |= MatchState.MATCH_IN_ROUND;
 
-        let gamesPerRound = this.teamsCount - 1
-        let rotationNum = Math.floor(match.roundNum / gamesPerRound)
+        let gamesPerRotation = this.teamsCount - 1
+        let rotationNum = Math.floor(match.roundNum / gamesPerRotation)
 
         // Setting this match in the fixture
-        for(var i: number = rotationNum*gamesPerRound; i < Math.min((rotationNum*gamesPerRound) + gamesPerRound, this.roundCount); i++){
+        for(var i: number = rotationNum*gamesPerRotation; i < Math.min((rotationNum*gamesPerRotation) + gamesPerRotation, this.roundCount); i++){
             if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
                 this.domainOfRound[i] -= 1;    
             }
@@ -282,11 +282,11 @@ export class ConTable implements FixtureInterface {
         // Clearing this match in the round
         this.games[match.roundNum][match.homeTeam][match.awayTeam] &= MatchState.NOT_MIR;
 
-        let gamesPerRound = this.teamsCount - 1
-        let rotationNum = Math.floor(match.roundNum / gamesPerRound)
+        let gamesPerRotation = this.teamsCount - 1
+        let rotationNum = Math.floor(match.roundNum / gamesPerRotation)
 
         // Clearing this match in the fixture
-        for(var i: number = rotationNum*gamesPerRound; i < Math.min((rotationNum*gamesPerRound) + gamesPerRound, this.roundCount); i++){
+        for(var i: number = rotationNum*gamesPerRotation; i < Math.min((rotationNum*gamesPerRotation) + gamesPerRotation, this.roundCount); i++){
             this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
             if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
                 this.domainOfRound[i] += 1;
@@ -352,11 +352,11 @@ export class ConTable implements FixtureInterface {
         
         var openGamesOverlapped: number = 0;
 
-        let gamesPerRound = this.teamsCount - 1
-        let rotationNum = Math.floor(match.roundNum / gamesPerRound)
+        let gamesPerRotation = this.teamsCount - 1
+        let rotationNum = Math.floor(match.roundNum / gamesPerRotation)
 
         // Footprint throughout other rounds
-        for(var i: number = rotationNum*gamesPerRound; i < Math.min((rotationNum*gamesPerRound) + gamesPerRound, this.roundCount); i++){
+        for(var i: number = rotationNum*gamesPerRotation; i < Math.min((rotationNum*gamesPerRotation) + gamesPerRotation, this.roundCount); i++){
             if( i != match.roundNum ){
                 if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
                     openGamesOverlapped += 1;
