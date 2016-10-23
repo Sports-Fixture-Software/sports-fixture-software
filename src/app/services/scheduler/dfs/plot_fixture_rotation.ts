@@ -86,6 +86,26 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
         }
     }
 
+    function byeConstraintsSatisfied(byeQueue: Match[], currentMatch: Match): Constraint {
+        if (byeQueue.length <= 0) {
+            return Constraint.SATISFIED
+        } else {
+            // teams must not be in bye queue
+            let teamsInQueue: number[] = []
+            for (let bye of byeQueue) {
+                teamsInQueue.push(bye.homeTeam)
+                teamsInQueue.push(bye.awayTeam)
+            }
+            if (teamsInQueue.indexOf(currentMatch.homeTeam) >= 0) {
+                return Constraint.BYE_REPEAT
+            }
+            if (teamsInQueue.indexOf(currentMatch.awayTeam) >= 0) {
+                return Constraint.BYE_REPEAT
+            }
+        }
+        return Constraint.SATISFIED
+    }
+
     /**
      * fillFrom
      * Fills out the given ConTable by DFS and backtracking. Finds a match and
@@ -122,7 +142,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
      *    this function.
      * ConTable.x() errors
      */
-    function fillFrom( table: ConTable, matchesPerRound: number[], teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[] ): boolean {
+    function fillFrom( table: ConTable, matchesPerRound: number[], teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[], byeQueue: Match[] ): boolean {
         var teamsCount: number = teams.length;
         let roundCount = matchesPerRound.length
         
@@ -135,6 +155,8 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
         var currentMatch: Match;
         var awayCnsnt: Constraint;
         var homeCnsnt: Constraint;
+        var byeCnsnt: Constraint;
+        let byeMatch: boolean = false
 
         // Trying each matchup in the mQueue
         for( var i: number = 0; i < mQueue.length; i++ ){
@@ -151,9 +173,26 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
                 // Learn from broken constraint (WHEN IMPLEMENTED)
             }
 
+            byeCnsnt = Constraint.SATISFIED
+            let byesRequiredThisRound = teams.length / 2 - matchesPerRound[currentMatch.roundNum]
+            let byesQueuedThisRound = 0
+            for (let bye of byeQueue) {
+                if (bye.roundNum == currentMatch.roundNum) {
+                    byesQueuedThisRound++
+                }
+            }
+            if (byesQueuedThisRound < byesRequiredThisRound) {
+                byeCnsnt = byeConstraintsSatisfied(byeQueue, currentMatch)
+            }
+
             // Our match will work now if all team constraints are satisfied. 
-            if( homeCnsnt === Constraint.SATISFIED && awayCnsnt === Constraint.SATISFIED ){
-                
+            if (homeCnsnt === Constraint.SATISFIED && awayCnsnt === Constraint.SATISFIED && byeCnsnt === Constraint.SATISFIED) {
+
+                if (byesQueuedThisRound < byesRequiredThisRound) {
+                    byeQueue.push(currentMatch)
+                    byeMatch = true
+                }
+
                 // Set the match up
                 table.setMatch(currentMatch);
                 
@@ -189,21 +228,11 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
                 }
 
                 // Recurse to set the rest of the table. True if filled, false if no solution.
-                matchFound = fillFrom( table, matchesPerRound, teams, matches, crntMatchCount+1, nextMQueue );
+                matchFound = fillFrom( table, matchesPerRound, teams, matches, crntMatchCount+1, nextMQueue, byeQueue );
                 
                 // If match found add to final match set. Else this is not the solution, backtrack and keep looking.
                 if (matchFound) {
-
-                    let matchesInThisRoundCount = 0
-                    for (let match of matches) {
-                        if (match.roundNum == currentMatch.roundNum) {
-                            matchesInThisRoundCount++
-                        }
-                    }
-
-                    if (matchesInThisRoundCount >= matchesPerRound[currentMatch.roundNum]) {
-                        table.clearMatch(currentMatch)
-                    } else {
+                    if (!byeMatch) {
                         matches.push(currentMatch);
                     }
                     break;
@@ -315,7 +344,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
     matchQueue.sort(cmpMinConfMaxDom);
 
     // Populate the rest of the ConTable with fillFrom, starting the head of matchQueue
-    if( fillFrom(matchupState, matchesPerRound, teams, finalMatches, finalMatches.length, matchQueue ) ){
+    if( fillFrom(matchupState, matchesPerRound, teams, finalMatches, finalMatches.length, matchQueue, [] ) ){
         if( verbose ){
             console.log("Solution found after " + permCounter + " permutations.")
         }
