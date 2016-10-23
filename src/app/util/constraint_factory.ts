@@ -15,7 +15,8 @@ export enum Constraint {
     MAX_AWAY = 3,
     MIN_AWAY = 4,
     MAX_CONSEC_HOME = 5,
-    MAX_CONSEC_AWAY = 6
+    MAX_CONSEC_AWAY = 6,
+    BYE_REPEAT = 7
 }
 
 /** 
