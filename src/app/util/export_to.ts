@@ -9,7 +9,7 @@ export class ExportTo {
      * separated values (CSV) and writes to `stream`. The `rounds` must be eager
      * loaded, otherwise the match-up information will be missing from the file.
      */
-    static CSV(stream: fs.WriteStream, rounds: Round[]) {
+    static fixtureCSV(stream: fs.WriteStream, rounds: Round[]) {
         for (let round of rounds) {
             stream.write('Round ' + round.number + ',' + this.CSVify(round.startDate.format('YYYY-MM-DD')) + EOL)
             for (let match of round.matchesPreLoaded) {
