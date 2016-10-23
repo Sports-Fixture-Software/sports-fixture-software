@@ -3,7 +3,7 @@ import { Match } from '../../../../app/services/scheduler/dfs/fixture_constraint
 import { TestUtil, TestTeamNoConstraints } from './helpers/test_util'
 
 describe('services DFS scheduler plot fixture rotation, reserved matches', () => {
-    let timeout: number = 5000 // each test has 5 seconds
+    let timeout: number = 30000 // each test has 30 seconds
     afterEach(() => {
         if (TestUtil.worker) {
             TestUtil.worker.kill()
