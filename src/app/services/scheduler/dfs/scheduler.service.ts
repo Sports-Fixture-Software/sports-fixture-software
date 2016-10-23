@@ -52,7 +52,15 @@ export class SchedulerService {
             // convert the DFS fixture to database matches and add to database.
             return Promise.map(dfsFixture, (item, index, length) => {
                 let match = new Match()
-                match.round_id = item.roundNum + 1
+
+                let roundIndex = Search.binarySearch(this.rounds, item.roundNum + 1, (a: number, b: Round) => {
+                    return a - b.number
+                })
+                if (roundIndex < 0) {
+                    throw new Error(`cannot find round number ${item.roundNum}`)
+                }
+                match.round_id = this.rounds[roundIndex].id
+
                 let homeId = this.dfsTeamtoTeamMap.get(item.homeTeam)
                 if (homeId == undefined) {
                     throw new Error(`cannot find team id ${item.homeTeam}, available ids are ${Array.from(this.dfsTeamtoTeamMap.keys())}`)
