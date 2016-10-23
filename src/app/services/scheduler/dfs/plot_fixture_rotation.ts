@@ -202,7 +202,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
                 }
 
                 // Learn from broken constraint
-                switch( homeCnsnt ){
+                switch( awayCnsnt ){
 
                     // This match would leave its away team playing too many away games in a row
                     case Constraint.MAX_CONSEC_AWAY:
@@ -232,7 +232,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], verbo
             if( homeCnsnt !== Constraint.SATISFIED ){
                 
                 if( verbose ){
-                    console.log("**** Away constraint unsatisfied, removing offenders from queue: R" + currentMatch.roundNum + " H" + currentMatch.homeTeam);
+                    console.log("**** Home constraint unsatisfied, removing offenders from queue: R" + currentMatch.roundNum + " H" + currentMatch.homeTeam);
                 }
 
                 // Learn from broken constraint
