@@ -97,10 +97,10 @@ export class TestUtil {
      * Runs the plotFixtureRotation function from services in a separate thread.
      * Returns a Promise of the plotFixtureRotation result.
      */
-    static runPlotFixtureRotation(numTeams: number, reservedMatches: Match[], verbose: boolean): Promise<Match[]> {
+    static runPlotFixtureRotation(numTeams: number, reservedMatches: Match[], numRounds: number, verbose: boolean): Promise<Match[]> {
         return new Promise<Match[]>((resolve, reject) => {
             this.worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
-            this.worker.send([numTeams, reservedMatches, verbose])
+            this.worker.send([numTeams, reservedMatches, numRounds, verbose])
             this.worker.on('message', (testFixture: any) => {
                 if (testFixture.message) {
                     let err = new Error()

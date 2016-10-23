@@ -11,7 +11,7 @@ process.on('message', (args: any[]) => {
         teams.push(new TestTeamNoConstraints())
     }
     try {
-        process.send(plotFixtureRotation(teams, args[1], args[2]))
+        process.send(plotFixtureRotation(teams, args[1], args[2], args[3]))
     } catch (e) {
         process.send({ name: e.name, message: e.message })
     }
