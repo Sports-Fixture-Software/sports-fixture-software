@@ -17,6 +17,15 @@ export class MatchService {
     }
 
     /**
+     * Delete a match from the database.
+     *
+     * Returns the deleted match.
+     */
+    deleteMatch(match: Match): Promise<Match> {
+        return match.destroy()
+    }
+
+    /**
      * Delete all matches for the specified round.
      *
      * Returns an empty Match model.

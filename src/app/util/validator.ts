@@ -32,7 +32,13 @@ export class Validator {
      * match-up of teamX vs teamX
      */
     static differentTeamsSelected = ({value}: FormGroup): { [key: string]: any } => {
-        return value.homeTeam == value.awayTeam ? { equal: true } : null
+        return new Promise(resolve => {
+            if (value.homeTeam == value.awayTeam) {
+                resolve({equal: true})
+            } else {
+                resolve(null);
+            }
+        })
     }
     /**
      * Minimum number allowed for consecutive home/ away games constraint

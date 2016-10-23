@@ -1,6 +1,6 @@
 import { League } from '../models/league';
 import * as sqlite from 'sqlite3'
-import { databaseInjector } from '../bootstrap'
+import { databaseInjector } from './database_injector'
 import { DatabaseService } from './database.service'
 import { Collection } from './collection'
 import { Injectable } from '@angular/core'
@@ -19,6 +19,34 @@ export class LeagueService {
 
     getLeague(id: number): Promise<League> {
         return new League().where('id', id).fetch()
+    }
+
+    /**
+     * get league and the associated fixtures.
+     */
+    getLeagueAndFixtures(id: number): Promise<League> {
+        return new League().where('id', id).fetch({
+            withRelated: [
+                {
+                    'fixtures' : (qb) => {
+                        return qb.where('active', true)
+                    }
+                }]
+        })
+    }
+
+    /**
+     * get league and the associated teams.
+     */
+    getLeagueAndTeams(id: number): Promise<League> {
+        return new League().where('id', id).fetch({
+            withRelated: [
+                {
+                    'teams' : (qb) => {
+                        return qb.where('active', true)
+                    }
+                }]
+        })
     }
 
     /**

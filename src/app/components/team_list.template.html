@@ -1,12 +1,12 @@
 <div class="row">
     <div class="col-xs-1 button-grid" #addButtonDiv>
-        <button #addTeamButton class="btn btn-default vert-sep" type="button" [popover]="createTeamPopover" popoverPlacement="right" (click)="prepareForm()">
+        <button #addTeamButton class="btn btn-default vert-sep" type="button" [popover]="createTeamPopover" popoverPlacement="right" (click)="prepareForm()"  aria-label="Create Team">
             <span class="glyphicon glyphicon-plus"></span>
         </button>
         <popover-content #createTeamPopover [title]="teamButtonText" [closeOnClickOutside]="true">
             <form class="form-s" [formGroup]="teamForm" novalidate (ngSubmit)="createTeam(teamForm.value)">
                 <div class="input-group">
-                    <input #newTeamText type="text" class="form-control" placeholder="Team Name…" formControlName="name" />
+                    <input #newTeamText type="text" class="form-control" placeholder="Team Name…" formControlName="name" aria-label="Team Name" />
                     <span class="input-group-btn">
                         <button-popover #createTeamButton type="submit" btn-class="btn btn-primary" [disabled]="!teamForm.valid">
                             <span class="glyphicon glyphicon-ok"></span>
@@ -24,7 +24,7 @@
                 <col class="button-col">
             </colgroup>
             <tbody>
-                <tr *ngFor="let team of teams" (click)="navigateToTeam(team)">
+                <tr *ngFor="let team of teams" (click)="navigateToTeam(team)" [attr.aria-label]="team?.name">
                     <td>
                         <team-list-item [team]="team"></team-list-item>
                     </td>

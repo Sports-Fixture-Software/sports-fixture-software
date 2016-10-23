@@ -1,4 +1,4 @@
-<h2>Summary</h2>
+<h2 aria-label="Summary">Summary</h2>
 <div class="spacer30"></div>
 <p><strong>{{league?.name}}</strong> - 
     <strong>{{fixture?.name}}</strong>
@@ -6,10 +6,10 @@
 <p><strong>{{numberOfTeams}}</strong> teams
     play <strong>{{numberOfRounds}}</strong> rounds
 </p>
-<p>Starting on <strong>{{fixture?.startDate?.format('ll')}}</strong>
-    ending on <strong>{{fixture?.endDate?.format('ll')}}</strong>
+<p>Starting on <strong>{{fixture?.startDate?.isValid() ? fixture.startDate.format('ll') : 'not specified' }}</strong>
+    ending on <strong>{{fixture?.endDate?.isValid() ? fixture.endDate.format('ll') : 'not specified' }}</strong>
 </p>
 <div class="spacer30"></div>
-<button type="button" class="btn btn-primary btn-lg btn-block vert-sep" (click)="generate()">
+<button-popover #generateButton btn-class="btn btn-primary btn-lg btn-block vert-sep" type="button" (click)="generate()" aria-label="Generate">
     Generate
-</button>
+</button-popover>

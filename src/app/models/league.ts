@@ -1,7 +1,7 @@
 /**
  * League
  */
-import { databaseInjector } from '../bootstrap'
+import { databaseInjector } from '../services/database_injector'
 import { DatabaseService } from '../services/database.service'
 import { Collection } from '../services/collection'
 import { Fixture } from './fixture'
@@ -24,14 +24,16 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
     get name(): string { return this.get('name') }
     set name(value: string) { this.set('name', value) }
 
-    getTeams(): Promise<Collection<Team>> {
-        return this.fetch({ withRelated: ['teams']}).then((res) => {
-            return res.related('teams') as Collection<Team>
-        })
+    get teamsPreLoaded(): Collection<Team> {
+        return this.related('teams') as Collection<Team>
     }
 
     get leagueConfigPreLoaded(): LeagueConfig {
         return this.related('leagueConfig') as LeagueConfig
+    }
+
+    get fixturesPreLoaded(): Collection<Fixture> {
+        return this.related('fixtures') as Collection<Fixture>
     }
 
     /**
@@ -43,7 +45,7 @@ export class League extends (databaseInjector.get(DatabaseService) as DatabaseSe
     /**
      * Needed by bookshelf to setup relationship
      */
-   protected teams(): Collection<Team> {
+    protected teams(): Collection<Team> {
         return this.hasMany(Team)
     }
     /**

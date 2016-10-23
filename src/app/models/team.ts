@@ -1,4 +1,4 @@
-import { databaseInjector } from '../bootstrap'
+import { databaseInjector } from '../services/database_injector'
 import { DatabaseService } from '../services/database.service'
 import { League } from './league'
 import { TeamConfig } from './team_config'
@@ -20,16 +20,14 @@ export class Team extends (databaseInjector.get(DatabaseService) as DatabaseServ
     get name(): string { return this.get('name') }
     set name(value: string) { this.set('name', value) }
 
-    getLeague(): Promise<League> {
-        return this.fetch({ withRelated: ['league'] }).then((res) => {
-            return res.related('league') as League
-        })
-    }
     setLeague(value: League) { this.set('league_id', value.id) }
 
     get teamConfigPreLoaded(): TeamConfig {
         return this.related('teamConfig') as TeamConfig
     }
+
+    static ANY_TEAM_ID = -1
+    static BYE_TEAM_ID: number = null
 
     /**
      * Needed by bookshelf to setup relationship

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core'
+import { AppConfig } from '../util/app_config'
 import * as bookshelf from 'bookshelf'  
 import * as knex from 'knex'
 import * as Promise from 'bluebird'
@@ -40,8 +41,7 @@ export class DatabaseService {
                 return res
             }).catch((err: Error) => {
                 this._initError = new Error
-                    (`Unable to open database "${this.dbFilename}"
-                     (${err.message})`)
+                    (`Unable to open database "${AppConfig.getDatabaseFilename()}" (${err.message})`)
             })
         }
         else {
@@ -49,7 +49,8 @@ export class DatabaseService {
         }
     }
 
-    private cleanDatabase(): Promise<any> {
+    cleanDatabase(): Promise<any> {
+        this._initCalled = false
         return this.get().knex.select('name').from('sqlite_master')
             .where('type', 'table').andWhere('name', '<>', 'sqlite_sequence')
             .then((res) => {
@@ -90,6 +91,7 @@ export class DatabaseService {
                 return this.get().knex.schema.createTableIfNotExists('team',
                     (table) => {
                         table.increments('id')
+                        table.boolean('active').notNullable().defaultTo(true)
                         table.string('name').notNullable()
                         table.integer('league_id').notNullable().references
                             ('id').inTable('league')
@@ -160,6 +162,16 @@ export class DatabaseService {
                             ('id').inTable('league')
                 })
             }).then((res) => {
+                return this.get().knex.schema.createTableIfNotExists('fixtureconfig',
+                    (table) => {
+                        table.increments('id')
+                        table.integer('priority')
+                        table.integer('consecutiveHomeGamesMax')
+                        table.integer('consecutiveAwayGamesMax')
+                        table.integer('fixture_id').notNullable().references
+                            ('id').inTable('fixture')
+                })
+            }).then((res) => {
                 return this.get().knex.schema.createTableIfNotExists('info',
                     (table) => {
                         table.integer('databaseVersion')
@@ -168,8 +180,9 @@ export class DatabaseService {
                 return this.get().knex('info').insert
                     ({databaseVersion: this._databaseVersion})
             }).then((res) => {
-                // for testing only. Remove from production version
-                return this.seedDatabase()
+                if (AppConfig.isDeveloperMode()) {
+                    return this.seedDatabase()
+                }
             })
     }
 
@@ -181,7 +194,8 @@ export class DatabaseService {
         let leagues = [
             { name: 'SANFL (10 teams)' },
             { name: 'South Australian National Footbal League (SANFL) - a really long name' },
-            { name: 'U18 (9 teams)' }
+            { name: 'U18 (9 teams)' },
+            { name: 'U16 (6 teams)' }
         ]
         let fixtures = [
             {
@@ -191,12 +205,12 @@ export class DatabaseService {
             },
             {
                 name: 'Fixture 2017', description: 'Fixture with late Easter',
-                startDate: moment('2017-04-13').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 1,
+                startDate: moment('2017-04-13').valueOf(), endDate: moment('2017-08-27').valueOf(), league_id: 1,
                 createdOn: moment('2016-08-30').valueOf(), createdBy: 'Tom'
             },
             {
                 name: 'Fixture with a really long name to test the display and to see how wrapping is handled', description: 'Fixture description with a really long name to test the display and to see how wrapping is handled',
-                startDate: moment('2017-04-13').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 1,
+                startDate: moment('2017-04-13').valueOf(), endDate: moment('2017-08-27').valueOf(), league_id: 1,
                 createdOn: moment('2016-08-30').valueOf(), createdBy: 'A person with a really really long name, super long'
             },
             {
@@ -205,7 +219,12 @@ export class DatabaseService {
             },
             {
                 name: 'U18 Fixture 2017', description: 'Fixture with late Easter',
-                startDate: moment('2017-04-13').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 3
+                startDate: moment('2017-04-13').valueOf(), endDate: moment('2017-08-27').valueOf(), league_id: 3
+            },
+            {
+                name: 'Fixture 2016', description: 'Fixture with early Easter',
+                startDate: moment('2016-03-24').valueOf(), endDate: moment('2016-08-27').valueOf(), league_id: 4,
+                createdOn: moment('2016-08-30').valueOf(), createdBy: 'Tom'
             },
         ]
         let teams = [
@@ -228,6 +247,12 @@ export class DatabaseService {
             { name: 'South U18', league_id: 3},
             { name: 'Sturt U18', league_id: 3},
             { name: 'West U18', league_id: 3},
+            { name: 'Adelaide U16', league_id: 4},
+            { name: 'Central U16', league_id: 4},
+            { name: 'Glenelg U16', league_id: 4},
+            { name: 'North U16', league_id: 4},
+            { name: 'Norwood U16', league_id: 4},
+            { name: 'Port U16', league_id: 4},
         ]
         let teamConfigs = [
             { homeGamesMin: 0, homeGamesMax: 0, team_id: 1 }
@@ -253,16 +278,15 @@ export class DatabaseService {
         return this._initError
     }
 
-    private dbFilename: string = 'sanfl_fixture_software.database'
     private DBConfig = {  
         client: 'sqlite3',
         connection: {
-            filename: this.dbFilename
+            filename: AppConfig.getDatabaseFilename()
         },
         useNullAsDefault: true
     }
-    
-    private _databaseVersion: number = 9
+
+    private _databaseVersion: number = 11
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null
