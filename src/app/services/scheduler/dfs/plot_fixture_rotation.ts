@@ -143,7 +143,6 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
      */
     function fillFrom( table: ConTable, roundCount: number, teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[], timeBudget: number ): boolean {
         var teamsCount: number = teams.length;
-        var roundCount: number = teamsCount - 1;
         var matchCount: number = (roundCount*(teamsCount/2));
         var timeStart: number = Date.now();
 
