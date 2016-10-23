@@ -1,10 +1,17 @@
 import { Constraint } from '../../../util/constraint_factory'
 
+/**
+ * Match struct
+ * Used for representing individual matches in fixtures.
+ * the footPrnt member is used by look-ahead to follow the min-conflict
+ * heuristic and may be ignored otherwise. 
+ */
 export class Match {
     constructor( 
         public roundNum: number,
         public homeTeam: number,
-        public awayTeam: number ){}
+        public awayTeam: number, 
+        public footPrnt: number = 0 ){}
 }
 
 /**
@@ -81,14 +88,17 @@ export class ConTable implements FixtureInterface {
     
     private games: number[][][]; //[round][Home Team Index][Away Team Index]
     private roundCount: number;
+    domainOfRound: number[];
 
     constructor(private teamsCount: number){ 
         this.roundCount = teamsCount-1;
+        this.domainOfRound = new Array(this.roundCount);
         // Instantiates the round matrices to zero in all entries
         // Table is big enough for a full rotation over all teams.
         this.games = new Array(this.roundCount);
         for(var i: number = 0; i < this.roundCount; i++ ){ // Round
             this.games[i] = new Array(teamsCount);
+            this.domainOfRound[i] = (teamsCount*teamsCount) - teamsCount;
 
             for(var j: number = 0; j < teamsCount; j++ ){ // Home
                 this.games[i][j] = new Array(teamsCount);
@@ -201,22 +211,54 @@ export class ConTable implements FixtureInterface {
         }
                 
         // Setting this match in the round
+        if( this.games[match.roundNum][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
+                this.domainOfRound[match.roundNum] -= 1;    
+        }
         this.games[match.roundNum][match.homeTeam][match.awayTeam] |= MatchState.MATCH_IN_ROUND;
 
         // Setting this match in the fixture
         for(var i: number = 0; i < this.roundCount; i++){
+            if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] -= 1;    
+            }
+
             this.games[i][match.homeTeam][match.awayTeam] |= state;
+            
+            if( this.games[i][match.awayTeam][match.homeTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] -= 1;    
+            }
+
             this.games[i][match.awayTeam][match.homeTeam] |= state;
         }
 
         // Informing the rest of the possible matches in the round of the set match.
         for(var i: number = 0; i < this.teamsCount; i++){
+
+            if( this.games[match.roundNum][i][match.awayTeam] == MatchState.OPEN ){
+                this.domainOfRound[match.roundNum] -= 1;
+            }
+
             this.games[match.roundNum][i][match.awayTeam] |= MatchState.AWAY_PLAYING_AWAY;
+            
+            if( this.games[match.roundNum][i][match.homeTeam] == MatchState.OPEN ){
+                this.domainOfRound[match.roundNum] -= 1;
+            }
+
             this.games[match.roundNum][i][match.homeTeam] |= MatchState.AWAY_PLAYING_HOME;
+            
+            if( this.games[match.roundNum][match.awayTeam][i] == MatchState.OPEN ){
+                this.domainOfRound[match.roundNum] -= 1;
+            }
+
             this.games[match.roundNum][match.awayTeam][i] |= MatchState.HOME_PLAYING_AWAY;
+            
+            if( this.games[match.roundNum][match.homeTeam][i] == MatchState.OPEN ){
+                this.domainOfRound[match.roundNum] -= 1;
+            }
+
             this.games[match.roundNum][match.homeTeam][i] |= MatchState.HOME_PLAYING_HOME;
         }
-        
+
         return true;
     }
 
@@ -232,8 +274,7 @@ export class ConTable implements FixtureInterface {
      */
     clearMatch(match: Match): boolean {
         // Checking for an illegal matchup
-        if( this.getMask(match) === MatchState.ILLEGAL ||
-            this.getMask(match) === MatchState.OPEN ){
+        if( (this.getMask(match) & MatchState.MATCH_IN_ROUND) !== MatchState.MATCH_IN_ROUND ){
             return false;
         }
         
@@ -243,19 +284,112 @@ export class ConTable implements FixtureInterface {
         // Clearing this match in the fixture
         for(var i: number = 0; i < this.teamsCount-1; i++){
             this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
+            if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] += 1;
+            }
+
             this.games[i][match.awayTeam][match.homeTeam] &= MatchState.NOT_SET;
+            if( this.games[i][match.awayTeam][match.homeTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] += 1;
+            }
         }
 
         // Informing the rest of the possible matches in the round of the cleared match.
         for(var i: number = 0; i < this.teamsCount; i++){
             this.games[match.roundNum][i][match.awayTeam] &= MatchState.NOT_APA;
+
+            if( this.games[match.roundNum][i][match.awayTeam] == MatchState.OPEN ){
+                this.domainOfRound[match.roundNum] += 1;
+            }
+
             this.games[match.roundNum][i][match.homeTeam] &= MatchState.NOT_APH;
+
+            if( this.games[match.roundNum][i][match.homeTeam] == MatchState.OPEN ){
+                this.domainOfRound[match.roundNum] += 1;
+            }
+
             this.games[match.roundNum][match.awayTeam][i] &= MatchState.NOT_HPA;
+            
+            if( this.games[match.roundNum][match.awayTeam][i] == MatchState.OPEN ){
+                this.domainOfRound[match.roundNum] += 1;
+            }
+
             this.games[match.roundNum][match.homeTeam][i] &= MatchState.NOT_HPH;
+
+            if( this.games[match.roundNum][match.homeTeam][i] == MatchState.OPEN ){
+                this.domainOfRound[match.roundNum] += 1;
+            }
         }
 
         return true;
     }
+
+    /**
+     * getFootPrint
+     * Calculates the number of other matchups that will be rendered illegal by 
+     * the supplied match if it was to be applied to the conTable. Can be used 
+     * for obtaining values to fill a Match's footPrnt member variable.
+     * 
+     * This function is forgiving. It will give you an answer even if the 
+     * proposed matchup is not available in the first place. 
+     * 
+     * Returns:
+     * integer >= 0, number of open matches that would be set to 'not available'
+     * integer -1 if the matchup is illegal
+     */
+    calcFootPrint(match: Match): number {
+        // Checking for an illegal matchup
+        if( match.roundNum >= this.roundCount || match.roundNum < 0 ||
+            match.homeTeam >= this.teamsCount || match.homeTeam < 0 ||
+            match.awayTeam >= this.teamsCount || match.awayTeam < 0 ||
+            match.homeTeam === match.awayTeam ){
+            return -1;
+        }
+        
+        var openGamesOverlapped: number = 0;
+
+        // Footprint throughout other rounds
+        for(var i: number = 0; i < this.roundCount; i++){
+            if( i != match.roundNum ){
+                if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
+                    openGamesOverlapped += 1;
+                }
+
+                if( this.games[i][match.awayTeam][match.homeTeam] == MatchState.OPEN ){
+                    openGamesOverlapped += 1;
+                }
+            }
+        }
+
+        // Footprint within the round of the match
+        for(var i: number = 0; i < this.teamsCount; i++){
+
+            if ( i != match.awayTeam ) {
+                if( this.games[match.roundNum][i][match.awayTeam] == MatchState.OPEN ){
+                    openGamesOverlapped += 1;
+                }
+
+                if( this.games[match.roundNum][match.awayTeam][i] == MatchState.OPEN ){
+                    openGamesOverlapped += 1;
+                }
+            }
+
+            if ( i != match.homeTeam ) {
+                if( this.games[match.roundNum][i][match.homeTeam] == MatchState.OPEN ){
+                    openGamesOverlapped += 1;
+                }
+
+                if( this.games[match.roundNum][match.homeTeam][i] == MatchState.OPEN ){
+                    openGamesOverlapped += 1;
+                }
+            }
+
+        }
+
+        // Two must be taken from the sum as 'match' and its reverse was counted twice
+        return openGamesOverlapped-2;
+    }
+
 
     /**
      * sliceRound
