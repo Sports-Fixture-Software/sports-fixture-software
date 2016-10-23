@@ -205,7 +205,7 @@ export class ReviewComponent implements OnInit, OnDestroy {
         this.showSaveDialog().then((res: string) => {
             return FileFolder.createWriteStream(res)
         }).then((stream: fs.WriteStream) => {
-            ExportTo.CSV(stream, this.rounds)
+            ExportTo.fixtureCSV(stream, this.rounds)
             stream.end()
             stream.close()
         }).catch((err: Error) => {
