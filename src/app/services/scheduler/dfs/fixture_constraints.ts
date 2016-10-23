@@ -209,6 +209,9 @@ export class ConTable implements FixtureInterface {
         }
                 
         // Setting this match in the round
+        if( this.games[match.roundNum][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
+                this.domainOfRound[match.roundNum] -= 1;    
+        }
         this.games[match.roundNum][match.homeTeam][match.awayTeam] |= MatchState.MATCH_IN_ROUND;
 
         let gamesPerRound = this.teamsCount - 1
@@ -216,9 +219,17 @@ export class ConTable implements FixtureInterface {
 
         // Setting this match in the fixture
         for(var i: number = rotationNum*gamesPerRound; i < Math.min((rotationNum*gamesPerRound) + gamesPerRound, this.roundCount); i++){
+            if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] -= 1;    
+            }
+
             this.games[i][match.homeTeam][match.awayTeam] |= state;
+            
+            if( this.games[i][match.awayTeam][match.homeTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] -= 1;    
+            }
+
             this.games[i][match.awayTeam][match.homeTeam] |= state;
-            this.domainOfRound[i] -= 2;
         }
 
         // Informing the rest of the possible matches in the round of the set match.
@@ -264,8 +275,7 @@ export class ConTable implements FixtureInterface {
      */
     clearMatch(match: Match): boolean {
         // Checking for an illegal matchup
-        if( this.getMask(match) === MatchState.ILLEGAL ||
-            this.getMask(match) === MatchState.OPEN ){
+        if( (this.getMask(match) & MatchState.MATCH_IN_ROUND) !== MatchState.MATCH_IN_ROUND ){
             return false;
         }
         
@@ -278,8 +288,14 @@ export class ConTable implements FixtureInterface {
         // Clearing this match in the fixture
         for(var i: number = rotationNum*gamesPerRound; i < Math.min((rotationNum*gamesPerRound) + gamesPerRound, this.roundCount); i++){
             this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
+            if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] += 1;
+            }
+
             this.games[i][match.awayTeam][match.homeTeam] &= MatchState.NOT_SET;
-            this.domainOfRound[i] += 2;
+            if( this.games[i][match.awayTeam][match.homeTeam] == MatchState.OPEN ){
+                this.domainOfRound[i] += 1;
+            }
         }
 
         // Informing the rest of the possible matches in the round of the cleared match.
@@ -323,8 +339,17 @@ export class ConTable implements FixtureInterface {
      * 
      * Returns:
      * integer >= 0, number of open matches that would be set to 'not available'
+     * integer -1 if the matchup is illegal
      */
     calcFootPrint(match: Match): number {
+        // Checking for an illegal matchup
+        if( match.roundNum >= this.roundCount || match.roundNum < 0 ||
+            match.homeTeam >= this.teamsCount || match.homeTeam < 0 ||
+            match.awayTeam >= this.teamsCount || match.awayTeam < 0 ||
+            match.homeTeam === match.awayTeam ){
+            return -1;
+        }
+        
         var openGamesOverlapped: number = 0;
 
         let gamesPerRound = this.teamsCount - 1
@@ -368,7 +393,8 @@ export class ConTable implements FixtureInterface {
 
         }
 
-        return openGamesOverlapped;
+        // Two must be taken from the sum as 'match' and its reverse was counted twice
+        return openGamesOverlapped-2;
     }
 
 
