@@ -14,11 +14,6 @@ export class Match {
         public footPrnt: number = 0 ){}
 }
 
-export interface RotationInfo {
-    startRound: number,
-    endRound: number
-}
-
 /**
  * FixtureInterface
  * Interface to retrieve matches from a fixture representation. Used primarily
@@ -40,12 +35,6 @@ export interface FixtureInterface {
      *   given round.
      */
     getAwayTeamVs( round: number, homeTeam: number ): number;
-
-    /**
-     * Returns the rotation information (start and end round) for rotation
-     * that `round` is in. Returns `undefined` if the rotation cannot be found.
-     */
-    getRotation(round: number): RotationInfo
 }
 
 /**
@@ -98,7 +87,6 @@ export enum MatchState {
 export class ConTable implements FixtureInterface {
     
     private games: number[][][]; //[round][Home Team Index][Away Team Index]
-    private rotations: RotationInfo[] = []
     domainOfRound: number[];
 
     constructor(private teamsCount: number, private roundCount: number){
@@ -121,11 +109,7 @@ export class ConTable implements FixtureInterface {
                     }
                 }
             }
-        }
 
-        let roundsPerRotation = teamsCount - 1
-        for (let i = 0; i < roundCount; i += roundsPerRotation) {
-            this.rotations.push({ startRound: i, endRound: Math.min(i + roundsPerRotation - 1, roundCount - 1) })
         }
     }
 
@@ -160,17 +144,6 @@ export class ConTable implements FixtureInterface {
         return -1;
     }
 
-    /**
-     * See `FixtureInterface.getRotation`
-     */
-    getRotation(round: number): RotationInfo {
-        for (let rot of this.rotations) {
-            if (round >= rot.startRound && round <= rot.endRound) {
-                return rot
-            }
-        }
-        return undefined
-    }
 
     /**
      * getMask
