@@ -8,10 +8,10 @@ import { RoundService } from '../../round.service'
 import { MatchService } from '../../match.service'
 import { Collection } from '../../collection'
 import { Team as DFSTeam, Match as DFSMatch, FixtureInterface }  from './fixture_constraints'
-import { Constraint } from '../../../util/constraint_factory'
 import { plotFixtureRotation } from './plot_fixture_rotation'
 import { Search } from '../../../util/search'
 import { DateTime } from '../../../util/date_time'
+import { TeamConstraints } from './team_constraints'
 import * as Promise from 'bluebird'
 
 @Injectable()
@@ -88,7 +88,7 @@ export class SchedulerService {
         for (let team of teams) {
             this.teamtoDfsTeamMap.set(team.id, index)
             this.dfsTeamtoTeamMap.set(index, team.id)
-            dfsTeams.push(new TestTeamNoConstraints())
+            dfsTeams.push(new TeamConstraints())
             index++
         }
         return dfsTeams
@@ -133,13 +133,4 @@ export class SchedulerService {
     private teams: Team[]
     private roundCount: number
     private fixture: Fixture
-}
-
-class TestTeamNoConstraints implements DFSTeam {
-
-    constructor() { }
-
-    constraintsSatisfied(fixture: FixtureInterface, proposedMatch: DFSMatch, home: boolean): Constraint {
-        return Constraint.SATISFIED;
-    }
 }
