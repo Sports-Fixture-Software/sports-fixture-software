@@ -205,7 +205,30 @@ export class ReviewComponent implements OnInit, OnDestroy {
         this.showSaveDialog().then((res: string) => {
             return FileFolder.createWriteStream(res)
         }).then((stream: fs.WriteStream) => {
-            ExportTo.CSV(stream, this.rounds)
+            ExportTo.fixtureCSV(stream, this.rounds)
+            stream.end()
+            stream.close()
+        }).catch((err: Error) => {
+            if (err instanceof UserCancelled) {
+                // don't show error - the user cancelled
+            } else {
+                this.saveFixtureButton.showError('Error saving fixture',
+                    'A file error occurred when saving the fixture. ' + AppConfig.FileErrorGuidance)
+                AppConfig.log(err)
+                this._changeref.detectChanges()
+            }
+        })
+    }
+
+    /**
+     * Show a Save As dialog and write the team sorted CSV. Errors are displayed as a
+     * popover to the Save Teams Fixture button.
+     */
+    onSaveTeamsFixture() {
+        this.showSaveDialog().then((res: string) => {
+            return FileFolder.createWriteStream(res)
+        }).then((stream: fs.WriteStream) => {
+            ExportTo.teamCSV(stream, this.rounds)
             stream.end()
             stream.close()
         }).catch((err: Error) => {
