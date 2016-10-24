@@ -1,4 +1,4 @@
-import { Match, FixtureInterface, RotationInfo } from '../services/scheduler/dfs/fixture_constraints';
+import { Match, FixtureInterface } from '../services/scheduler/dfs/fixture_constraints';
 
 /**
  * Constraint Enumeration
@@ -196,12 +196,8 @@ export class ConstraintFactory {
                 return true
             }
 
-            let rot = fixture.getRotation(proposedMatch.roundNum)
-            if (rot == undefined) {
-                throw new Error(`Unable to locate round ${proposedMatch.roundNum} in rotations`)
-            }
             let count = 0
-            for (let round = rot.startRound; round <= rot.endRound; round++) {
+            for (let round = 0; round < fixture.getNumberOfRounds(); round++) {
                 if (fixture.getAwayTeamVs(round, teamid) >= 0) {
                     count++
                     if (count >= homeGamesMax) {
@@ -228,12 +224,8 @@ export class ConstraintFactory {
                 return true
             }
 
-            let rot = fixture.getRotation(proposedMatch.roundNum)
-            if (rot == undefined) {
-                throw new Error(`Unable to locate round ${proposedMatch.roundNum} in rotations`)
-            }
             let count = 0
-            for (let round = rot.startRound; round <= rot.endRound; round++) {
+            for (let round = 0; round < fixture.getNumberOfRounds(); round++) {
                 if (fixture.getHomeTeamVs(round, teamid) >= 0) {
                     count++
                     if (count >= awayGamesMax) {
