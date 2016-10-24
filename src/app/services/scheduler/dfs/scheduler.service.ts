@@ -34,6 +34,7 @@ export class SchedulerService {
             this.teams = this.fixture.leaguePreLoaded.teamsPreLoaded.toArray()
             this.rounds = rounds.toArray()
             let newRounds = DateTime.fillInRounds(this.fixture, this.rounds, false)
+            this.roundCount = this.rounds.length + newRounds.length
             return Promise.map(newRounds, (item, index, length) => {
                 return this.roundService.addRound(item)
             })
@@ -47,7 +48,7 @@ export class SchedulerService {
             let dfsTeams = this.convertTeams(this.teams)
             let dfsReservedMatches = this.convertReservedMatches(this.rounds)
 
-            let dfsFixture = plotFixtureRotation(dfsTeams, dfsReservedMatches, true)
+            let dfsFixture = plotFixtureRotation(dfsTeams, dfsReservedMatches, this.roundCount, false)
 
             // convert the DFS fixture to database matches and add to database.
             return Promise.map(dfsFixture, (item, index, length) => {
@@ -130,6 +131,7 @@ export class SchedulerService {
     private dfsTeamtoTeamMap = new Map<number, number>()
     private rounds: Round[]
     private teams: Team[]
+    private roundCount: number
     private fixture: Fixture
 }
 

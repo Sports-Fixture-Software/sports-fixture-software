@@ -16,7 +16,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 2
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -33,7 +33,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 2
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -51,7 +51,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 4
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -69,7 +69,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 4
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -88,7 +88,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 4
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -107,7 +107,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 4
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -127,7 +127,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 4
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -149,7 +149,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 4
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -171,7 +171,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 4
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((res) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((res) => {
             done.fail('Expected to throw Error')
         }).catch((err: Error) => {
             expect(err.message).toBe('Reserved Matches clash with basic constraints in this rotation.')
@@ -187,7 +187,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 6
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -206,7 +206,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 6
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -227,7 +227,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 6
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -248,7 +248,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 6
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -270,7 +270,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 6
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -301,7 +301,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 6
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -332,7 +332,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 6
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             done.fail('Expected to throw Error')
         }).catch((err: Error) => {
             expect(err.message).toBe('Reserved Matches clash with basic constraints in this rotation.')
@@ -349,7 +349,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 8
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -369,7 +369,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 8
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -392,7 +392,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 8
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -415,7 +415,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 8
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -439,7 +439,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 8
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -483,7 +483,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 8
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -527,7 +527,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 8
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             done.fail('Expected to throw Error')
         }).catch((err: Error) => {
             expect(err.message).toBe('Reserved Matches clash with basic constraints in this rotation.')
@@ -545,7 +545,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 10
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -566,7 +566,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 10
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -591,7 +591,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 10
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -616,7 +616,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 10
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -642,7 +642,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 10
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -703,7 +703,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 10
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -764,7 +764,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 10
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             done.fail('Expected to throw Error')
         }).catch((err: Error) => {
             expect(err.message).toBe('Reserved Matches clash with basic constraints in this rotation.')
@@ -783,7 +783,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 12
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -805,7 +805,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 12
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -832,7 +832,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 12
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -859,7 +859,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 12
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -887,7 +887,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 12
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -969,7 +969,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 12
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -1051,7 +1051,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 12
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             done.fail('Expected to throw Error')
         }).catch((err: Error) => {
             expect(err.message).toBe('Reserved Matches clash with basic constraints in this rotation.')
@@ -1071,7 +1071,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 14
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -1094,7 +1094,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 14
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -1121,7 +1121,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 14
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -1150,7 +1150,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 14
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -1180,7 +1180,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 14
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -1287,7 +1287,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 14
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             let result = TestUtil.testIfTeamsCorrectInAllRounds(testFixture, numRounds, numTeams)
             expect(result.result).toBe(true, result.message)
             result = TestUtil.testIfRoundsCorrect(testFixture, numRounds)
@@ -1394,7 +1394,7 @@ describe('services DFS scheduler plot fixture rotation, reserved matches', () =>
         ]
         let numTeams = 14
         let numRounds = numTeams - 1
-        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, false).then((testFixture) => {
+        TestUtil.runPlotFixtureRotation(numTeams, reservedMatches, numTeams - 1, false).then((testFixture) => {
             done.fail('Expected to throw Error')
         }).catch((err: Error) => {
             expect(err.message).toBe('Reserved Matches clash with basic constraints in this rotation.')

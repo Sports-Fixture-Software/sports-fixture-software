@@ -87,11 +87,9 @@ export enum MatchState {
 export class ConTable implements FixtureInterface {
     
     private games: number[][][]; //[round][Home Team Index][Away Team Index]
-    private roundCount: number;
     domainOfRound: number[];
 
-    constructor(private teamsCount: number){ 
-        this.roundCount = teamsCount-1;
+    constructor(private teamsCount: number, private roundCount: number){
         this.domainOfRound = new Array(this.roundCount);
         // Instantiates the round matrices to zero in all entries
         // Table is big enough for a full rotation over all teams.
@@ -216,8 +214,10 @@ export class ConTable implements FixtureInterface {
         }
         this.games[match.roundNum][match.homeTeam][match.awayTeam] |= MatchState.MATCH_IN_ROUND;
 
+        let gamesPerRotation = this.teamsCount - 1
+
         // Setting this match in the fixture
-        for(var i: number = 0; i < this.roundCount; i++){
+        for(var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.roundCount); i++){
             if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
                 this.domainOfRound[i] -= 1;    
             }
@@ -281,8 +281,10 @@ export class ConTable implements FixtureInterface {
         // Clearing this match in the round
         this.games[match.roundNum][match.homeTeam][match.awayTeam] &= MatchState.NOT_MIR;
 
+        let gamesPerRotation = this.teamsCount - 1
+
         // Clearing this match in the fixture
-        for(var i: number = 0; i < this.teamsCount-1; i++){
+        for (var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.roundCount); i++){
             this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
             if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
                 this.domainOfRound[i] += 1;
@@ -348,9 +350,11 @@ export class ConTable implements FixtureInterface {
         
         var openGamesOverlapped: number = 0;
 
+        let gamesPerRotation = this.teamsCount - 1
+
         // Footprint throughout other rounds
-        for(var i: number = 0; i < this.roundCount; i++){
-            if( i != match.roundNum ){
+        for (var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.roundCount); i++){
+            if (i != match.roundNum) {
                 if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
                     openGamesOverlapped += 1;
                 }
