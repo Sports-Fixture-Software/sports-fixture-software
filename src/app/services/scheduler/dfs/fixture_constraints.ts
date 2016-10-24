@@ -35,6 +35,11 @@ export interface FixtureInterface {
      *   given round.
      */
     getAwayTeamVs( round: number, homeTeam: number ): number;
+
+    /**
+     * Returns the number of rounds in the fixture
+     */
+    getNumberOfRounds(): number;
 }
 
 /**
@@ -144,6 +149,12 @@ export class ConTable implements FixtureInterface {
         return -1;
     }
 
+    /**
+     * See `FixtureInterface.getNumberOfRounds`
+     */
+    getNumberOfRounds(): number {
+        return this.roundCount
+    }
 
     /**
      * getMask
