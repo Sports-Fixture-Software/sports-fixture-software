@@ -79,6 +79,9 @@ body {
     min-width: 150px;
 }
 
+.selectable {
+    cursor: pointer;
+}
 
 .popover {
     max-width: 500px;
