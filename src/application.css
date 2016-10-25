@@ -24,36 +24,22 @@ body {
     border-right-color: #646a7b;
 }*/
 
-.btn-default {
+.btn-menu {
     color: #fff;
     background-color: #001450;
-    border-color: #fee000;
-}
-.btn-default:hover {
-    color: #fff;
-    background-color: #002eb1;
-    border-color: #fee000;
-}
-.btn-default.focus, .btn-default:focus {
-    color: #fff;
-    background-color: #286090;
-    border-color: #fee000;
+    border-color: #9FA8DA;
+    padding: 12px;
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #004f78;
-    border-color: #fee000;
+.btn-menu:hover, .btn-menu:focus {
+    color: #fff;    
+    background-color: #7986CB;
 }
-.btn-primary:hover{
-    color: #fff;
-    background-color: #002eb1;
-    border-color: #fff;
-}
-.btn-primary.focus, .btn-primary:focus {
-    color: #fff;
-    background-color: #003a50;
-    border-color: #fff;
+
+
+.btn-active, .btn-active:active, .btn-active:focus {
+    color: #fff;    
+    background-color: #3F51B5;    
 }
 
 .container-fluid>.navbar-header {
