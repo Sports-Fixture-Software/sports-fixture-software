@@ -47,6 +47,10 @@ export class Fixture extends (databaseInjector.get(DatabaseService) as DatabaseS
         return this.related('league') as League
     }
 
+    get roundsPreLoaded(): Collection<Round> {
+        return this.related('rounds') as Collection<Round>
+    }
+
     /**
      * Needed by bookshelf to setup relationship
      */
