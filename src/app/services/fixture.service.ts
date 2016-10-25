@@ -70,13 +70,13 @@ export class FixtureService {
             withRelated: [
                 'fixtureConfig',
                 'league',
-                'leagueConfig',
+                'league.leagueConfig',
                 {
                     'league.teams': (qb) => {
                         return qb.where('active', true)
                     }
                 },
-                'league.teams.config',
+                'league.teams.teamConfig',
                 {
                     'rounds': (qb) => {
                         return qb.orderBy('number')
