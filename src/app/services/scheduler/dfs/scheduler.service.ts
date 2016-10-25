@@ -90,8 +90,8 @@ export class SchedulerService {
             let teamConstraint = this.calculateTeamConstraint(team.teamConfigPreLoaded)
             let leagueFixtureConstraint: LeagueFixtureConstraintInfo = {
                 // if config not set at fixture level, consult league level
-                consecutiveHomeGamesMax: this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax == null ? this.fixture.leaguePreLoaded.leagueConfigPreLoaded.consecutiveHomeGamesMax : this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax,
-                consecutiveAwayGamesMax: this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax == null ? this.fixture.leaguePreLoaded.leagueConfigPreLoaded.consecutiveAwayGamesMax : this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax,
+                consecutiveHomeGamesMax: this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax == null || this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax == undefined ? this.fixture.leaguePreLoaded.leagueConfigPreLoaded.consecutiveHomeGamesMax : this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax,
+                consecutiveAwayGamesMax: this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax == null || this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax == undefined ? this.fixture.leaguePreLoaded.leagueConfigPreLoaded.consecutiveAwayGamesMax : this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax,
              }
             dfsTeams.push(new TeamConstraints(index, teamConstraint, leagueFixtureConstraint))
             index++
@@ -106,8 +106,8 @@ export class SchedulerService {
      */
     private calculateTeamConstraint(config: TeamConfig): TeamConstraintInfo {
         return {
-            maxHome: Math.min(config.homeGamesMax, this.roundCount - config.awayGamesMin),
-            maxAway: Math.min(config.awayGamesMax, this.roundCount - config.homeGamesMin)
+            maxHome: config.homeGamesMax == null || config.homeGamesMax == undefined ? undefined : Math.min(config.homeGamesMax, this.roundCount - config.awayGamesMin),
+            maxAway: config.awayGamesMax == null || config.awayGamesMax == undefined ? undefined : Math.min(config.awayGamesMax, this.roundCount - config.homeGamesMin)
         }
     }
 
