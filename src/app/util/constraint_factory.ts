@@ -1,4 +1,4 @@
-import { Match, FixtureInterface } from '../services/scheduler/dfs/fixture_constraints'; 
+import { Match } from '../services/scheduler/sim-anneal/fixture_constraints'; 
 
 /**
  * Constraint Enumeration
@@ -16,6 +16,29 @@ export enum Constraint {
     MIN_AWAY = 4,
     MAX_CONSEC_HOME = 5,
     MAX_CONSEC_AWAY = 6
+}
+
+/**
+ * FixtureInterface
+ * Interface to retrieve matches from a fixture representation. Used primarily
+ * for constraint checking.
+ */
+export interface FixtureInterface {
+    /**
+     * getHomeTeamVs
+     * Returns the index of the home team vs. awayTeam on the given round.
+     * Returns -1 if a game where the awayTeam is playing does not exist on the
+     *   given round.
+     */
+    getHomeTeamVs( round: number, awayTeam: number ): number;
+
+    /**
+     * getAwayTeamVs
+     * Returns the index of the away team vs. homeTeam on the given round.
+     * Returns -1 if a game where the homeTeam is playing does not exist on the
+     *   given round.
+     */
+    getAwayTeamVs( round: number, homeTeam: number ): number;
 }
 
 /** 
