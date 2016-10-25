@@ -11,7 +11,35 @@ export class Match {
         public roundNum: number,
         public homeTeam: number,
         public awayTeam: number, 
-        public footPrnt: number = 0 ){}
+        public reserved: boolean = false ){}
+
+    isEqual(match: Match): boolean {
+        if( this.roundNum == match.roundNum && 
+            this.homeTeam == match.homeTeam &&
+            this.awayTeam == match.awayTeam ){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * isContainedIn
+     * Used for checking uniqueness in a round of a fixture made up of a 2D 
+     * array of matches.
+     * 
+     * Returns:
+     * True if this match isEqual with a match in matches.
+     * False if not.
+     */
+    isContainedIn(matches: Match[]): boolean {
+        for( let i: number = 0; i < matches.length; i++ ){
+            if( this.isEqual(matches[i]) ){
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 /**
@@ -55,407 +83,551 @@ export interface Team {
      * home - true if the team being tested is the home team in proposedMatch, 
      *   false if it is the away team in proposedMatch. 
      */   
-    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match, home: boolean ): Constraint; 
+    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match, home: boolean ): Constraint;
+
+    /**
+     * Getter functions for constraint parameters. Used for ConTable to help 
+     * calculate constraint costs.
+     * 
+     * These must return -1 if not in use.
+     */
+    consecutiveHomeGamesMax(): number;
+    consecutiveAwayGamesMax(): number;
+    homeGamesMax(): number;
+    awayGamesMax(): number;
 }
 
 /**
- * MatchState
- * Enumeration to help with updating matches in the ConTable class.
- * Match states >= 0 are unavailable in some form or fashion.
+ * Costs - Constraint costs
+ * Values to add to matches that will break the listed constraints.
  */
-export enum MatchState {
-    OPEN = 0,                   // Matchup is available
-    HOME_PLAYING_HOME = 1,      // The HOME team in this matchup is in another HOME match this round and is unavailable
-    AWAY_PLAYING_HOME = 1 << 1, // The AWAY team in this matchup is in another HOME match this round and is unavailable
-    AWAY_PLAYING_AWAY = 1 << 2, // The AWAY team in this matchup is in another AWAY match this round and is unavailable
-    HOME_PLAYING_AWAY = 1 << 3, // The HOME team in this matchup is in another AWAY match this round and is unavailable
-    MATCH_SET = 1 << 4,         // This match has already been set in this rotation, perhaps in another round 
-    MATCH_IN_ROUND = 1 << 5,    // This match has already been set in this round 
-    RESERVED = 1 << 6,          // This match has been set from the start and may not be changed
-    ILLEGAL = 1 << 7,           // Matchup cannot be used (negative team/round number, etc.)
-    NOT_SET = 0xFFFF^MATCH_SET, // Inverse bitmasks. Used for clearing matches from a ConTable.
-    NOT_MIR = 0xFFFF^MATCH_IN_ROUND,
-    NOT_HPH = 0xFFFF^HOME_PLAYING_HOME,
-    NOT_APH = 0xFFFF^AWAY_PLAYING_HOME,
-    NOT_APA = 0xFFFF^AWAY_PLAYING_AWAY,
-    NOT_HPA = 0xFFFF^HOME_PLAYING_AWAY
+enum Costs {
+    TEAM_ROTN = 1,   // Team rotation constraint
+    ONE_MPTPR = 1,   // One match per team per round
+    MAX_CONSEC = 3,  // Maximum consecutive home/away games
+    MAX_H_OR_A = 3,  // Maximum home/away games across the entire fixture
+    ILLEGAL = 999999 // Illegal match
 }
 
-/** Constraint table. Keeps track of which games are available in a 3D 
- *  matrix of bitmasks.
+/** Constraint table. Keeps count of match constraint costs with a 3D matrix of
+ *  numbers.
+ * 
+ *  Set all the matches of your fixtures in this with setMatch and then run 
+ *  through their subsequent costs with getMatchCost. 
  */
-export class ConTable implements FixtureInterface {
+export class ConTable {
     
-    private games: number[][][]; //[round][Home Team Index][Away Team Index]
-    domainOfRound: number[];
+    // Used to keep track of setting a match in the given slot
+    private matchCostCounts: number[][][]; //[round][Home Team Index][Away Team Index]
 
-    constructor(private teamsCount: number, private roundCount: number){
-        this.domainOfRound = new Array(this.roundCount);
-        // Instantiates the round matrices to zero in all entries
-        // Table is big enough for a full rotation over all teams.
-        this.games = new Array(this.roundCount);
+    // Used to keep track of the number of times a team in a round is set a match that qualifies it for the states below 
+    private teamStates: number[][][]; // [round][team index][counter]
+    
+    // Indices for the [counter] layer of the teamStates matrix
+    private static PLAYING_HOME: number = 0;
+    private static PLAYING_AWAY: number = 1;
+    private static MATCH_SET: number = 2;
+
+    // Number of indices listed above
+    private static teamCounterCount: number = 3;
+
+    constructor( private teamsCount: number, private roundCount: number ){
+        
+        // Instantiates the match cost matrix and teamState counters
+        this.teamStates = new Array(this.roundCount);
+        this.matchCostCounts = new Array(this.roundCount);
+        for(var i: number = 0; i < this.roundCount; i++ ){
+            // Team states
+            this.teamStates[i] = new Array(teamsCount);
+            
+            // Match cost counters
+            this.matchCostCounts[i] = new Array(teamsCount);
+            for(var j: number = 0; j < this.teamsCount; j++ ){ // Home
+                this.matchCostCounts[i][j] = new Array(teamsCount);
+                this.teamStates[i][j] = new Array(ConTable.teamCounterCount);
+            }
+        }
+
+        // Setting initial entry values
+        this.clear();
+    }
+
+    /**
+     * clear
+     * Sets all matchCostCounts entries to zero (except illegal entries that 
+     * are set to Costs.ILLEGAL) and sets all TeamState bitmasks to OPEN.
+     */
+    clear(): void {
         for(var i: number = 0; i < this.roundCount; i++ ){ // Round
-            this.games[i] = new Array(teamsCount);
-            this.domainOfRound[i] = (teamsCount*teamsCount) - teamsCount;
-
-            for(var j: number = 0; j < teamsCount; j++ ){ // Home
-                this.games[i][j] = new Array(teamsCount);
-
-                for(var k: number = 0; k < teamsCount; k++ ){ // Away
+            for(var j: number = 0; j < this.teamsCount; j++ ){ // Home
+                // Clearing team states
+                for(var k: number = 0; k < ConTable.teamCounterCount; k++ ){
+                    this.teamStates[i][j][k] = 0;
+                } 
+                
+                // Resetting match cost counts
+                for(var k: number = 0; k < this.teamsCount; k++ ){ // Away
                     if( k === j ){
-                        this.games[i][j][k] = MatchState.ILLEGAL; 
+                        // No teams should play against one another. Inflated cost to represent this should a bug allow it in a fixture.
+                        this.matchCostCounts[i][j][k] = Costs.ILLEGAL;
                     } else {
-                        this.games[i][j][k] = MatchState.OPEN;
+                        this.matchCostCounts[i][j][k] = 0;
                     }
                 }
             }
-
         }
-    }
-
-    // INTERFACE FUNCTIONS
-    getHomeTeamVs( round: number, awayTeam: number ): number {
-        if( !(round >= this.roundCount    || round < 0    ||
-              awayTeam >= this.teamsCount || awayTeam < 0)){
-            
-            for( var i: number = 0; i < this.teamsCount; i++ ){
-                if( (this.games[round][i][awayTeam] & MatchState.MATCH_IN_ROUND) === MatchState.MATCH_IN_ROUND ){
-                    return i;
-                }
-            }
-        
-        }
-
-        return -1;
-    }
-
-    getAwayTeamVs( round: number, homeTeam: number ): number {
-        if( !(round >= this.roundCount    || round < 0    ||
-              homeTeam >= this.teamsCount || homeTeam < 0)){
-            
-            for( var i: number = 0; i < this.teamsCount; i++ ){
-                if( (this.games[round][homeTeam][i] & MatchState.MATCH_IN_ROUND) === MatchState.MATCH_IN_ROUND ){
-                    return i;
-                }
-            }
-
-        }
-
-        return -1;
-    }
-
-
-    /**
-     * getMask
-     * Gets the bitmask representing the availability of a particular 
-     * matchup. 
-     * 
-     * Returns from the MatchState enum:
-     * MatchState.ILLEGAL for an always-illegal matchup (e.g. team or round doesn't exist)
-     * MatchState.OPEN for an available matchup
-     * >0 for a matchup that has been made unavailable by another matchup.
-     */
-    getMask(match: Match): number {
-        // Checking for an illegal matchup
-        if( match.roundNum >= this.roundCount || match.roundNum < 0 ||
-            match.homeTeam >= this.teamsCount || match.homeTeam < 0 ||
-            match.awayTeam >= this.teamsCount || match.awayTeam < 0 ||
-            match.homeTeam === match.awayTeam ){
-            return MatchState.ILLEGAL;
-        }
-
-        // Retrieving bitmask from tables
-        return this.games[match.roundNum][match.homeTeam][match.awayTeam];
-    }
-
-    /**
-     * setMask
-     * Sets the bitmask representing the availability of a particular
-     * matchup.
-     * 
-     * Returns:
-     * false for an always-illegal matchup (e.g. team or round doesn't exist)
-     * true for a successful update
-     */
-    setMask(match: Match, value: number): boolean {
-        // Checking for an illegal matchup
-        if( this.getMask(match) === MatchState.ILLEGAL ){
-            return false;
-        }
-
-        this.games[match.roundNum][match.homeTeam][match.awayTeam] = value;
-        return true;
     }
 
     /**
      * setMatch
-     * Sets the mask of a match to the ConTable and then sets the surrounding
-     * masks appropriately in the round to reflect the match being committed.
-     * Use this and not setMask to commit matches.
+     * Increments the constraint breaking costs of all matches affected by 
+     * applying the given match to the ConTable.
      * 
-     * This function does not sanity check. Beyond checking that the match is 
-     * availableMake sure that you have sliced the round before calling this 
-     * function in case you need to roll back.
+     * Sets the mask of the relevant teams in the the ConTable to assist with 
+     * counting home and away matches.
      * 
-     * Returns:
-     * false for an always-illegal matchup (e.g. team or round doesn't exist
-     * or the match is not available to set onto.)
-     * true for a successful update
+     * Params:
+     * match - the match to impose on the ConTable
+     * 
+     * Throws:
+     * 'Illegal match. Cannot apply to this ConTable.' The match parameter has 
+     *   an illegal round number, home team, or away team. Most likely out of 
+     *   bounds.
      */
-    setMatch(match: Match, state: number = MatchState.MATCH_SET): boolean {
-        // Checking for an illegal matchup
-        if( this.getMask(match) !== MatchState.OPEN ){
-            return false;
-        }
-                
-        // Setting this match in the round
-        if( this.games[match.roundNum][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
-                this.domainOfRound[match.roundNum] -= 1;    
-        }
-        this.games[match.roundNum][match.homeTeam][match.awayTeam] |= MatchState.MATCH_IN_ROUND;
-
-        let gamesPerRotation = this.teamsCount - 1
-
-        // Setting this match in the fixture
-        for(var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.roundCount); i++){
-            if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
-                this.domainOfRound[i] -= 1;    
-            }
-
-            this.games[i][match.homeTeam][match.awayTeam] |= state;
-            
-            if( this.games[i][match.awayTeam][match.homeTeam] == MatchState.OPEN ){
-                this.domainOfRound[i] -= 1;    
-            }
-
-            this.games[i][match.awayTeam][match.homeTeam] |= state;
-        }
-
-        // Informing the rest of the possible matches in the round of the set match.
-        for(var i: number = 0; i < this.teamsCount; i++){
-
-            if( this.games[match.roundNum][i][match.awayTeam] == MatchState.OPEN ){
-                this.domainOfRound[match.roundNum] -= 1;
-            }
-
-            this.games[match.roundNum][i][match.awayTeam] |= MatchState.AWAY_PLAYING_AWAY;
-            
-            if( this.games[match.roundNum][i][match.homeTeam] == MatchState.OPEN ){
-                this.domainOfRound[match.roundNum] -= 1;
-            }
-
-            this.games[match.roundNum][i][match.homeTeam] |= MatchState.AWAY_PLAYING_HOME;
-            
-            if( this.games[match.roundNum][match.awayTeam][i] == MatchState.OPEN ){
-                this.domainOfRound[match.roundNum] -= 1;
-            }
-
-            this.games[match.roundNum][match.awayTeam][i] |= MatchState.HOME_PLAYING_AWAY;
-            
-            if( this.games[match.roundNum][match.homeTeam][i] == MatchState.OPEN ){
-                this.domainOfRound[match.roundNum] -= 1;
-            }
-
-            this.games[match.roundNum][match.homeTeam][i] |= MatchState.HOME_PLAYING_HOME;
-        }
-
-        return true;
-    }
-
-    /**
-     * clearMatch
-     * Removes the provide match from the ConTable, including its influence on
-     * surrounding cells. Does NOT alter the RESERVED and ILLEGAL matchstates.
-     * 
-     * Returns:
-     * True if match successfully cleared
-     * False if the match specified does not have the MATCH_SET state or if 
-     *    match is illegal.
-     */
-    clearMatch(match: Match): boolean {
-        // Checking for an illegal matchup
-        if( (this.getMask(match) & MatchState.MATCH_IN_ROUND) !== MatchState.MATCH_IN_ROUND ){
-            return false;
-        }
-        
-        // Clearing this match in the round
-        this.games[match.roundNum][match.homeTeam][match.awayTeam] &= MatchState.NOT_MIR;
-
-        let gamesPerRotation = this.teamsCount - 1
-
-        // Clearing this match in the fixture
-        for (var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.roundCount); i++){
-            this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
-            if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
-                this.domainOfRound[i] += 1;
-            }
-
-            this.games[i][match.awayTeam][match.homeTeam] &= MatchState.NOT_SET;
-            if( this.games[i][match.awayTeam][match.homeTeam] == MatchState.OPEN ){
-                this.domainOfRound[i] += 1;
-            }
-        }
-
-        // Informing the rest of the possible matches in the round of the cleared match.
-        for(var i: number = 0; i < this.teamsCount; i++){
-            this.games[match.roundNum][i][match.awayTeam] &= MatchState.NOT_APA;
-
-            if( this.games[match.roundNum][i][match.awayTeam] == MatchState.OPEN ){
-                this.domainOfRound[match.roundNum] += 1;
-            }
-
-            this.games[match.roundNum][i][match.homeTeam] &= MatchState.NOT_APH;
-
-            if( this.games[match.roundNum][i][match.homeTeam] == MatchState.OPEN ){
-                this.domainOfRound[match.roundNum] += 1;
-            }
-
-            this.games[match.roundNum][match.awayTeam][i] &= MatchState.NOT_HPA;
-            
-            if( this.games[match.roundNum][match.awayTeam][i] == MatchState.OPEN ){
-                this.domainOfRound[match.roundNum] += 1;
-            }
-
-            this.games[match.roundNum][match.homeTeam][i] &= MatchState.NOT_HPH;
-
-            if( this.games[match.roundNum][match.homeTeam][i] == MatchState.OPEN ){
-                this.domainOfRound[match.roundNum] += 1;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * getFootPrint
-     * Calculates the number of other matchups that will be rendered illegal by 
-     * the supplied match if it was to be applied to the conTable. Can be used 
-     * for obtaining values to fill a Match's footPrnt member variable.
-     * 
-     * This function is forgiving. It will give you an answer even if the 
-     * proposed matchup is not available in the first place. 
-     * 
-     * Returns:
-     * integer >= 0, number of open matches that would be set to 'not available'
-     * integer -1 if the matchup is illegal
-     */
-    calcFootPrint(match: Match): number {
+    setMatch(match: Match): void {
         // Checking for an illegal matchup
         if( match.roundNum >= this.roundCount || match.roundNum < 0 ||
             match.homeTeam >= this.teamsCount || match.homeTeam < 0 ||
             match.awayTeam >= this.teamsCount || match.awayTeam < 0 ||
             match.homeTeam === match.awayTeam ){
-            return -1;
+            throw new Error('Illegal match. Cannot apply to this ConTable.');
+        }
+
+        // Setting this match's effects to other rounds in the rotation
+        let gamesPerRotation = this.teamsCount - 1;
+        for(var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.roundCount); i++){
+            if( i != match.roundNum ){
+                this.matchCostCounts[i][match.homeTeam][match.awayTeam] += Costs.TEAM_ROTN;
+                this.matchCostCounts[i][match.awayTeam][match.homeTeam] += Costs.TEAM_ROTN;
+            }
+        }
+
+        // Informing the rest of the possible matches in the round of the set match.
+        for(var i: number = 0; i < this.teamsCount; i++){
+            if( i != match.homeTeam && i != match.awayTeam ){
+                this.matchCostCounts[match.roundNum][i][match.homeTeam] += Costs.ONE_MPTPR;
+                this.matchCostCounts[match.roundNum][i][match.awayTeam] += Costs.ONE_MPTPR;
+                this.matchCostCounts[match.roundNum][match.homeTeam][i] += Costs.ONE_MPTPR;
+            }
+            
+            if( i != match.awayTeam ){
+                this.matchCostCounts[match.roundNum][match.awayTeam][i] += Costs.ONE_MPTPR;
+            }
         }
         
-        var openGamesOverlapped: number = 0;
-
-        let gamesPerRotation = this.teamsCount - 1
-
-        // Footprint throughout other rounds
-        for (var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.roundCount); i++){
-            if (i != match.roundNum) {
-                if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
-                    openGamesOverlapped += 1;
-                }
-
-                if( this.games[i][match.awayTeam][match.homeTeam] == MatchState.OPEN ){
-                    openGamesOverlapped += 1;
-                }
-            }
-        }
-
-        // Footprint within the round of the match
-        for(var i: number = 0; i < this.teamsCount; i++){
-
-            if ( i != match.awayTeam ) {
-                if( this.games[match.roundNum][i][match.awayTeam] == MatchState.OPEN ){
-                    openGamesOverlapped += 1;
-                }
-
-                if( this.games[match.roundNum][match.awayTeam][i] == MatchState.OPEN ){
-                    openGamesOverlapped += 1;
-                }
-            }
-
-            if ( i != match.homeTeam ) {
-                if( this.games[match.roundNum][i][match.homeTeam] == MatchState.OPEN ){
-                    openGamesOverlapped += 1;
-                }
-
-                if( this.games[match.roundNum][match.homeTeam][i] == MatchState.OPEN ){
-                    openGamesOverlapped += 1;
-                }
-            }
-
-        }
-
-        // Two must be taken from the sum as 'match' and its reverse was counted twice
-        return openGamesOverlapped-2;
+        // Setting teamState counters
+        this.teamStates[match.roundNum][match.homeTeam][ConTable.PLAYING_HOME] += 1;
+        this.teamStates[match.roundNum][match.homeTeam][ConTable.MATCH_SET] += 1;
+        this.teamStates[match.roundNum][match.awayTeam][ConTable.PLAYING_AWAY] += 1;
+        this.teamStates[match.roundNum][match.awayTeam][ConTable.MATCH_SET] += 1;
     }
 
-
     /**
-     * sliceRound
-     * Provides a copy of the selected round matrix for restoring if a 
-     * branch of the search tree is rejected. 
-     * (Does not backtrack MATCH_SET states in all rounds.)
+     * clearMatch
+     * The reverse operation of setMatch.
      * 
-     * Returns:
-     * A copy by value of games[round]
+     * Removes the provided match from the ConTable, including its influence on
+     * surrounding cells. Does NOT alter the ILLEGAL matchstates. Does not 
+     * alter anything if the provided match does not have MATCH_SET > 0 on its 
+     * home and away team states for its round.
+     * 
+     * Params:
+     * match - the match to impose on the ConTable
      * 
      * Throws:
-     * Round X is not in conTable (does not exist)
+     * 'Illegal match. Cannot apply to this ConTable.' The match parameter has 
+     *   an illegal round number, home team, or away team. Most likely out of 
+     *   bounds.
+     * 'Match has not been set. Cannot remove from ConTable.' The match does 
+     *   not have the MATCH_SET counters > 0 as explained above.
      */
-    sliceRound(round: number): number[][] {
-        // Checking for illegal round
-        if( round > this.teamsCount || round < 0 ){
-            throw new Error('Round ' + round + ' is not in this conTable');
+    clearMatch(match: Match): void {
+        // Checking for an illegal matchup
+        if( match.roundNum >= this.roundCount || match.roundNum < 0 ||
+            match.homeTeam >= this.teamsCount || match.homeTeam < 0 ||
+            match.awayTeam >= this.teamsCount || match.awayTeam < 0 ||
+            match.homeTeam === match.awayTeam ){
+            throw new Error('Illegal match. Cannot apply to this ConTable.');
+        }
+        
+        // Checking if the match has been set
+        if( this.teamStates[match.roundNum][match.homeTeam][ConTable.MATCH_SET] <= 0 || 
+            this.teamStates[match.roundNum][match.awayTeam][ConTable.MATCH_SET] <= 0 ){
+            throw new Error('Match has not been set. Cannot remove from ConTable.');
         }
 
-        // Copying the round.
-        /* Must not be done with slice() as that copies the nested arrays 
-        by reference and not by value. */ 
-        var roundMatrix: number[][];
-        roundMatrix = [];
-        for(var i: number = 0; i < this.teamsCount; i++){
-            roundMatrix[i] = [];
-            for(var j: number = 0; j < this.teamsCount; j++){
-                roundMatrix[i][j] = this.games[round][i][j];
+        // Removing this match's effects from other rounds in the rotation
+        let gamesPerRotation = this.teamsCount - 1;
+        for(var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.roundCount); i++){
+            if( i != match.roundNum ){
+                this.matchCostCounts[i][match.homeTeam][match.awayTeam] -= Costs.TEAM_ROTN;
+                this.matchCostCounts[i][match.awayTeam][match.homeTeam] -= Costs.TEAM_ROTN;
             }
         }
 
-        return roundMatrix;
+        // Informing the rest of the possible matches in the round of the removed match.
+        for(var i: number = 0; i < this.teamsCount; i++){
+            if( i != match.homeTeam && i != match.awayTeam ){
+                this.matchCostCounts[match.roundNum][i][match.homeTeam] -= Costs.ONE_MPTPR;
+                this.matchCostCounts[match.roundNum][i][match.awayTeam] -= Costs.ONE_MPTPR;
+                this.matchCostCounts[match.roundNum][match.homeTeam][i] -= Costs.ONE_MPTPR;
+            }
+            
+            if( i != match.awayTeam ){
+                this.matchCostCounts[match.roundNum][match.awayTeam][i] -= Costs.ONE_MPTPR;
+            }
+        }
+        
+        // Setting teamState counters
+        this.teamStates[match.roundNum][match.homeTeam][ConTable.PLAYING_HOME] -= 1;
+        this.teamStates[match.roundNum][match.homeTeam][ConTable.MATCH_SET] -= 1;
+        this.teamStates[match.roundNum][match.awayTeam][ConTable.PLAYING_AWAY] -= 1;
+        this.teamStates[match.roundNum][match.awayTeam][ConTable.MATCH_SET] -= 1;
+
     }
 
     /**
-     * restoreRound
-     * Assigns values of the input round: number[][] to the round in the
-     * conTable for the purposes of restoring a previous round state. 
-     * Does not mutate the inputs as the copy is performed by value.
+     * applyFixture
+     * _CLEARS_ the ConTable and applies all matches in the fixture array.
      * 
-     * This does not sanity check. ONLY input rounds generated from the 
-     * sliceRound() function, otherwise the whole state machine could screw
-     * up.
+     * Use this prior to calling getFixtureCost to properly represent 
+     * getFixtureCost's return value for the provided fixture.
      * 
-     * (Does not backtrack MATCH_SET states in all rounds.)
+     * The matches in the fixture array do not have to be in any particular 
+     * order.
+     * 
+     * throws 
+     * 'Illegal match. Cannot apply to this ConTable.' (From setMatch) The 
+     *   match parameter has an illegal round number, home team, or away 
+     *   team. Most likely out of bounds.
+     */
+    applyFixture(fixture: Match[][]): void {
+        this.clear();
+        for( let i: number = 0; i < fixture.length; i++ ){
+            for( let j: number = 0; j < fixture[i].length; j++ ){
+                this.setMatch( fixture[i][j] );
+            }
+        }
+    }
+
+    /**
+     * getMatchCost
+     * Gets the broken constraint cost of applying the given match to the 
+     * ConTable. According to basic constraints.
+     * 
+     * Params:
+     * match - the match to assess for cost.
+     * homeTeam - the home Team object that can be referenced for team-based 
+     *   constraints.
+     * awayTeam - the away Team object that can be referenced for team-based 
+     *   constraints.
      * 
      * Returns:
-     * true if setting successful
-     * false if the specified round does not exist 
+     * integer >= 0, number of open matches that would be set to 'not available'
      */
-    restoreRound(roundMatrix: number[][], round: number): boolean {
-        // Checking for illegal round
-        if( round > this.teamsCount || round < 0 ){
-            return false;
+    getMatchCost(match: Match, homeTeam: Team, awayTeam: Team): number {
+        // Adding basic constraints
+        let costSum: number = this.matchCostCounts[match.roundNum][match.homeTeam][match.awayTeam];
+
+        let counter: number;
+
+        // Adding consecutive home/away games constraint costs where applicable
+        let maxConscHome: number = homeTeam.consecutiveHomeGamesMax();
+        if( maxConscHome > -1 ){
+            counter = 1;
+
+            // Looking at rounds ahead from the match
+            let rndPointer = match.roundNum+1;
+            while( rndPointer < this.roundCount ){
+                if( this.teamStates[rndPointer][match.homeTeam][ConTable.PLAYING_HOME] > 0 ){
+                    counter++;
+                    if( counter > maxConscHome ){
+                        costSum += Costs.MAX_CONSEC;
+                    }
+                } else {
+                    break;
+                }
+                rndPointer++;
+            }
+
+            // Looking at rounds behind from the match
+            rndPointer = match.roundNum-1;
+            while( 0 <= rndPointer ){
+                if( this.teamStates[rndPointer][match.homeTeam][ConTable.PLAYING_HOME] > 0 ){
+                    counter++;
+                    if( counter > maxConscHome ){
+                        costSum += Costs.MAX_CONSEC;
+                    }
+                } else {
+                    break;
+                }
+                rndPointer--;
+            }
+
+
         }
 
-        for(var i: number = 0; i < this.teamsCount; i++){
-            for(var j: number = 0; j < this.teamsCount; j++){
-                this.games[round][i][j] = roundMatrix[i][j];
+        let maxConscAway: number = awayTeam.consecutiveAwayGamesMax();
+        if( maxConscAway > -1 ){
+            counter = 1;
+
+            // Looking at rounds ahead from the match
+            let rndPointer = match.roundNum+1;
+            while( rndPointer < this.roundCount ){
+                if( this.teamStates[rndPointer][match.awayTeam][ConTable.PLAYING_AWAY] > 0 ){
+                    counter++;
+                    if( counter > maxConscAway ){
+                        costSum += Costs.MAX_CONSEC;
+                    }
+                } else {
+                    break;
+                }
+                rndPointer++;
+            }
+
+            // Looking at rounds behind from the match
+            rndPointer = match.roundNum-1;
+            while( 0 <= rndPointer ){
+                if( this.teamStates[rndPointer][match.awayTeam][ConTable.PLAYING_AWAY] > 0 ){
+                    counter++;
+                    if( counter > maxConscAway ){
+                        costSum += Costs.MAX_CONSEC;
+                    }
+                } else {
+                    break;
+                }
+                rndPointer--;
             }
         }
 
-        return true;
+        // Adding max home/away games constraint where applicable
+        let maxHome: number = homeTeam.homeGamesMax();
+        if( maxHome > -1 ){
+            counter = 0;
+            for( let i: number = 0; i < this.roundCount; i++ ){
+                if( this.teamStates[i][match.homeTeam][ConTable.PLAYING_HOME] > 0 ){
+                    counter++
+                    if( counter > maxHome ){
+                        costSum += Costs.MAX_H_OR_A;
+                    }
+                }
+            }
+        }
+
+        let maxAway: number = awayTeam.awayGamesMax();
+        if( maxAway > -1 ){
+            counter = 0;
+            for( let i: number = 0; i < this.roundCount; i++ ){
+                if( this.teamStates[i][match.awayTeam][ConTable.PLAYING_AWAY] > 0 ){
+                    counter++
+                    if( counter > maxAway ){
+                        costSum += Costs.MAX_H_OR_A;
+                    }
+                }
+            }
+        }
+
+        return costSum;
+    }
+
+    /**
+     * fixtureCost
+     * Counts up the total cost of all broken constraints according to weighted
+     * costs and returns the total. 
+     * 
+     * The given fixture must be applied to the ConTable before calling this 
+     * function for it to fully represent the cost of the fixture in full.
+     * 
+     * Params:
+     * fixture - an array of matches representing the fixture to be counted in 
+     *   total constraint cost. Does not need to be in order.
+     * teams - an array of the teams, indexable by the team numbers in fixture.
+     *   These must be provided to check for team-based constraints.
+     * 
+     * Returns:
+     * Number >0 - the total cost of broken constraints in fixture. 
+     * Number =0 - There are no broken constraints in fixture.
+     */
+    fixtureCost(fixture: Match[][], teams: Team[]): number {
+
+        let costSum: number = 0;
+
+        // For each match
+        for( let i: number = 0; i < fixture.length; i++ ){
+            for( let j: number = 0; j < fixture[i].length; j++ ){
+                // Checking for an illegal matchup
+                if( fixture[i][j].roundNum >= this.roundCount || fixture[i][j].roundNum < 0 ||
+                    fixture[i][j].homeTeam >= this.teamsCount || fixture[i][j].homeTeam < 0 ||
+                    fixture[i][j].awayTeam >= this.teamsCount || fixture[i][j].awayTeam < 0 ||
+                    fixture[i][j].homeTeam === fixture[i][j].awayTeam ){
+                    costSum += Costs.ILLEGAL;
+                } else {
+                    costSum += this.getMatchCost(fixture[i][j], teams[fixture[i][j].homeTeam], teams[fixture[i][j].awayTeam]);
+                }
+            }
+        }
+
+        return costSum;
+    }
+
+    /**
+     * basicFixtureCost
+     * As fixtureCost, but only accounting for basic constraints (team 
+     * rotation and one match per team per round).
+     * 
+     * This is used for rendering satisfying the basic constraints in the 
+     * fixture while working out the others in alternative ways. 
+     */
+    basicFixtureCost(fixture: Match[][]): number {
+        let costSum: number = 0;
+
+        // For each match
+        for( let i: number = 0; i < fixture.length; i++ ){
+            for( let j: number = 0; j < fixture[i].length; j++ ){
+                // Checking for an illegal matchup
+                if( fixture[i][j].roundNum >= this.roundCount || fixture[i][j].roundNum < 0 ||
+                    fixture[i][j].homeTeam >= this.teamsCount || fixture[i][j].homeTeam < 0 ||
+                    fixture[i][j].awayTeam >= this.teamsCount || fixture[i][j].awayTeam < 0 ||
+                    fixture[i][j].homeTeam === fixture[i][j].awayTeam ){
+                    costSum += Costs.ILLEGAL;
+                } else {
+                    costSum += this.matchCostCounts[fixture[i][j].roundNum][fixture[i][j].homeTeam][fixture[i][j].awayTeam];
+                }
+            }
+        }
+
+        return costSum;
+    }
+
+    /**
+     * alteredFixtureCost
+     * As fixtureCost, but substituting a match in fixture for a given 
+     * alternative.
+     * 
+     * Params:
+     * fixture - as in fixtureCost
+     * altMatch - the match to replace in fixture
+     * altMatchIndex - the position of the match in the round array of fixture
+     * teams - as in fixtureCost
+     * 
+     * Returns:
+     * Number >0 - the total cost of broken constraints in fixture. 
+     * Number =0 - There are no broken constraints in fixture.
+     */
+    alteredFixtureCost(fixture: Match[][], altMatch: Match, altMatchIndex: number, teams: Team[]): number {
+
+        let costSum: number = 0;
+
+        // For each match
+        for( let i: number = 0; i < fixture.length; i++ ){
+            for( let j: number = 0; j < fixture[i].length; j++ ){
+                // Checking for an illegal matchup
+                if( fixture[i][j].roundNum >= this.roundCount || fixture[i][j].roundNum < 0 ||
+                    fixture[i][j].homeTeam >= this.teamsCount || fixture[i][j].homeTeam < 0 ||
+                    fixture[i][j].awayTeam >= this.teamsCount || fixture[i][j].awayTeam < 0 ||
+                    fixture[i][j].homeTeam === fixture[i][j].awayTeam ){
+                    costSum += Costs.ILLEGAL;
+                    continue;
+                } else {
+                    if( i == altMatch.roundNum && j == altMatchIndex ){
+                        costSum += this.getMatchCost(altMatch, teams[altMatch.homeTeam], teams[altMatch.awayTeam]);
+                    } else {
+                        costSum += this.getMatchCost(fixture[i][j], teams[fixture[i][j].homeTeam], teams[fixture[i][j].awayTeam]);
+                    }
+                }
+            }
+        }
+
+        return costSum;
+    }
+
+    /**
+     * basicAlteredFixtureCost
+     * As alteredFixtureCost, but only accounting for basic constraints (team 
+     * rotation and one match per team per round).
+     * 
+     * This is used for rendering satisfying the basic constraints in the 
+     * fixture while working out the others in alternative ways. 
+     */
+    basicAlteredFixtureCost(fixture: Match[][], altMatch: Match, altMatchIndex: number): number {
+        let costSum: number = 0;
+
+        // For each match
+        for( let i: number = 0; i < fixture.length; i++ ){
+            for( let j: number = 0; j < fixture[i].length; j++ ){
+                // Checking for an illegal matchup
+                if( fixture[i][j].roundNum >= this.roundCount || fixture[i][j].roundNum < 0 ||
+                    fixture[i][j].homeTeam >= this.teamsCount || fixture[i][j].homeTeam < 0 ||
+                    fixture[i][j].awayTeam >= this.teamsCount || fixture[i][j].awayTeam < 0 ||
+                    fixture[i][j].homeTeam === fixture[i][j].awayTeam ){
+                    costSum += Costs.ILLEGAL;
+                } else {
+                    if( i == altMatch.roundNum && j == altMatchIndex ){
+                        costSum += this.matchCostCounts[altMatch.roundNum][altMatch.homeTeam][altMatch.awayTeam];
+                    } else {
+                        costSum += this.matchCostCounts[fixture[i][j].roundNum][fixture[i][j].homeTeam][fixture[i][j].awayTeam];
+                    }
+                }
+            }
+        }
+
+        return costSum;
+    }
+
+    /**
+     * printCostsToConsole
+     * Prints console logs of the matchCostCounts
+     */
+    printCostsToConsole(fixture: Match[][], teams: Team[]): void {
+        console.log("===========================================");
+        
+        let concatStr: string = "";
+        for( let i: number = 0; i < this.matchCostCounts.length; i++ ){
+            concatStr = "";
+
+            console.log("Round " + i);
+            concatStr = concatStr + "  A ";
+            for( let j: number = 0; j < this.matchCostCounts[i].length; j++ ){
+                concatStr = concatStr + j + "  ";
+            }
+            concatStr = concatStr + "   H   A   S   H/A:C";
+
+            console.log(concatStr);
+            
+            console.log("H");
+            for( let j: number = 0; j < this.matchCostCounts[i].length; j++ ){
+                concatStr = "";
+                concatStr = concatStr + j + "   ";
+                for( let k: number = 0; k < this.matchCostCounts[i][j].length; k++ ){
+                    if( j == k ){
+                        concatStr = concatStr + "X  ";    
+                    } else {
+                        concatStr = concatStr + this.matchCostCounts[i][j][k] + "  ";
+                    }
+                }
+                concatStr = concatStr + "   " + this.teamStates[i][j][ConTable.PLAYING_HOME] + "   " + this.teamStates[i][j][ConTable.PLAYING_AWAY] + "   " + this.teamStates[i][j][ConTable.MATCH_SET];
+                
+                
+                if( j < (this.teamsCount/2) ){
+                    concatStr = concatStr + "   " + fixture[i][j].homeTeam + "/" + fixture[i][j].awayTeam + ":" + this.getMatchCost(fixture[i][j], teams[fixture[i][j].homeTeam], teams[fixture[i][j].awayTeam]);
+                    concatStr = concatStr + " (B = " + this.matchCostCounts[fixture[i][j].roundNum][fixture[i][j].homeTeam][fixture[i][j].awayTeam] + ")";
+                }
+                
+                console.log(concatStr);
+            }
+
+            console.log("--------------------------------------");
+        }
+        
     }
 }

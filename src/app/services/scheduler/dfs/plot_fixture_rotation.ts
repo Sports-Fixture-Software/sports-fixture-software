@@ -1,33 +1,18 @@
-import { Match, Team, MatchState, ConTable } from './fixture_constraints';
+import { Match, Team, ConTable } from './fixture_constraints';
 import { Constraint } from '../../../util/constraint_factory'
 
-///////////////////////////// CONFIG VARIABLES ////////////////////////////////
 
-/**
- * The inverse of the proportion of the search space to be covered in the
- * time given to plotFixture. Make this large enough or else each branch 
- * will run out of alloted time before it can reach any leaf nodes.
- * 
- * The time given to a single branch is equal to: 
- *   [Time budget of parent branch]
- * ----------------------------------   x  SEARCH_PRPORTN
- * [Number of siblings of the branch]
- */ 
-const SEARCH_PRPORTN: number = 1000
-
-// Milliseconds before the algorithm gives up.
-const DEFAULT_SEARCH_TIMEOUT: number = 60000;
-
-//////////////////////// THE FIXTURE ALGORITHM ////////////////////////////////
+const DEFAULT_SEARCH_TIMEOUT: number = 30000; // Milliseconds before the algorithm gives up.
+const MINIMUM_TEMPERATURE: number = 0.00001; // The temperature point at which the annealing stops
+const ALPHA_COOLING_RATE: number = 0.99; // The proportion of the temperature removed with every iteration
+const INITIAL_COOLING_FREQUENCY: number = 1000; // How many random changes must be made before the temperature is multiplied by the cooling rate. This is increased as time goes by.
+const COOLFREQ_RETRY_FACTOR: number = 1.1; // The factor by which the cooling frequency is increased if an annealing failed to meet the threshold.
 
 /**
  * plotFixture
  * 
  * Plots a fixture with enough rounds for each team to play every other at most
- * once. Uses DFS through the solution space, pruning branches that break 
- * simple constraints. The search is guided by the min-conflict and max-domain-
- * size heuristics. These make it more likely to either find the end of a dead-
- * end or find a valid solution fastest.
+ * once. Uses simulated annealing until a legal solution is found.
  * 
  * Params:
  * teams: Team[] The teams playing in the season fixture. These must implement
@@ -47,311 +32,331 @@ const DEFAULT_SEARCH_TIMEOUT: number = 60000;
  *                       memory will become just as big a problem.
  * 
  * Returns:
- * Match[] A complete and legal fixture. Ordering is not guaranteed. Sort by 
- *         round number for ease of plotting.
+ * Match[] A complete and legal fixture, sorted by round.
  * 
  * Throws Errors:
  * 'At least two teams are required to make a fixture.' 1 or 0 teams were in 
  *   teams parameter array.
  * 'Odd number of teams...' if there is an odd number of teams.
- * 'Reserved Matches clash with basic constraints...' One or more of the 
- *   reserved matches breaks rotation, or tries to play one team twice in one 
- *   round, or tries to play a team against itself.
- * 'Solution could not be found...' The function ran through the entire 
- *   solution space and could not find a solution. This is most likely because 
- *   constraints made a solution impossible without this function picking up on
- *   it.
- * fillfrom() errors
+ * 'Reserved Matches break a constraint.' One or more of the reserved matches 
+ *   break one or more constraints, on their own and cannot be used to generate 
+ *   a legal fixture.
+ * 'Solution could not be found...' The function ran through all the time it 
+ *   had and couldn't find a solution below the threshold.
+ * Helper function errors
  * ConTable.x() errors 
  */
 export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRounds: number, verbose: boolean = false, searchTimeout: number = DEFAULT_SEARCH_TIMEOUT ): Match[] {
     
-    var permCounter: number = 1;
-    var matchupState: ConTable;
+    let numTeams: number = teams.length;
+    let table: ConTable = new ConTable(numTeams, numRounds); // The matrix used to calculate constraint costs of fixtures
+    let startTime: number = Date.now();
+
+    if( verbose ){    
+        var permCounter: number = 0;
+    }
+
+    //////////////// +++++++++ Helper Functions +++++++++ ////////////////////
 
     /**
-     * cmpMinConfMaxDom
-     * Comparison function for sorting matches by the min-confict and max-
-     * domain-size heuristics.
-     * 
-     * THIS IS A LOCAL FUNCTION AS IT REQUIRES THE matchupState VARIABLE TO 
-     * GATHER HEURISTIC DATA ABOUT THE COMPARED MATCHES.
-     *  
-     * Params:
-     * m1, first match
-     * m2, second match
-     * 
-     * Returns:
-     * <0 if m2 comes before m1
-     * >0 if m1 comes before m2
-     * 0 if equal
+     * convertOneDToTwoDFixture
+     * Places an unordered 1D array of matches into a new ordered 2D array of 
+     * matches representing a fixture with empty round entries for empty rounds
+     * and no entries for further matches. Used to process reserved matches.
      */
-    var cmpMinConfMaxDom = function(m1: Match, m2: Match): number {
-        if( m1.footPrnt == m2.footPrnt ){
-             // If the minimum matchup conflict is equal, sort by maximum domain size
-            return matchupState.domainOfRound[m2.roundNum] - matchupState.domainOfRound[m1.roundNum];
-        } else {
-            // Else, sort by minimum matchup conflict 
-            return m1.footPrnt - m2.footPrnt;
+    function convertOneDToTwoDFixture(roundCount: number, matches: Match[]): Match[][] {
+        let twoDFixture: Match[][] = new Array(roundCount);
+        for( let i: number = 0; i < roundCount; i++ ){
+            twoDFixture[i] = [];
         }
+
+        // Setting reserved matches by cloning them
+        let newMatch: Match;
+        for( let i: number = 0; i < matches.length; i++ ){
+            newMatch = new Match(matches[i].roundNum, matches[i].homeTeam, matches[i].awayTeam, true);
+            twoDFixture[matches[i].roundNum].push( newMatch );
+        }
+
+        return twoDFixture;
     }
 
     /**
-     * fillFrom
-     * Fills out the given ConTable by DFS and backtracking. Finds a match and
-     * recurses until the entire rotation is filled. Obeys the constraints of 
-     * the teams supplied in the Team array. This _might_ take a while to run.
+     * convertTwoDToOneDFixture
+     * The inverse of convertOneDToTwoDFixture.
+     * Used for returning completed fixtures. 
+     */
+    function convertTwoDToOneDFixture(matches: Match[][]){
+        let oneDFixture: Match[] = [];
+        for( let i: number = 0; i < matches.length; i++ ){
+            for( let j: number = 0; j < matches[i].length; j++ ){
+                oneDFixture.push( matches[i][j] );
+            }
+        }
+        return oneDFixture;
+    }
+
+    /**
+     * cloneFixture
+     * Returns a recursive copy of the input fixture.
+     * Used for keeping track of best solutions when restarting.
+     */
+    function cloneFixture(fixture: Match[][]): Match[][] {
+        let newFixture: Match[][] = new Array(fixture.length);
+        for( let i: number = 0; i < fixture.length; i++ ){
+            newFixture[i] = new Array(fixture[i].length);
+            for( let j: number = 0; j < fixture[i].length; j++ ){
+                newFixture[i][j] = fixture[i][j];
+            }
+        }
+        
+        return newFixture;
+    }
+        
+    /**
+     * randomFixture
+     * Generates an array of matches representing a complete fixture according  
+     * to the parameters specified. This fixture incorporates the matches in 
+     * the reservations array and fills out the rest of the matches randomly, 
+     * enforcing only that no two matches be the same.
      * 
-     * Due to the timeout feature of this search, it is not guaranteed to find 
-     * a solution, but it is very likely to. If no solution is found, there are
-     * either so few solutions that one could not be found in the given time, 
-     * or there is was no possible solution to begin with. Knowing this in 
-     * advance is an NP-complete problem :(.
+     * params:
+     * roundCount - the number of rounds in the fixture to generate.
+     * teamCount - the number of teams in the fixture to generate.
+     * reservations - the matches to be incorporated into the fixture and 
+     *   marked as Match.reserved = true.
      * 
-     * This also mutates a bunch of its paramers, so pay attention:
+     * returns:
+     * An array of matches of length = roundCount * (teamCount/2), ordered by
+     * round, representing a full random fixture.
+     */
+    function randomFixture(roundCount: number, teamCount: number, reservations: Match[] = []): Match[][] {
+        let fixture: Match[][] = convertOneDToTwoDFixture(roundCount, reservations);
+        
+        // Filling the remaining matches in with random matches
+        let newMatch: Match;
+        let randHomeTeam: number;
+        let randAwayTeam: number;
+        let isUnique: boolean;
+        for( let i: number = 0; i < fixture.length; i++ ){
+            for( let j: number = fixture[i].length; j < (teamCount/2); j++ ){
+                randHomeTeam = Math.floor(Math.random() * teamCount);
+                randAwayTeam = Math.floor(Math.random() * teamCount);
+                while( randAwayTeam == randHomeTeam ){
+                    randAwayTeam = Math.floor(Math.random() * teamCount);
+                }
+                
+                newMatch = new Match(i, randHomeTeam, randAwayTeam);
+                
+                // If the random match is a duplicate of any existing in this round, try again
+                if( newMatch.isContainedIn(fixture[i]) ){
+                    j--;
+                    continue;
+                }
+
+                fixture[i].push( newMatch );
+            }
+        }
+
+        return fixture;
+    }
+
+    /**
+     * SwapMatch
+     * Used by alterFixture to swap out a particular match during simulated 
+     * annealling.
+     */
+    class SwapMatch {
+        constructor(public match: Match, public swapIndex: number){};
+    }
+
+    /**
+     * getSwapMatch
+     * Finds a random, valid match that can be swapped with a match in fixture.
+     * The match is returned in a SwapMatch struct so it can be swapped in 
+     * precisely and when needed.
      * 
-     * Params:
-     * table is the ConTable to be filled. It must have the reserved matches 
-     *   already added to it with its setMatch method. The mutation of filling 
-     *   the ConTable will remain after the function finishes.
-     * teams is an array of Teams that will be referred to for constraint 
-     *   checking.
-     * matches is the array that will be appended with the Matches chosen by 
-     *   the function. Populate this with reserved matches beforehand and 
-     *   sort by round later to have an easier time collating everything. This 
-     *   function will not alter existing contents of this array.
-     * crntMatchCount is to help the function keep track of the number of 
-     *   games set so far. If there have been manual matchups in the table
-     *   parameter before calling fillFrom, the number of them MUST be  
-     *   supplied in crntMatchCount.
-     * mQueue is a queue of legal matchup considerations ordered via heuristics 
-     *   calculated by a Look-Ahead technique. Matches are always considered in
-     *   order of this queue on its respective recursion level.
-     * timeBudget maximum time in milliseconds that the fillFrom call can run 
-     *   in total. It spreads this time over a proportion of its search 
-     *   branches as specified in pfrConfig.SEARCH_PRPORTN.
+     * The match maintains uniqueness in round when swapped and will never be a 
+     * match that is targeted to swap with a reserved = true match.
      * 
-     * Returns:
-     * True if the ConTable was successfully filled.
-     * False if the Contable could not be successfully filled with any solution.
+     * teamsCount is needed to limit the range of the return SwapMatch's 
+     * swapIndex member.
      * 
      * Throws:
-     * "Max search depth exceeded." The function is recursing more than it has 
-     *    matches to assign. This should not be thrown unless there is a bug in
-     *    this function.
-     * ConTable.x() errors
+     * 'Could not find a match in the fixture to alter.' Either all matches 
+     *   were marked as reserved in fixture or there were no unique matches to 
+     *   switch for something in the fixture. If the latter occurs, there is 
+     *   likely a bug lurking.
      */
-    function fillFrom( table: ConTable, roundCount: number, teams: Team[], matches: Match[], crntMatchCount: number, mQueue: Match[], timeBudget: number ): boolean {
-        var teamsCount: number = teams.length;
-        var matchCount: number = (roundCount*(teamsCount/2));
-        var timeStart: number = Date.now();
-
-        // Checking if we are recursing past our limit. This should not happen.
-        if( crntMatchCount > matchCount ){
-            throw new Error("Max search depth exceeded.");
-        }
+    function getSwapMatch(fixture: Match[][], teamsCount: number): SwapMatch {
+        // Getting intial random values
+        let randMatch: Match = new Match(Math.floor(Math.random() * fixture.length),
+                                         Math.floor(Math.random() * teamsCount),
+                                         Math.floor(Math.random() * teamsCount));
+        let randMatchNum: number = Math.floor(Math.random() * fixture[randMatch.roundNum].length);
         
-        var equalStack: Match[] = [];
-        var eqMatchIndex: number;
-        var matchFound: boolean = false;
-        var currentMatch: Match;
-        var awayCnsnt: Constraint;
-        var homeCnsnt: Constraint;
-        
-        // Trying each matchups in the mQueue
-        for( var i: number = 0; i < mQueue.length; i++ ){
-            
-            // Checking against our time budget
-            if( Date.now() - timeStart > timeBudget ){
-                if( verbose ) {
-                    console.log("### TIMEOUT on level " + crntMatchCount + "/" + matchCount + " Date.now() = " + Date.now() + ", timeBudget = " + timeBudget);
-                }
-                return false;
-            }
-            
-            // Matches are selected in random order if equal
-            // The random order is set up below where required
-            if( equalStack.length <= 0 ){
-                // Gathering all matches of equal best heuristic
-                eqMatchIndex = i;
-                equalStack = [];
-                while( eqMatchIndex < mQueue.length && cmpMinConfMaxDom(mQueue[i], mQueue[eqMatchIndex]) === 0 ){
-                    equalStack.push(mQueue[eqMatchIndex]);
-                    eqMatchIndex++;
-                }
+        // Making sure that match uniqueness in round and teamX != teamY is enforced
+        // If we have an illegal match, we iterate until we find one
+        let valid: boolean = false;
+        let unreserved: boolean;
+        for( let i: number = 0; i < fixture.length; i++ ){ // Each round
+            unreserved = false;
 
-                // Scramble the order of equal matches
-                equalStack.sort(function(a: Match, b: Match): number {
-                    if( Math.random() > 0.5 ){
-                        return 1;
-                    } else {
-                        return -1;
+            // now we have to see if we can swap with an existing (non-reserved) game in the round
+            for( let l: number = 0; l < fixture[randMatch.roundNum].length; l++ ){
+                if( fixture[randMatch.roundNum][randMatchNum].reserved ){
+                    randMatchNum++;
+                    if( randMatchNum >= fixture[randMatch.roundNum].length ){
+                        randMatchNum = 0;
                     }
-                });
-            }
-
-            // Getting next random match of equal heuristic priority
-            currentMatch = equalStack.pop();
-            
-            // Checking constraints on the away team
-            awayCnsnt = teams[currentMatch.awayTeam].constraintsSatisfied(table,currentMatch,false);
-            if( awayCnsnt !== Constraint.SATISFIED ){
-
-                if( verbose ){
-                    console.log("**** Away constraint unsatisfied, removing offenders from queue: R" + currentMatch.roundNum + " A" + currentMatch.awayTeam);
-                }
-
-                // Learn from broken constraint
-                switch( awayCnsnt ){
-
-                    // This match would leave its away team playing too many away games in a row
-                    case Constraint.MAX_CONSEC_AWAY:
-                        let isCurrentAwayMatchInRound = function (m: Match, index: number): boolean {
-                            // The loop iterator must be set back according to the number of matches removed
-                            if( index < i ){
-                                i--;
-                            }
-                            return !(m.roundNum == currentMatch.roundNum &&
-                                     m.awayTeam == currentMatch.awayTeam);
-                        }
-
-                        // Remove all away games for this team in this round from the queue
-                        mQueue = mQueue.filter(isCurrentAwayMatchInRound);
-                        equalStack = equalStack.filter(isCurrentAwayMatchInRound);
-                        break;
-
-                    // This match would leave its away team playing too many away games in this fixture
-                    case Constraint.MAX_AWAY:
-                        console.log("MAX_AWAY constraint not yet implemented in plotFixtureRotation.");
-                    default:
-                }
-            }
-
-            // Checking constraints on the home team
-            homeCnsnt = teams[currentMatch.homeTeam].constraintsSatisfied(table,currentMatch,true);
-            if( homeCnsnt !== Constraint.SATISFIED ){
-                
-                if( verbose ){
-                    console.log("**** Home constraint unsatisfied, removing offenders from queue: R" + currentMatch.roundNum + " H" + currentMatch.homeTeam);
-                }
-
-                // Learn from broken constraint
-                switch( homeCnsnt ){
-
-                    // This match would leave its home team playing too many home games in a row
-                    case Constraint.MAX_CONSEC_HOME:
-                        let isCurrentHomeMatchInRound = function (m: Match, index: number): boolean {
-                            // The loop iterator must be set back according to the number of matches removed
-                            if( index < i ){
-                                i--;
-                            }
-                            return !(m.roundNum == currentMatch.roundNum &&
-                                    m.homeTeam == currentMatch.homeTeam);
-                        }
-
-                        // Remove all home games for this team in this round from the queue
-                        mQueue = mQueue.filter(isCurrentHomeMatchInRound);
-                        equalStack = equalStack.filter(isCurrentHomeMatchInRound);
-                        break;
-
-                    // This match would leave its home team playing too many home games in this fixture  
-                    case Constraint.MAX_HOME:
-                        console.log("MAX_HOME constraint not yet implemented in plotFixtureRotation.");
-                    default:
-                }
-            }
-
-            // Our match will work now if all team constraints are satisfied. 
-            if( homeCnsnt === Constraint.SATISFIED && awayCnsnt === Constraint.SATISFIED ){
-                
-                // Reporting progress to console
-                if( verbose && crntMatchCount <= 153 ){
-                    //var domainOfFixture: number = 0;
-                    //for( var s: number = 0; s < roundCount; s++ ){
-                    //    domainOfFixture += table.domainOfRound[s];
-                    //}
-                    //console.log("Round domain sum before = " + domainOfFixture + ", Match ftprnt = " + currentMatch.footPrnt + ", Matches Left To Be Set = " + (matchCount - crntMatchCount) );
-                    //var domLeeway: number = domainOfFixture - currentMatch.footPrnt - 2*(matchCount - crntMatchCount - 1); // Domain after minimum footprint is taken
-                    console.log("- Level " + crntMatchCount + "/" + matchCount + ". timeBudget = " + timeBudget + " i=" + i + "/" + mQueue.length + ". Setting match R" + currentMatch.roundNum + ", H" + currentMatch.homeTeam + ", A" + currentMatch.awayTeam);
-                }
-
-                // Set the match up
-                table.setMatch(currentMatch);
-                
-                /* Making a new mQueue for the next level of the search tree.
-                   No new matches are made available by adding a match, so we 
-                   can reuse the matches from the mQueue given to us, if they 
-                   are still legal and usable. Usable matches must not have a
-                   bigger footprint than the number of matches remaining that
-                   must set. The footprint is augmented by the minimum expected
-                   footprint of remaining matches.
-                 */
-                var nextMQueue: Match[] = new Array();
-                var domainOfFixture: number = 0; // Sum of domain of all rounds in the ConTable
-                var matchesRemaining: number = matchCount - crntMatchCount - 1; // The -1 is for the match set in table.setMatch above
-                var currentFtPt: number;
-                var minRemainingFtpt: number = (2*(matchesRemaining-1)); // Minimum footprint of all remaining matches sans the one added to the queue
-                
-                for( var j: number = 0; j < roundCount; j++ ){
-                    domainOfFixture += table.domainOfRound[j];
-                }
-                
-                for( var j: number = 0; j < mQueue.length; j++ ){
-                    currentFtPt = table.calcFootPrint( mQueue[j] );
-                    if( table.getMask( mQueue[j] ) === MatchState.OPEN &&
-                        currentFtPt + minRemainingFtpt <= domainOfFixture ){
-                        // Legal matches are duplicated and updated for the next recursion level
-                        nextMQueue.push( new Match(
-                            mQueue[j].roundNum, 
-                            mQueue[j].homeTeam, 
-                            mQueue[j].awayTeam, 
-                            currentFtPt
-                        ));
-                    }
-                }
-
-                // Sorting the new mQueue by the min-conflicts max-domain-size heuristics
-                nextMQueue.sort(cmpMinConfMaxDom);
-
-                if( verbose ) {
-                    permCounter++;
-                }
-
-                // Set the time budget for the next branch.
-                let branchTime: number;
-                if( mQueue.length < SEARCH_PRPORTN ){
-                    branchTime = timeBudget / mQueue.length;
                 } else {
-                    branchTime = timeBudget /(mQueue.length / SEARCH_PRPORTN); 
-                }
-
-                // Recurse to set the rest of the table. True if filled, false if no solution.
-                matchFound = fillFrom( table, roundCount, teams, matches, crntMatchCount+1, nextMQueue, branchTime );
-                
-                // If match found add to final match set. Else this is not the solution, backtrack and keep looking.
-                if( matchFound ){
-                    matches.push(currentMatch);
+                    unreserved = true;
                     break;
-                } else {
-                    table.clearMatch(currentMatch);
                 }
+            }
+
+            // If there are no unreserved games to swap with this round, we have to try the next round
+            if( !unreserved ){
+                randMatch.roundNum++;
+                if( randMatch.roundNum >= fixture.length ){
+                    randMatch.roundNum = 0;
+                }
+                continue;
+            }
+            
+            for( let j: number = 0; j < teamsCount; j++ ){ // Each home team
+                for( let k: number = 0; k < teamsCount; k++ ){ // Each away team
+                    if ( randMatch.homeTeam == randMatch.awayTeam ||
+                         randMatch.isContainedIn(fixture[randMatch.roundNum]) ){
+                        // This match is illegal. We cannot use it.
+                        randMatch.awayTeam++;
+                        if( randMatch.awayTeam >= teamsCount ){
+                            randMatch.awayTeam = 0;
+                        }
+                    } else {
+                        // Valid substitute match found
+                        valid = true;
+                        break;
+                    }
+                }
+                if( valid ){
+                    break;
+                }
+                randMatch.homeTeam++;
+                if( randMatch.homeTeam >= teamsCount ){
+                    randMatch.homeTeam = 0;
+                }
+            }
+            if( valid ){
+                break;
+            }
+            randMatch.roundNum++;
+            if( randMatch.roundNum >= fixture.length ){
+                randMatch.roundNum = 0;
             }
         }
 
-        // Checking if the conTable is fully filled. (Only true at bottom of recursion tree.)
-        if( crntMatchCount === matchCount ){
-            // If so, we can go up the recursion stack with success
-            matchFound = true;
+        if( !valid ){
+            // If no valid match could be found to swap, abort.
+            // This should not happen during plotFixtureRotation.
+            throw new Error('Could not find a match in the fixture to alter.');
         }
-
-        return matchFound;
+        
+        return new SwapMatch(randMatch,randMatchNum);
     }
 
+    /**
+     * getSwitchMatch
+     * Picks a random non-reserved match in the fixture and returns a SwapMatch
+     * pointing to that match with the only difference being the home and away 
+     * teams switched.
+     * 
+     * This is used for the stage 2 simulated annealing where a narrower 
+     * strategy of finding neighbouring solutions must be employed.
+     * 
+     * Throws:
+     * 'Could not find a match in the fixture to alter.' Either all matches 
+     *   were marked as reserved in fixture or there were no unique matches to 
+     *   switch for something in the fixture. If the latter occurs, there is 
+     *   likely a bug lurking.
+     */
+    function getSwitchMatch(fixture: Match[][], teamsCount: number): SwapMatch {
+        // Getting intial random values
+        let randRound: number = Math.floor(Math.random() * fixture.length);
+        let randMatchNum: number = Math.floor(Math.random() * fixture[randRound].length);
+        
+        // If we have an reserved match, we iterate until we find a free one
+        let unreserved: boolean;
+        for( let i: number = 0; i < fixture.length; i++ ){ // Each round
+            unreserved = false;
+            for( let l: number = 0; l < fixture[randRound].length; l++ ){ // Each game in round
+                if( fixture[randRound][randMatchNum].reserved ){
+                    randMatchNum++;
+                    if( randMatchNum >= fixture[randRound].length ){
+                        randMatchNum = 0;
+                    }
+                } else {
+                    unreserved = true;
+                    break;
+                }
+            }
 
-    ///////////////////////////////////////////////////////////////////////////
-    /////////////////// +++++++++ SETUP CODE +++++++++ ////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
+            // If there are no unreserved games to swap with this round, we have to try the next round
+            if( unreserved ){
+                break;
+            }
+        }
+        
+        if( !unreserved ){
+            // If no valid match could be found to swap, abort.
+            // This should not happen during plotFixtureRotation.
+            throw new Error('Could not find a match in the fixture to alter.');
+        }
 
+        // Return a new SwapMatch containing a copy of the chosen match with home and away switched
+        return new SwapMatch( new Match(randRound, fixture[randRound][randMatchNum].awayTeam, fixture[randRound][randMatchNum].homeTeam),
+                              randMatchNum);
+    }
+
+    /**
+     * calcAcceptProb
+     * Calculates the probability that a new solution will be accepted by the 
+     * simulated annealing algorithm based on the given parameters.
+     */
+    function calcAcceptProb( oldC: number, newC: number, temperature: number ): number {
+        return Math.pow(Math.E,(oldC - newC)/temperature);
+    }
+
+    /**
+     * printFixture
+     * Prints a 2D fixture to the console. Used in verbose mode for debugging.
+     */
+    function printFixture( fixture: Match[][] ): void {
+        let concatString: string = "";
+        console.log('Fixture: rounds = ' + fixture.length);
+        for( let i: number = 0; i < fixture.length; i++ ){
+            console.log('-------');
+            console.log('Round ' + i);
+            console.log('-------');
+
+            
+            concatString = ""; 
+            for( let j: number = 0; j < fixture[i].length; j++ ){
+                if( fixture[i][j].reserved ){
+                    concatString = concatString + "R ";    
+                } else {
+                    concatString = concatString + "- ";
+                }
+                concatString = concatString + "H" + fixture[i][j].homeTeam + " vs A" + fixture[i][j].awayTeam + ", ";  
+            }
+            console.log(concatString);
+        }
+        console.log("------");
+    }
+    
+    
+    
+    ///////////////// +++++++++ Sanity Checking +++++++++ /////////////////////
+    
     // Checking for lack of teams
     if( teams.length < 2 ){
         throw new Error('At least two teams are required to make a fixture.');
@@ -362,73 +367,116 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
         throw new Error('Odd number of teams in the teams parameter. Add a bye to make it even.');
     }
 
-    // Creating and populating matrix that stores the matchup states.
-    matchupState = new ConTable( teams.length, numRounds );
-    var successFlag: boolean = true;
-
-    for( var i: number = 0; i < resvdMatches.length; i++ ){
-        successFlag = matchupState.setMatch(resvdMatches[i], (MatchState.MATCH_SET | MatchState.RESERVED));
-        if( !successFlag ){
-            throw new Error('Reserved Matches clash with basic constraints in this rotation.');
+    // Checking if reserved matches are legal
+    if( resvdMatches.length > 0 ){
+        let twoDResvdMatches: Match[][] = convertOneDToTwoDFixture(numRounds, resvdMatches);
+        table.applyFixture(twoDResvdMatches);
+        let reservedCost = table.fixtureCost(twoDResvdMatches, teams);
+        if( reservedCost > 0 ){
+            throw new Error('Reserved Matches break a constraint.')
+        } else if( resvdMatches.length == ((numTeams/2)*numRounds) ){
+            // Fixture is already fully booked. Return sorted reserved matches.
+            return convertTwoDToOneDFixture(convertOneDToTwoDFixture(numRounds, resvdMatches));
         }
     }
 
-    // Initialising Look-ahead queue. Uses a min-conflicts -> max-domain-size heuristic
-    var lookMatch: Match = new Match(0,0,0);
-    var matchMask: number = matchupState.getMask(lookMatch);
-    var matchQueue: Match[] = new Array();
     
-    // Checking available matchups for the number of conflicts they would cause (min-conflicts heuristic)
-    // Rounds
-    for( var i: number = 0; i < numRounds; i++ ){
-        if( matchupState.domainOfRound[i] > 0 ){
-            lookMatch.roundNum = i;
-            
-            // Home Teams
-            for( var j: number = 0; j < teams.length; j++ ){
-                lookMatch.homeTeam = j;
-                matchMask = matchupState.getMask(lookMatch);
-                if( (matchMask & MatchState.HOME_PLAYING_AWAY) === 0 &&
-                    (matchMask & MatchState.HOME_PLAYING_HOME) === 0 ){
-                    
-                    // Away Teams
-                    for( var k: number = 0; k < teams.length; k++ ){
-                        lookMatch.awayTeam = k;
-                        matchMask = matchupState.getMask(lookMatch);
-                        if( j !== k && matchMask === MatchState.OPEN ){
-                            // This match is in the domain of the current round.
-                            
-                            // Calculating the number of conflicts that the match will cause
-                            lookMatch.footPrnt = matchupState.calcFootPrint( lookMatch );
+    ////////////// +++++++++ Simulated Annealling +++++++++ ///////////////////
+    
+    let temperature: number = 1; // The temperature. This lowers as we iterate, in turn lowering acceptProb
+    let tempMin: number = MINIMUM_TEMPERATURE; // The temperature point at which the annealing stops
+    let alphaCoolRate: number = ALPHA_COOLING_RATE; // The proportion of the temperature removed with every iteration
+    let coolFrequency: number = INITIAL_COOLING_FREQUENCY; // How many random changes must be made before the temperature is multiplied by the cooling rate
+    let acceptProb: number; // Probability of accepting a new solution
 
-                            // Adding to match queue
-                            matchQueue.push( new Match(i,j,k,lookMatch.footPrnt) );
+    // Fill a fixture randomly without constraints, adding reserved teams
+    let crtFixture: Match[][] = randomFixture(numRounds, numTeams, resvdMatches);
 
+    // Count up the weight of the broken constraints in the fixture
+    table.applyFixture(crtFixture);
+    let crtCost = table.fixtureCost(crtFixture, teams);
+    let newCost: number;
+    let swapOut: SwapMatch;
+
+    let bestFixture: Match[][] = cloneFixture(crtFixture);
+    let bestCost: number = crtCost;
+    let solnFound: boolean = false;
+
+
+    while( Date.now() - startTime < searchTimeout ){
+
+        if( verbose ) {
+            console.log('SA stage 1: Beginning annealing. coolFrequency = ' + coolFrequency);
+        }
+
+        temperature = 1;
+    
+        while( temperature > tempMin ){
+            for( let i: number = 0; i < coolFrequency; i++ ){
+                if( verbose ){
+                    permCounter++;
+                }
+                
+                // Getting a match to swap with an existing one
+                swapOut = getSwapMatch(crtFixture, numTeams);
+
+                // Applying the swapped match to the table
+                table.clearMatch( crtFixture[swapOut.match.roundNum][swapOut.swapIndex] );
+                table.setMatch( swapOut.match );
+                
+                // Measuring the cost of the fixture if altered by the match swap
+                newCost = table.alteredFixtureCost(crtFixture, swapOut.match, swapOut.swapIndex, teams);
+
+                // Calculate the acceptance probability
+                acceptProb = calcAcceptProb(crtCost, newCost, temperature);
+
+                // Adopt the altered fixture if an rng rolls below the acceptProb
+                if( Math.random() < acceptProb || newCost < crtCost ){
+                    crtFixture[swapOut.match.roundNum][swapOut.swapIndex] = swapOut.match;
+                    crtCost = newCost;
+
+                    // Bring the crtFixture forth in the function if a completely legal solution is found
+                    if( crtCost <= 0 ){
+                        if( verbose ){
+                            console.log('SA stage 1: Solution found after ' + permCounter + ' permutations. Time elapsed = ' + (Date.now()-startTime));
+                        }
+                        
+                        table.printCostsToConsole(crtFixture, teams);
+                        return convertTwoDToOneDFixture(crtFixture);
+                        /*solnFound = true;
+                        break;*/
+                    } else if( crtCost < bestCost ){
+                        // Recording the best attempt thus far
+                        bestFixture = cloneFixture(crtFixture);
+                        bestCost = crtCost;
+
+                        if( verbose ){
+                            console.log("SA stage 1: Temp = " + temperature + ", bestCost = " + bestCost + ", newCost = " + newCost + ", crtCost = " + crtCost + ", TeamsCount = " + numTeams + ", Acceptance Probability = " + acceptProb);
                         }
                     }
+                } else {
+                    // Reverse table edits so we can try again
+                    table.clearMatch( swapOut.match );
+                    table.setMatch( crtFixture[swapOut.match.roundNum][swapOut.swapIndex] );
                 }
             }
+
+            temperature *= alphaCoolRate;
         }
+
+        // Resetting with more time between cooling and our best solution so far
+        coolFrequency *= COOLFREQ_RETRY_FACTOR;
+        crtFixture = bestFixture;
+        crtCost = bestCost;
+        table.applyFixture(crtFixture);
     }
     
-    // Sorting the matchup queue by minimum variable domain, and then minimum value footprint
-    matchQueue.sort(cmpMinConfMaxDom);
-
-    // Populate the rest of the ConTable with fillFrom, starting from a random round
-    var finalMatches: Match[] = resvdMatches.slice();
-    if( fillFrom(matchupState, numRounds, teams, finalMatches, resvdMatches.length, matchQueue, searchTimeout ) ){
-        if( verbose ){
-            console.log("Solution found after " + permCounter + " permutations.")
-        }
-        
-        // Sorting finalMatches by round and returning
-        finalMatches.sort(function(a: Match, b: Match): number {return a.roundNum-b.roundNum});
-        return finalMatches;
-    }
-
     if( verbose ){
-        console.log("No solution found after " + permCounter + " permutations.")
+        table.printCostsToConsole(crtFixture, teams);
     }
 
-    throw new Error("Solution could not be found in the search space.");
+    if( crtCost > 0 ){
+        throw new Error("SA stage 1: Solution could not be found in the time provided. Permutations = " + permCounter + ", time elapsed = " + (Date.now()-startTime));
+    }
+    
 }
