@@ -1,6 +1,6 @@
-import { plotFixtureRotation } from '../../../../../app/services/scheduler/dfs/plot_fixture_rotation'
-import { Team } from '../../../../../app/services/scheduler/dfs/fixture_constraints'
-import { Constraint } from '../../../../../app/util/constraint_factory'
+import { plotFixtureRotation } from './plot_fixture_rotation'
+import { Team } from './fixture_constraints'
+import { Constraint } from '../../../util/constraint_factory'
 import { TestTeamNoConstraints } from './test_util'
 import * as process from 'process'
 
