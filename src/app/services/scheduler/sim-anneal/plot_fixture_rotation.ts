@@ -377,7 +377,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
     while( Date.now() - startTime < searchTimeout ){
 
         if( verbose ) {
-            console.log('SA stage 1: Beginning annealing. coolFrequency = ' + coolFrequency);
+            console.log('Beginning annealing. coolFrequency = ' + coolFrequency);
         }
 
         temperature = 1;
@@ -409,7 +409,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
                     // Bring the crtFixture forth in the function if a completely legal solution is found
                     if( crtCost <= 0 ){
                         if( verbose ){
-                            console.log('SA stage 1: Solution found after ' + permCounter + ' permutations. Time elapsed = ' + (Date.now()-startTime));
+                            console.log('Solution found after ' + permCounter + ' permutations. Time elapsed = ' + (Date.now()-startTime));
                         }
                         
                         table.printCostsToConsole(crtFixture, teams);
@@ -422,7 +422,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
                         bestCost = crtCost;
 
                         if( verbose ){
-                            console.log("SA stage 1: Temp = " + temperature + ", bestCost = " + bestCost + ", newCost = " + newCost + ", crtCost = " + crtCost + ", TeamsCount = " + numTeams + ", Acceptance Probability = " + acceptProb);
+                            console.log("Temp = " + temperature + ", bestCost = " + bestCost + ", newCost = " + newCost + ", crtCost = " + crtCost + ", TeamsCount = " + numTeams + ", Acceptance Probability = " + acceptProb);
                         }
                     }
                 } else {
@@ -446,7 +446,7 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
     }
 
     if( crtCost > 0 ){
-        throw new Error("SA stage 1: Solution could not be found in the time provided. Permutations = " + permCounter + ", time elapsed = " + (Date.now()-startTime));
+        throw new Error("Solution could not be found in the time provided. Permutations = " + permCounter + ", time elapsed = " + (Date.now()-startTime));
     }
     
 }
