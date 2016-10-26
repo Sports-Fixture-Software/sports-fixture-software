@@ -27,7 +27,6 @@ export function callPlotFixtureRotation(args: SchedulerParameters): DFSMatch[] {
 }
 
 process.on('message', (args: SchedulerParameters) => {
-    console.log('DFS worker')
     // can't send functions to processes, so create teams in this process
     try {
         process.send(callPlotFixtureRotation(args))
