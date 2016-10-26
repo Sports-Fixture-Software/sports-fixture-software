@@ -81,7 +81,9 @@ export class GenerateComponent implements OnInit, OnDestroy {
     }
 
     cancel() {
-
+        this.schedulerService.generateCancel()
+        this.generating = false
+        this.changeref.detectChanges()
     }
 
     private generating: boolean = false
