@@ -1,17 +1,36 @@
-import { plotFixtureRotation } from '../../../../../app/services/scheduler/dfs/plot_fixture_rotation'
-import { Team } from '../../../../../app/services/scheduler/dfs/fixture_constraints'
-import { Constraint } from '../../../../../app/util/constraint_factory'
-import { TestTeamNoConstraints } from './test_util'
+import { plotFixtureRotation } from './plot_fixture_rotation'
+import { Team as DFSTeam, Match as DFSMatch } from './fixture_constraints'
+import { SchedulerParameters } from '../scheduler.service'
+import { TeamConstraints } from './team_constraints'
 import * as process from 'process'
 
-process.on('message', (args: any[]) => {
-    // can't send functions to processes, so create teams in this process
-    let teams: Team[] = []
-    for (let j = 0; j < args[0]; j++) {
-        teams.push(new TestTeamNoConstraints())
+export function callPlotFixtureRotation(args: SchedulerParameters): DFSMatch[] {
+    let teams: DFSTeam[] = []
+    let matches: DFSMatch[] = []
+    let index = 0
+    for (let team of args.teams) {
+        teams.push(new TeamConstraints(index,
+            {
+                maxHome: team.homeGamesMax,
+                maxAway: team.awayGamesMax
+            },
+            {
+                consecutiveHomeGamesMax: team.consecutiveHomeGamesMax,
+                consecutiveAwayGamesMax: team.consecutiveAwayGamesMax,
+            }))
+        index++
     }
+    for (let match of args.reservedMatches) {
+        matches.push(new DFSMatch(match.roundNum, match.homeTeam, match.awayTeam))
+    }
+    return plotFixtureRotation(teams, matches, args.numRounds, args.verbose)
+}
+
+process.on('message', (args: SchedulerParameters) => {
+    console.log('DFS worker')
+    // can't send functions to processes, so create teams in this process
     try {
-        process.send(plotFixtureRotation(teams, args[1], args[2], args[3]))
+        process.send(callPlotFixtureRotation(args))
     } catch (e) {
         process.send({ name: e.name, message: e.message })
     }
