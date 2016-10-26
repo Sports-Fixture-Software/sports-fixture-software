@@ -1,20 +1,28 @@
 import { Injectable } from '@angular/core'
-import { Fixture } from '../../../models/fixture'
-import { Round } from '../../../models/round'
-import { Team } from '../../../models/team'
-import { TeamConfig } from '../../../models/team_config'
-import { Match } from '../../../models/match'
-import { FixtureService } from '../../fixture.service'
-import { RoundService } from '../../round.service'
-import { MatchService } from '../../match.service'
-import { Collection } from '../../collection'
-import { Team as DFSTeam, Match as DFSMatch, FixtureInterface }  from './fixture_constraints'
-import { plotFixtureRotation } from './plot_fixture_rotation'
-import { Search } from '../../../util/search'
-import { DateTime } from '../../../util/date_time'
-import { AppConfig } from '../../../util/app_config'
-import { TeamConstraints, LeagueFixtureConstraintInfo, TeamConstraintInfo } from './team_constraints'
+import { Fixture } from '../../models/fixture'
+import { FixtureConfig } from '../../models/fixture_config'
+import { LeagueConfig } from '../../models/league_config'
+import { Round } from '../../models/round'
+import { Team } from '../../models/team'
+import { TeamConfig } from '../../models/team_config'
+import { Match } from '../../models/match'
+import { FixtureService } from '../fixture.service'
+import { RoundService } from '../round.service'
+import { MatchService } from '../match.service'
+import { Collection } from '../collection'
+import { Search } from '../../util/search'
+import { DateTime } from '../../util/date_time'
+import { AppConfig } from '../../util/app_config'
+import { Match as SchedulerMatch } from '../../util/scheduler/match'
+import { Team as SchedulerTeam } from '../../util/scheduler/team'
 import * as Promise from 'bluebird'
+import * as child_process from 'child_process'
+import * as path from 'path'
+
+// if debugging, select one of the following imports
+//import { callPlotFixtureRotation } from './dfs/dfs_worker'
+import { callPlotFixtureRotation } from './sim-anneal/sim_anneal_worker'
+// end debug only
 
 @Injectable()
 export class SchedulerService {
@@ -23,6 +31,13 @@ export class SchedulerService {
         private roundService: RoundService,
         private matchService: MatchService) {
     }
+
+    worker: child_process.ChildProcess
+
+    // select the scheduler here:
+    //scheduler: string = path.join('dfs', 'dfs_worker')
+    scheduler: string = path.join('sim-anneal', 'sim_anneal_worker')
+    // end select scheduler
 
     /**
      * Populate the database with rounds and matches for the specified fixture. 
@@ -49,9 +64,8 @@ export class SchedulerService {
             // convert database data structures to DFS data structures     
             let dfsTeams = this.convertTeams(this.teams)
             let dfsReservedMatches = this.convertReservedMatches(this.rounds)
-
-            let dfsFixture = plotFixtureRotation(dfsTeams, dfsReservedMatches, this.rounds.length, false)
-
+            return this.runPlotFixtureRotation(this.scheduler, dfsTeams, dfsReservedMatches, this.rounds.length, AppConfig.isDeveloperMode())
+        }).then((dfsFixture) => {
             // convert the DFS fixture to database matches and add to database.
             return Promise.map(dfsFixture, (item, index, length) => {
                 let match = new Match()
@@ -84,28 +98,35 @@ export class SchedulerService {
      *
      * Returns the DFS data structure
      */
-    private convertTeams(teams: Team[]): DFSTeam[] {
-        let dfsTeams: DFSTeam[] = [];
+    private convertTeams(teams: Team[]): SchedulerTeam[] {
+        let dfsTeams: SchedulerTeam[] = [];
         let index = 0
         for (let team of teams) {
             this.teamtoDfsTeamMap.set(team.id, index)
             this.dfsTeamtoTeamMap.set(index, team.id)
+            //let newTeam: SchedulerTeam = new SchedulerTeam()
+
             let teamConstraint = this.calculateTeamConstraint(team.teamConfigPreLoaded)
-            let leagueFixtureConstraint: LeagueFixtureConstraintInfo = {
-                // if config not set at fixture level, consult league level
-                consecutiveHomeGamesMax: this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax == null || this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax == undefined ? this.fixture.leaguePreLoaded.leagueConfigPreLoaded.consecutiveHomeGamesMax : this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax,
-                consecutiveAwayGamesMax: this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax == null || this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax == undefined ? this.fixture.leaguePreLoaded.leagueConfigPreLoaded.consecutiveAwayGamesMax : this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax,
-             }
-            dfsTeams.push(new TeamConstraints(index, teamConstraint, leagueFixtureConstraint))
+            let leagueFixtureConstraint = this.calculateLeagueFixtureConstraint(this.fixture.fixtureConfigPreLoaded, this.fixture.leaguePreLoaded.leagueConfigPreLoaded)
+            let newTeam: SchedulerTeam = {
+                homeGamesMax: teamConstraint.maxHome,
+                awayGamesMax: teamConstraint.maxAway,
+                consecutiveHomeGamesMax: leagueFixtureConstraint.consecutiveHomeGamesMax,
+                consecutiveAwayGamesMax: leagueFixtureConstraint.consecutiveAwayGamesMax
+            }
+            dfsTeams.push(newTeam)
             index++
         }
         // add bye team
         if (teams.length % 2 != 0) {
             this.teamtoDfsTeamMap.set(null, index)
             this.dfsTeamtoTeamMap.set(index, null)
-            dfsTeams.push(new TeamConstraints(index,
-                { maxHome: undefined, maxAway: undefined },
-                { consecutiveHomeGamesMax: undefined, consecutiveAwayGamesMax: undefined }))
+            dfsTeams.push({
+                homeGamesMax: -1,
+                awayGamesMax: -1,
+                consecutiveHomeGamesMax: -1,
+                consecutiveAwayGamesMax: -1,
+            })
         }
         return dfsTeams
     }
@@ -117,8 +138,27 @@ export class SchedulerService {
      */
     private calculateTeamConstraint(config: TeamConfig): TeamConstraintInfo {
         return {
-            maxHome: config.homeGamesMax == null || config.homeGamesMax == undefined ? undefined : Math.min(config.homeGamesMax, this.rounds.length - config.awayGamesMin),
-            maxAway: config.awayGamesMax == null || config.awayGamesMax == undefined ? undefined : Math.min(config.awayGamesMax, this.rounds.length - config.homeGamesMin)
+            maxHome: config.homeGamesMax == null || config.homeGamesMax == undefined ? -1 : Math.min(config.homeGamesMax, this.rounds.length - config.awayGamesMin),
+            maxAway: config.awayGamesMax == null || config.awayGamesMax == undefined ? -1 : Math.min(config.awayGamesMax, this.rounds.length - config.homeGamesMin)
+        }
+    }
+
+    private calculateLeagueFixtureConstraint(fixtureConfig: FixtureConfig, leagueConfig: LeagueConfig): LeagueFixtureConstraintInfo {
+        let consecutiveHomeGamesMax = -1
+        if (fixtureConfig.consecutiveHomeGamesMax != null && fixtureConfig.consecutiveHomeGamesMax != undefined) {
+            consecutiveHomeGamesMax = fixtureConfig.consecutiveHomeGamesMax
+        } else if (leagueConfig.consecutiveHomeGamesMax != null && leagueConfig.consecutiveHomeGamesMax != undefined) {
+            consecutiveHomeGamesMax = leagueConfig.consecutiveHomeGamesMax
+        }
+        let consecutiveAwayGamesMax = -1
+        if (fixtureConfig.consecutiveAwayGamesMax != null && fixtureConfig.consecutiveAwayGamesMax != undefined) {
+            consecutiveAwayGamesMax = fixtureConfig.consecutiveAwayGamesMax
+        } else if (leagueConfig.consecutiveAwayGamesMax != null && leagueConfig.consecutiveAwayGamesMax != undefined) {
+            consecutiveAwayGamesMax = leagueConfig.consecutiveAwayGamesMax
+        }
+        return {
+            consecutiveHomeGamesMax: consecutiveHomeGamesMax,
+            consecutiveAwayGamesMax: consecutiveAwayGamesMax,
         }
     }
 
@@ -128,8 +168,8 @@ export class SchedulerService {
      *
      * Returns the DFS data structure
      */
-    private convertReservedMatches(rounds: Round[]): DFSMatch[] {
-        let reservedMatches: DFSMatch[] = []
+    private convertReservedMatches(rounds: Round[]): SchedulerMatch[] {
+        let reservedMatches: SchedulerMatch[] = []
         for (let round of rounds) {
             for (let config of round.matchConfigsPreLoaded) {
                 let homeId: number
@@ -149,15 +189,81 @@ export class SchedulerService {
                         continue
                     }
                 }
-                reservedMatches.push(new DFSMatch(round.number - 1, homeId, awayId))
+                reservedMatches.push(new SchedulerMatch(round.number - 1, homeId, awayId))
             }
         }
         return reservedMatches
     }
+
+    /**
+     * Runs the plotFixtureRotation function from services in a separate thread.
+     * Returns a Promise of the plotFixtureRotation result.
+     */
+    runPlotFixtureRotation(scheduler: string, teams: SchedulerTeam[], reservedMatches: SchedulerMatch[], numRounds: number, verbose: boolean): Promise<SchedulerMatch[]> {
+        return new Promise<SchedulerMatch[]>((resolve, reject) => {
+            let parameters: SchedulerParameters = {
+                teams: teams,
+                reservedMatches: reservedMatches,
+                numRounds: numRounds,
+                verbose: verbose,
+            }
+            this.runPlotFixtureRotationOnNewThread(scheduler, parameters, resolve, reject)
+            // For debugging: To run the scheduler in the current thread
+            // uncomment following line, and comment above line.
+            //this.runPlotFixtureRotationDebugging(parameters, resolve, reject)
+        })
+    }
+
+    private runPlotFixtureRotationOnNewThread(scheduler: string, parameters: SchedulerParameters, resolve: any, reject: any) {
+        this.worker = child_process.fork(path.join(__dirname, scheduler))
+        this.worker.send(parameters)
+        this.worker.on('message', (testFixture: any) => {
+            if (testFixture.message) {
+                let err = new Error()
+                err.name = testFixture.name
+                err.message = testFixture.message
+                return reject(err)
+            }
+            return resolve(testFixture)
+        })
+    }
+
+    /**
+     * To run the scheduler in the current thread. Useful for debugging.
+     */
+    private runPlotFixtureRotationDebugging(parameters: SchedulerParameters, resolve: any, reject: any) {
+        try {
+            resolve(callPlotFixtureRotation(parameters))
+        } catch (err) {
+            reject(err)
+        }
+    }
+
 
     private teamtoDfsTeamMap = new Map<number, number>()
     private dfsTeamtoTeamMap = new Map<number, number>()
     private rounds: Round[]
     private teams: Team[]
     private fixture: Fixture
+}
+
+/**
+ * The parameters passed to scheduler in a separate thread.
+ * Thread messages can only be sent as objects.
+ */
+export interface SchedulerParameters {
+    teams: SchedulerTeam[],
+    reservedMatches: SchedulerMatch[],
+    numRounds: number,
+    verbose: boolean,
+}
+
+export interface TeamConstraintInfo {
+    maxHome: number,
+    maxAway: number
+}
+
+export interface LeagueFixtureConstraintInfo {
+    consecutiveHomeGamesMax: number,
+    consecutiveAwayGamesMax: number,
 }
