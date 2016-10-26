@@ -1,4 +1,3 @@
-import { FixtureInterface } from '../services/scheduler/dfs/fixture_constraints';
 import { Match } from './scheduler/match';
 
 /**
