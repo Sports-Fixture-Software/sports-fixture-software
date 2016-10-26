@@ -1,19 +1,12 @@
-import { plotFixtureRotation } from '../../../../../app/services/scheduler/dfs/plot_fixture_rotation';
-import { Match, Team } from '../../../../../app/services/scheduler/dfs/fixture_constraints';
+import { Match } from '../../../../../app/util/scheduler/match'
+import { Team } from '../../../../../app/util/scheduler/team'
+import { SchedulerService } from '../../../../../app/services/scheduler/scheduler.service'
+// import { plotFixtureRotation } from '../../../../../app/services/scheduler/dfs/plot_fixture_rotation';
+// import { Match, Team } from '../../../../../app/services/scheduler/dfs/fixture_constraints';
 import { Constraint, FixtureInterface } from '../../../../../app/util/constraint_factory'
 import * as child_process from 'child_process'
 import * as path from 'path'
 import * as Promise from 'bluebird'
-
-// No special constraints
-export class TestTeamNoConstraints implements Team {
-
-    constructor() { }
-
-    constraintsSatisfied(fixture: FixtureInterface, proposedMatch: Match, home: boolean): Constraint {
-        return Constraint.SATISFIED;
-    }
-}
 
 export interface TestResult {
     result: boolean,
@@ -23,6 +16,7 @@ export interface TestResult {
 export class TestUtil {
 
     static worker: child_process.ChildProcess
+    static schedulerService: SchedulerService = new SchedulerService(null, null, null)
 
     /**
      * Test if there are less or more teams in a round than expected, or team
@@ -98,18 +92,10 @@ export class TestUtil {
      * Returns a Promise of the plotFixtureRotation result.
      */
     static runPlotFixtureRotation(numTeams: number, reservedMatches: Match[], numRounds: number, verbose: boolean): Promise<Match[]> {
-        return new Promise<Match[]>((resolve, reject) => {
-            this.worker = child_process.fork(path.join(__dirname, 'plot_fixture_rotation_worker'))
-            this.worker.send([numTeams, reservedMatches, numRounds, verbose])
-            this.worker.on('message', (testFixture: any) => {
-                if (testFixture.message) {
-                    let err = new Error()
-                    err.name = testFixture.name
-                    err.message = testFixture.message
-                    return reject(err)
-                }
-                return resolve(testFixture)
-            })
-        })
+        let teams: Team[] = []
+        for (let i = 0; i < numTeams; i++) {
+            teams.push({ homeGamesMax: -1, awayGamesMax: -1, consecutiveHomeGamesMax: -1, consecutiveAwayGamesMax: -1 })
+        }
+        return this.schedulerService.runPlotFixtureRotation(path.join('dfs', 'dfs_worker'), teams, reservedMatches, numRounds, verbose)
     }
 }
