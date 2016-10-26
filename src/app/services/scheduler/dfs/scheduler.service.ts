@@ -2,16 +2,17 @@ import { Injectable } from '@angular/core'
 import { Fixture } from '../../../models/fixture'
 import { Round } from '../../../models/round'
 import { Team } from '../../../models/team'
+import { TeamConfig } from '../../../models/team_config'
 import { Match } from '../../../models/match'
 import { FixtureService } from '../../fixture.service'
 import { RoundService } from '../../round.service'
 import { MatchService } from '../../match.service'
 import { Collection } from '../../collection'
 import { Team as DFSTeam, Match as DFSMatch, FixtureInterface }  from './fixture_constraints'
-import { Constraint } from '../../../util/constraint_factory'
 import { plotFixtureRotation } from './plot_fixture_rotation'
 import { Search } from '../../../util/search'
 import { DateTime } from '../../../util/date_time'
+import { TeamConstraints, LeagueFixtureConstraintInfo, TeamConstraintInfo } from './team_constraints'
 import * as Promise from 'bluebird'
 
 @Injectable()
@@ -26,13 +27,11 @@ export class SchedulerService {
      * Populate the database with rounds and matches for the specified fixture. 
      */
     generateFixture(fixture: Fixture): Promise<any> {
-        return this.fixtureService.getFixtureAndTeams(fixture.id).then((f) => {
+        return this.fixtureService.getFixtureAndAllRelated(fixture.id).then((f) => {
             this.fixture = f
-            return this.fixtureService.getRoundsAndConfig(f)
-        }).then((rounds: Collection<Round>) => {
             // add rounds (note: some rounds may already exist)
             this.teams = this.fixture.leaguePreLoaded.teamsPreLoaded.toArray()
-            this.rounds = rounds.toArray()
+            this.rounds = this.fixture.roundsPreLoaded.toArray()
             let newRounds = DateTime.fillInRounds(this.fixture, this.rounds, false)
             this.roundCount = this.rounds.length + newRounds.length
             return Promise.map(newRounds, (item, index, length) => {
@@ -88,11 +87,30 @@ export class SchedulerService {
         for (let team of teams) {
             this.teamtoDfsTeamMap.set(team.id, index)
             this.dfsTeamtoTeamMap.set(index, team.id)
-            dfsTeams.push(new TestTeamNoConstraints())
+            let teamConstraint = this.calculateTeamConstraint(team.teamConfigPreLoaded)
+            let leagueFixtureConstraint: LeagueFixtureConstraintInfo = {
+                // if config not set at fixture level, consult league level
+                consecutiveHomeGamesMax: this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax == null || this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax == undefined ? this.fixture.leaguePreLoaded.leagueConfigPreLoaded.consecutiveHomeGamesMax : this.fixture.fixtureConfigPreLoaded.consecutiveHomeGamesMax,
+                consecutiveAwayGamesMax: this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax == null || this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax == undefined ? this.fixture.leaguePreLoaded.leagueConfigPreLoaded.consecutiveAwayGamesMax : this.fixture.fixtureConfigPreLoaded.consecutiveAwayGamesMax,
+             }
+            dfsTeams.push(new TeamConstraints(index, teamConstraint, leagueFixtureConstraint))
             index++
         }
         return dfsTeams
     }
+
+    /**
+     * Calculate the maxHome and maxAway constraints from the supplied `config`.
+     * Min home games is converted to max away games, and
+     * Min away games is converted to max home games.
+     */
+    private calculateTeamConstraint(config: TeamConfig): TeamConstraintInfo {
+        return {
+            maxHome: config.homeGamesMax == null || config.homeGamesMax == undefined ? undefined : Math.min(config.homeGamesMax, this.roundCount - config.awayGamesMin),
+            maxAway: config.awayGamesMax == null || config.awayGamesMax == undefined ? undefined : Math.min(config.awayGamesMax, this.roundCount - config.homeGamesMin)
+        }
+    }
+
 
     /**
      * Convert database data structure `rounds` to DFS data structure.
@@ -133,13 +151,4 @@ export class SchedulerService {
     private teams: Team[]
     private roundCount: number
     private fixture: Fixture
-}
-
-class TestTeamNoConstraints implements DFSTeam {
-
-    constructor() { }
-
-    constraintsSatisfied(fixture: FixtureInterface, proposedMatch: DFSMatch, home: boolean): Constraint {
-        return Constraint.SATISFIED;
-    }
 }

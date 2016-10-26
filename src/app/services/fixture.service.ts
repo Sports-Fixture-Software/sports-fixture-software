@@ -62,6 +62,32 @@ export class FixtureService {
     }
 
     /**
+     * get fixture, and associated fixture config, league, league config, teams,
+     * team config, rounds and round config.
+     */
+    getFixtureAndAllRelated(id: number): Promise<Fixture> {
+        return new Fixture().where('id', id).fetch({
+            withRelated: [
+                'fixtureConfig',
+                'league',
+                'league.leagueConfig',
+                {
+                    'league.teams': (qb) => {
+                        return qb.where('active', true)
+                    }
+                },
+                'league.teams.teamConfig',
+                {
+                    'rounds': (qb) => {
+                        return qb.orderBy('number')
+                    }
+                },
+                'rounds.matchConfigs'
+            ]
+        })
+    }
+
+    /**
      * get all rounds for the fixture, sorted by round number.
      */
     getRounds(fixture: Fixture): Promise<Collection<Round>> {
