@@ -1,4 +1,4 @@
-import { Constraint } from '../../../util/constraint_factory'
+import { Constraint, FixtureInterface } from '../../../util/constraint_factory'
 import { Match as BaseMatch } from '../../../util/scheduler/match'
 
 /**
@@ -15,34 +15,6 @@ export class Match extends BaseMatch {
         public footPrnt: number = 0) {
         super(roundNum, homeTeam, awayTeam)
     }
-}
-
-/**
- * FixtureInterface
- * Interface to retrieve matches from a fixture representation. Used primarily
- * for constraint checking.
- */
-export interface FixtureInterface {
-    /**
-     * getHomeTeamVs
-     * Returns the index of the home team vs. awayTeam on the given round.
-     * Returns -1 if a game where the awayTeam is playing does not exist on the
-     *   given round.
-     */
-    getHomeTeamVs( round: number, awayTeam: number ): number;
-
-    /**
-     * getAwayTeamVs
-     * Returns the index of the away team vs. homeTeam on the given round.
-     * Returns -1 if a game where the homeTeam is playing does not exist on the
-     *   given round.
-     */
-    getAwayTeamVs( round: number, homeTeam: number ): number;
-
-    /**
-     * Returns the number of rounds in the fixture
-     */
-    getNumberOfRounds(): number;
 }
 
 /**
