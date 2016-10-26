@@ -1,4 +1,5 @@
-import { Constraint, FixtureInterface } from '../../../util/constraint_factory';
+import { Constraint } from '../../../util/constraint_factory';
+import { FixtureInterface } from '../dfs/fixture_constraints';
 
 /**
  * Match struct

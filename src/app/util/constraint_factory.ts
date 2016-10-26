@@ -1,5 +1,4 @@
-import { Match } from '../services/scheduler/sim-anneal/fixture_constraints'; 
-import { FixtureInterface } from '../services/scheduler/dfs/fixture_constraints';
+import { Match, FixtureInterface } from '../services/scheduler/dfs/fixture_constraints';
 
 /**
  * Constraint Enumeration
