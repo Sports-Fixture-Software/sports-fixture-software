@@ -1,5 +1,5 @@
-import { ConstraintFactory, ConstrCheck } from '../../app/util/constraint_factory'
-import { Match, FixtureInterface, ConTable } from '../../app/services/scheduler/dfs/fixture_constraints'
+import { ConstraintFactory, ConstrCheck, FixtureInterface } from '../../app/util/constraint_factory'
+import { Match, ConTable } from '../../app/services/scheduler/dfs/fixture_constraints'
 
 /**
  * Unit tests for the util ConstraintFactory
