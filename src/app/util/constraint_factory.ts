@@ -203,4 +203,61 @@ export class ConstraintFactory {
             return true;
         }
     }
+
+    /**
+     * Checks the fixture (current rotation only) to see if the
+     * `proposedMatch` exceeds the specified max number of home games for the
+     * specified team `teamid`.
+     * Returns true if `proposedMatch` would exceed the max home games.
+     * False otherwise.
+     */
+    createMaxHome(teamid: number, homeGamesMax: number): ConstrCheck {
+        return function (fixture: FixtureInterface, proposedMatch: Match): boolean {
+            // only calculate constraint if the proposed match is adding a home
+            // game
+            if (proposedMatch.homeTeam != teamid) {
+                return true
+            }
+
+            let count = 0
+            for (let round = 0; round < fixture.getNumberOfRounds(); round++) {
+                if (fixture.getAwayTeamVs(round, teamid) >= 0) {
+                    count++
+                    if (count >= homeGamesMax) {
+                        return false
+                    }
+                }
+            }
+            return true
+        }
+    }
+
+    /**
+     * Checks the fixture (current rotation only) to see if the
+     * `proposedMatch` exceeds the specified max number of away games for the
+     * specified team `teamid`.
+     * Returns true if `proposedMatch` would exceed the max away games.
+     * False otherwise.
+     */
+    createMaxAway(teamid: number, awayGamesMax: number): ConstrCheck {
+        return function (fixture: FixtureInterface, proposedMatch: Match): boolean {
+            // only calculate constraint if the proposed match is adding a away
+            // game
+            if (proposedMatch.awayTeam != teamid) {
+                return true
+            }
+
+            let count = 0
+            for (let round = 0; round < fixture.getNumberOfRounds(); round++) {
+                if (fixture.getHomeTeamVs(round, teamid) >= 0) {
+                    count++
+                    if (count >= awayGamesMax) {
+                        return false
+                    }
+                }
+            }
+            return true
+        }
+    }
+
 }

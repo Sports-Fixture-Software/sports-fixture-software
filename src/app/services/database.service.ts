@@ -132,7 +132,7 @@ export class DatabaseService {
                 return this.get().knex.schema.createTableIfNotExists('match',
                     (table) => {
                         table.increments('id')
-                        table.integer('homeTeam_id').notNullable().references
+                        table.integer('homeTeam_id').references
                             ('id').inTable('team')
                         table.integer('awayTeam_id').references
                             ('id').inTable('team')
@@ -286,7 +286,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
 
-    private _databaseVersion: number = 11
+    private _databaseVersion: number = 12
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null
