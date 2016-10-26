@@ -79,6 +79,13 @@ body {
     min-width: 150px;
 }
 
+.selectable {
+    cursor: pointer;
+}
+
+.table-hover>tbody>tr:hover {
+    background-color: #eaeaea;
+}
 
 .popover {
     max-width: 500px;
