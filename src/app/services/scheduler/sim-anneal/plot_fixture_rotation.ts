@@ -1,8 +1,8 @@
 import { Match, Team, CostsTable } from './fixture_constraints';
 import { Constraint } from '../../../util/constraint_factory'
 
-// Configuration constants
-const DEFAULT_SEARCH_TIMEOUT: number = 60000; // Milliseconds before the algorithm gives up.
+// Configuration constants. Tweak these for different performance.
+const DEFAULT_SEARCH_TIMEOUT: number = 90000; // Milliseconds before the algorithm gives up.
 const MINIMUM_TEMPERATURE: number = 0.00001; // The temperature point at which the annealing stops
 const ALPHA_COOLING_RATE: number = 0.99; // The proportion of the temperature removed with every iteration
 const INITIAL_COOLING_FREQUENCY: number = 1000; // How many random changes must be made before the temperature is multiplied by the cooling rate. This is increased as time goes by.
