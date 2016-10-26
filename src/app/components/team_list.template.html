@@ -18,13 +18,13 @@
     </div>
 
     <div class="col-xs-11" #teamListDiv>
-        <table class="table table-striped table-min-row">
+        <table class="table table-striped table-min-row table-hover">
             <colgroup>
                 <col>
                 <col class="button-col">
             </colgroup>
             <tbody>
-                <tr *ngFor="let team of teams" (click)="navigateToTeam(team)" [attr.aria-label]="team?.name">
+                <tr class="selectable" *ngFor="let team of teams" (click)="navigateToTeam(team)" [attr.aria-label]="team?.name">
                     <td>
                         <team-list-item [team]="team"></team-list-item>
                     </td>

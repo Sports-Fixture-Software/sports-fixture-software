@@ -21,9 +21,9 @@
     </div>
 
     <div class="col-xs-11">
-        <table class="table table-striped table-bordered">
+        <table class="table table-striped table-bordered table-hover">
             <tbody>
-                <tr *ngFor="let fixture of fixtures" (click)="navigateToFixture(fixture)" [attr.aria-label]="fixture?.name">
+                <tr class="selectable" *ngFor="let fixture of fixtures" (click)="navigateToFixture(fixture)" [attr.aria-label]="fixture?.name">
                     <td>
                         <fixture-list-item [fixture]="fixture"></fixture-list-item>
                     </td>
