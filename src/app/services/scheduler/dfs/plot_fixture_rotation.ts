@@ -193,72 +193,15 @@ export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRo
             // Getting next random match of equal heuristic priority
             currentMatch = equalStack.pop();
             
-            // Checking constraints on the away team
+            // Checking constraints
             awayCnsnt = teams[currentMatch.awayTeam].constraintsSatisfied(table,currentMatch,false);
             if( awayCnsnt !== Constraint.SATISFIED ){
-
-                if( verbose ){
-                    console.log("**** Away constraint unsatisfied, removing offenders from queue: R" + currentMatch.roundNum + " A" + currentMatch.awayTeam);
-                }
-
-                // Learn from broken constraint
-                switch( awayCnsnt ){
-
-                    // This match would leave its away team playing too many away games in a row
-                    case Constraint.MAX_CONSEC_AWAY:
-                        let isCurrentAwayMatchInRound = function (m: Match, index: number): boolean {
-                            // The loop iterator must be set back according to the number of matches removed
-                            if( index < i ){
-                                i--;
-                            }
-                            return !(m.roundNum == currentMatch.roundNum &&
-                                     m.awayTeam == currentMatch.awayTeam);
-                        }
-
-                        // Remove all away games for this team in this round from the queue
-                        mQueue = mQueue.filter(isCurrentAwayMatchInRound);
-                        equalStack = equalStack.filter(isCurrentAwayMatchInRound);
-                        break;
-
-                    // This match would leave its away team playing too many away games in this fixture
-                    case Constraint.MAX_AWAY:
-                        console.log("MAX_AWAY constraint not yet implemented in plotFixtureRotation.");
-                    default:
-                }
+                // Learn from broken constraint (WHEN IMPLEMENTED)
             }
 
-            // Checking constraints on the home team
             homeCnsnt = teams[currentMatch.homeTeam].constraintsSatisfied(table,currentMatch,true);
             if( homeCnsnt !== Constraint.SATISFIED ){
-                
-                if( verbose ){
-                    console.log("**** Home constraint unsatisfied, removing offenders from queue: R" + currentMatch.roundNum + " H" + currentMatch.homeTeam);
-                }
-
-                // Learn from broken constraint
-                switch( homeCnsnt ){
-
-                    // This match would leave its home team playing too many home games in a row
-                    case Constraint.MAX_CONSEC_HOME:
-                        let isCurrentHomeMatchInRound = function (m: Match, index: number): boolean {
-                            // The loop iterator must be set back according to the number of matches removed
-                            if( index < i ){
-                                i--;
-                            }
-                            return !(m.roundNum == currentMatch.roundNum &&
-                                    m.homeTeam == currentMatch.homeTeam);
-                        }
-
-                        // Remove all home games for this team in this round from the queue
-                        mQueue = mQueue.filter(isCurrentHomeMatchInRound);
-                        equalStack = equalStack.filter(isCurrentHomeMatchInRound);
-                        break;
-
-                    // This match would leave its home team playing too many home games in this fixture  
-                    case Constraint.MAX_HOME:
-                        console.log("MAX_HOME constraint not yet implemented in plotFixtureRotation.");
-                    default:
-                }
+                // Learn from broken constraint (WHEN IMPLEMENTED)
             }
 
             // Our match will work now if all team constraints are satisfied. 
