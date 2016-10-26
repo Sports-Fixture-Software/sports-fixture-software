@@ -1,6 +1,7 @@
 import { plotFixtureRotation } from '../../../../app/services/scheduler/dfs/plot_fixture_rotation';
 import { Match } from '../../../../app/services/scheduler/dfs/fixture_constraints';
-import { TestUtil, TestTeamNoConstraints } from './helpers/test_util'
+import { TestUtil } from './helpers/test_util'
+import { TeamConstraints } from '../../../../app/services/scheduler/dfs/team_constraints'
 
 describe('services DFS scheduler plot fixture rotation, no constraints', () => {
     let timeout: number = 30000 // each test has 30 seconds
@@ -12,7 +13,7 @@ describe('services DFS scheduler plot fixture rotation, no constraints', () => {
 
     it('invalid, 0 teams', () => {
         let reservedMatches: Match[] = []
-        let testTeams: TestTeamNoConstraints[] = []
+        let testTeams: TeamConstraints[] = []
         expect(() => {
             plotFixtureRotation(testTeams, reservedMatches, 1, true)
         }).toThrowError('At least two teams are required to make a fixture.')
@@ -20,8 +21,8 @@ describe('services DFS scheduler plot fixture rotation, no constraints', () => {
 
     it('invalid, 1 teams', () => {
         let reservedMatches: Match[] = []
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints()
+        let testTeams: TeamConstraints[] = [
+            new TeamConstraints(0, {maxHome: -1, maxAway: -1}, {consecutiveHomeGamesMax: -1, consecutiveAwayGamesMax: -1})
         ]
         expect(() => {
             plotFixtureRotation(testTeams, reservedMatches, 1, true)
@@ -43,9 +44,10 @@ describe('services DFS scheduler plot fixture rotation, no constraints', () => {
 
     it('invalid, 3 teams', () => {
         let reservedMatches: Match[] = []
-        let testTeams: TestTeamNoConstraints[] = [
-            new TestTeamNoConstraints(), new TestTeamNoConstraints(),
-            new TestTeamNoConstraints()
+        let testTeams: TeamConstraints[] = [
+            new TeamConstraints(0, {maxHome: -1, maxAway: -1}, {consecutiveHomeGamesMax: -1, consecutiveAwayGamesMax: -1}),
+            new TeamConstraints(1, {maxHome: -1, maxAway: -1}, {consecutiveHomeGamesMax: -1, consecutiveAwayGamesMax: -1}),
+            new TeamConstraints(2, {maxHome: -1, maxAway: -1}, {consecutiveHomeGamesMax: -1, consecutiveAwayGamesMax: -1}),
         ]
         expect(() => {
             plotFixtureRotation(testTeams, reservedMatches, 2, true)
