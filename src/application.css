@@ -75,6 +75,14 @@ body {
             drop-shadow(1px -1px 0 white);
 }
 
+.selectable {
+    cursor: pointer;
+}
+
+.table-hover>tbody>tr:hover {
+    background-color: #eaeaea;
+}
+
 .popover {
     max-width: 500px;
 }
