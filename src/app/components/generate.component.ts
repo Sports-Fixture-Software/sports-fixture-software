@@ -63,9 +63,13 @@ export class GenerateComponent implements OnInit, OnDestroy {
                 return this.schedulerService.generateFixture(this.fixture)
             }).then(() => {
                 this.notifyService.emitGenerateState(GenerateState.Generated)
-            }).catch((err: Error) => {
-                this.generateButton.showError('Error generating fixture',
-                    'A database error occurred when generating the fixture. ' + AppConfig.DatabaseErrorGuidance)
+                }).catch((err: Error) => {
+                    if (err.message && err.message.toUpperCase().indexOf('SQL') > 0) {
+                        this.generateButton.showError('Error generating fixture',
+                            'A database error occurred when generating the fixture. ' + AppConfig.DatabaseErrorGuidance)
+                    } else {
+                        this.generateButton.showError('Error generating fixture', err.message)
+                    }
                 AppConfig.log(err)
                 this.changeref.detectChanges()
             })
