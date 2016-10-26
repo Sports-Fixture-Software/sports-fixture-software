@@ -2,38 +2,6 @@ import { Constraint, FixtureInterface } from '../../../util/constraint_factory';
 import { Match } from '../../../util/scheduler/match'
 
 /**
- * Team
- * Interface to represent a team in a fixture to allow the fixture to check
- * against the team's constraints.
- */
-export interface Team {
-    /** 
-     * constraintsSatisfied 
-     * Returns the constraint that is broken by placing the proposedMatch into 
-     * the fixture. Returns the value Constraint.SATISFIED if none are broken.
-     * 
-     * params:
-     * fixture - The fixture in a state before the proposedMatch is applied
-     * proposedMatch - The match that is being checked for constraints in the 
-     *   given fixture
-     * home - true if the team being tested is the home team in proposedMatch, 
-     *   false if it is the away team in proposedMatch. 
-     */   
-    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match, home: boolean ): Constraint;
-
-    /**
-     * Getter functions for constraint parameters. Used for CostsTable to help 
-     * calculate constraint costs.
-     * 
-     * These must return -1 if not in use.
-     */
-    consecutiveHomeGamesMax(): number;
-    consecutiveAwayGamesMax(): number;
-    homeGamesMax(): number;
-    awayGamesMax(): number;
-}
-
-/**
  * Costs - Constraint costs
  * Values to add to matches that will break the listed constraints.
  */
