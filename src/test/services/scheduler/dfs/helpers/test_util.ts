@@ -1,6 +1,6 @@
 import { plotFixtureRotation } from '../../../../../app/services/scheduler/dfs/plot_fixture_rotation';
-import { Match, FixtureInterface, Team } from '../../../../../app/services/scheduler/dfs/fixture_constraints';
-import { Constraint } from '../../../../../app/util/constraint_factory'
+import { Match, Team } from '../../../../../app/services/scheduler/dfs/fixture_constraints';
+import { Constraint, FixtureInterface } from '../../../../../app/util/constraint_factory'
 import * as child_process from 'child_process'
 import * as path from 'path'
 import * as Promise from 'bluebird'
