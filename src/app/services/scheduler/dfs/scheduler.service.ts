@@ -12,6 +12,7 @@ import { Team as DFSTeam, Match as DFSMatch, FixtureInterface }  from './fixture
 import { plotFixtureRotation } from './plot_fixture_rotation'
 import { Search } from '../../../util/search'
 import { DateTime } from '../../../util/date_time'
+import { AppConfig } from '../../../util/app_config'
 import { TeamConstraints, LeagueFixtureConstraintInfo, TeamConstraintInfo } from './team_constraints'
 import * as Promise from 'bluebird'
 
@@ -33,11 +34,13 @@ export class SchedulerService {
             this.teams = this.fixture.leaguePreLoaded.teamsPreLoaded.toArray()
             this.rounds = this.fixture.roundsPreLoaded.toArray()
             let newRounds = DateTime.fillInRounds(this.fixture, this.rounds, false)
-            this.roundCount = this.rounds.length + newRounds.length
             return Promise.map(newRounds, (item, index, length) => {
                 return this.roundService.addRound(item)
             })
         }).then(() => {
+            return this.fixtureService.getRoundsAndConfig(this.fixture)
+        }).then((rounds) => {
+            this.rounds = rounds.toArray()
             // delete existing matches for all rounds    
             return Promise.map(this.rounds, (item, index, length) => {
                 return this.matchService.deleteMatches(item)
@@ -47,7 +50,7 @@ export class SchedulerService {
             let dfsTeams = this.convertTeams(this.teams)
             let dfsReservedMatches = this.convertReservedMatches(this.rounds)
 
-            let dfsFixture = plotFixtureRotation(dfsTeams, dfsReservedMatches, this.roundCount, false)
+            let dfsFixture = plotFixtureRotation(dfsTeams, dfsReservedMatches, this.rounds.length, false)
 
             // convert the DFS fixture to database matches and add to database.
             return Promise.map(dfsFixture, (item, index, length) => {
@@ -62,11 +65,11 @@ export class SchedulerService {
                 match.round_id = this.rounds[roundIndex].id
 
                 let homeId = this.dfsTeamtoTeamMap.get(item.homeTeam)
-                if (homeId == undefined) {
+                if (homeId != null && homeId == undefined) { // null is bye
                     throw new Error(`cannot find team id ${item.homeTeam}, available ids are ${Array.from(this.dfsTeamtoTeamMap.keys())}`)
                 }
                 let awayId = this.dfsTeamtoTeamMap.get(item.awayTeam)
-                if (awayId == undefined) {
+                if (awayId != null && awayId == undefined) {
                     throw new Error(`cannot find team id ${item.awayTeam}, available ids are ${Array.from(this.dfsTeamtoTeamMap.keys())}`)
                 }
                 match.homeTeam_id = homeId
@@ -96,6 +99,14 @@ export class SchedulerService {
             dfsTeams.push(new TeamConstraints(index, teamConstraint, leagueFixtureConstraint))
             index++
         }
+        // add bye team
+        if (teams.length % 2 != 0) {
+            this.teamtoDfsTeamMap.set(null, index)
+            this.dfsTeamtoTeamMap.set(index, null)
+            dfsTeams.push(new TeamConstraints(index,
+                { maxHome: undefined, maxAway: undefined },
+                { consecutiveHomeGamesMax: undefined, consecutiveAwayGamesMax: undefined }))
+        }
         return dfsTeams
     }
 
@@ -106,8 +117,8 @@ export class SchedulerService {
      */
     private calculateTeamConstraint(config: TeamConfig): TeamConstraintInfo {
         return {
-            maxHome: config.homeGamesMax == null || config.homeGamesMax == undefined ? undefined : Math.min(config.homeGamesMax, this.roundCount - config.awayGamesMin),
-            maxAway: config.awayGamesMax == null || config.awayGamesMax == undefined ? undefined : Math.min(config.awayGamesMax, this.roundCount - config.homeGamesMin)
+            maxHome: config.homeGamesMax == null || config.homeGamesMax == undefined ? undefined : Math.min(config.homeGamesMax, this.rounds.length - config.awayGamesMin),
+            maxAway: config.awayGamesMax == null || config.awayGamesMax == undefined ? undefined : Math.min(config.awayGamesMax, this.rounds.length - config.homeGamesMin)
         }
     }
 
@@ -122,21 +133,20 @@ export class SchedulerService {
         for (let round of rounds) {
             for (let config of round.matchConfigsPreLoaded) {
                 let homeId: number
-                if (config.homeTeam_id == Team.ANY_TEAM_ID || config.homeTeam_id == Team.BYE_TEAM_ID) {
+                let awayId: number
+                if (config.homeTeam_id == Team.ANY_TEAM_ID && config.awayTeam_id == Team.BYE_TEAM_ID) {
                     homeId = config.homeTeam_id
+                    awayId = config.awayTeam_id
                 } else {
                     homeId = this.teamtoDfsTeamMap.get(config.homeTeam_id)
                     if (homeId == undefined) {
-                        throw new Error(`cannot find team id ${config.homeTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
+                        AppConfig.log(`cannot find team id ${config.homeTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
+                        continue
                     }
-                }
-                let awayId: number
-                if (config.awayTeam_id == Team.ANY_TEAM_ID || config.awayTeam_id == Team.BYE_TEAM_ID) {
-                    awayId = config.awayTeam_id
-                } else {
                     awayId = this.teamtoDfsTeamMap.get(config.awayTeam_id)
                     if (awayId == undefined) {
-                        throw new Error(`cannot find team id ${config.awayTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
+                        AppConfig.log(`cannot find team id ${config.awayTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
+                        continue
                     }
                 }
                 reservedMatches.push(new DFSMatch(round.number - 1, homeId, awayId))
@@ -149,6 +159,5 @@ export class SchedulerService {
     private dfsTeamtoTeamMap = new Map<number, number>()
     private rounds: Round[]
     private teams: Team[]
-    private roundCount: number
     private fixture: Fixture
 }
