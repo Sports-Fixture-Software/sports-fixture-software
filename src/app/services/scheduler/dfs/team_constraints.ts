@@ -1,39 +1,30 @@
-import { Constraint, ConstraintFactory, ConstrCheck } from '../../../util/constraint_factory'
-import { Team as DFSTeam, Match as DFSMatch, FixtureInterface }  from './fixture_constraints'
-
-export interface LeagueFixtureConstraintInfo {
-    consecutiveHomeGamesMax: number
-    consecutiveAwayGamesMax: number
-}
-
-export interface TeamConstraintInfo {
-    maxHome: number
-    maxAway: number
-}
+import { Constraint, ConstraintFactory, ConstrCheck, FixtureInterface } from '../../../util/constraint_factory'
+import { Team as DFSTeam, Match as DFSMatch }  from './fixture_constraints'
+import { TeamConstraintInfo, LeagueFixtureConstraintInfo } from '../scheduler.service'
 
 export class TeamConstraints implements DFSTeam {
 
     constructor(teamid: number, teamConstraint: TeamConstraintInfo, leagueFixtureConstraint: LeagueFixtureConstraintInfo) {
         let factory = new ConstraintFactory()
-        if (teamConstraint.maxHome != null && teamConstraint.maxHome != undefined) {
+        if (teamConstraint.maxHome != null && teamConstraint.maxHome != undefined && teamConstraint.maxHome != -1) {
             this.constraints.push({
                 check: factory.createMaxHome(teamid, teamConstraint.maxHome),
                 constraint: Constraint.MAX_HOME
             })
         }
-        if (teamConstraint.maxAway != null && teamConstraint.maxAway != undefined) {
+        if (teamConstraint.maxAway != null && teamConstraint.maxAway != undefined && teamConstraint.maxAway != -1) {
             this.constraints.push({
                 check: factory.createMaxAway(teamid, teamConstraint.maxAway),
                 constraint: Constraint.MAX_AWAY
             })
         }
-        if (leagueFixtureConstraint.consecutiveHomeGamesMax != null && leagueFixtureConstraint.consecutiveHomeGamesMax != undefined) {
+        if (leagueFixtureConstraint.consecutiveHomeGamesMax != null && leagueFixtureConstraint.consecutiveHomeGamesMax != undefined && leagueFixtureConstraint.consecutiveHomeGamesMax != -1) {
             this.constraints.push({
                 check: factory.createMaxConsecHome(leagueFixtureConstraint.consecutiveHomeGamesMax),
                 constraint: Constraint.MAX_CONSEC_HOME
             })
         }
-        if (leagueFixtureConstraint.consecutiveAwayGamesMax != null && leagueFixtureConstraint.consecutiveAwayGamesMax != undefined) {
+        if (leagueFixtureConstraint.consecutiveAwayGamesMax != null && leagueFixtureConstraint.consecutiveAwayGamesMax != undefined && leagueFixtureConstraint.consecutiveAwayGamesMax != -1) {
             this.constraints.push({
                 check: factory.createMaxConsecAway(leagueFixtureConstraint.consecutiveAwayGamesMax),
                 constraint: Constraint.MAX_CONSEC_AWAY
