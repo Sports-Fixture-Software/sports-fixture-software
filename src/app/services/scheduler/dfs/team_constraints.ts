@@ -42,6 +42,12 @@ export class TeamConstraints implements DFSTeam {
      }
 
     constraintsSatisfied(fixture: FixtureInterface, proposedMatch: DFSMatch, home: boolean): Constraint {
+        for (let constraint of this.constraints) {
+            let result = constraint.check(fixture, proposedMatch)
+            if (!result) {
+                return constraint.constraint
+            }
+        }
         return Constraint.SATISFIED;
     }
 
