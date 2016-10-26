@@ -443,4 +443,240 @@ describe('constraint factory', () => {
         expect(result).toBe(false)
     })
 
+    // max home constraint
+
+    it('max home constraint (3) unrelated match (satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxHome = 3
+        let constraintMaxHome = factory.createMaxHome(team, maxHome)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(0, 0, 1))
+        ct.setMatch(new Match(1, 0, 2))
+        let result = constraintMaxHome(ct, new Match(2, 1, 3))
+        expect(result).toBe(true)
+    })
+
+    it('4 teams, 3 round, max home constraint (3) (satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxHome = 3
+        let constraintMaxHome = factory.createMaxHome(team, maxHome)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(0, 0, 1))
+        ct.setMatch(new Match(1, 0, 2))
+        let result = constraintMaxHome(ct, new Match(2, 0, 3))
+        expect(result).toBe(true)
+    })
+
+    it('4 teams, 3 round, max home constraint (2) last round (satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxHome = 2
+        let constraintMaxHome = factory.createMaxHome(team, maxHome)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(0, 0, 1))
+        ct.setMatch(new Match(1, 0, 2))
+        let result = constraintMaxHome(ct, new Match(2, 1, 3))
+        expect(result).toBe(true)
+    })
+
+    it('4 teams, 3 round, max home constraint (2) last round (not satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxHome = 2
+        let constraintMaxHome = factory.createMaxHome(team, maxHome)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(0, 0, 1))
+        ct.setMatch(new Match(1, 0, 2))
+        let result = constraintMaxHome(ct, new Match(2, 0, 3))
+        expect(result).toBe(false)
+    })
+
+    it('4 teams, 3 round, max home constraint (2) first round (satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxHome = 2
+        let constraintMaxHome = factory.createMaxHome(team, maxHome)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(1, 0, 1))
+        ct.setMatch(new Match(2, 0, 2))
+        let result = constraintMaxHome(ct, new Match(0, 3, 0))
+        expect(result).toBe(true)
+    })
+
+    it('4 teams, 3 round, max home constraint (2) first round (not satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxHome = 2
+        let constraintMaxHome = factory.createMaxHome(team, maxHome)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(1, 0, 1))
+        ct.setMatch(new Match(2, 0, 2))
+        let result = constraintMaxHome(ct, new Match(0, 0, 3))
+        expect(result).toBe(false)
+    })
+
+    it('6 teams, 5 round, 12 matches, max home constraint (2) second round (satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxHome = 2
+        let constraintMaxHome = factory.createMaxHome(team, maxHome)
+        let ct = new ConTable(6, 5)
+        ct.setMatch(new Match(0, 5, 4))
+        ct.setMatch(new Match(0, 2, 1))
+        ct.setMatch(new Match(0, 3, 0))
+        ct.setMatch(new Match(2, 1, 4))
+        ct.setMatch(new Match(2, 5, 0))
+        ct.setMatch(new Match(2, 3, 2))
+        ct.setMatch(new Match(3, 5, 1))
+        ct.setMatch(new Match(3, 4, 3))
+        ct.setMatch(new Match(3, 0, 2))
+        ct.setMatch(new Match(4, 5, 2))
+        ct.setMatch(new Match(4, 3, 1))
+        ct.setMatch(new Match(4, 4, 0))
+        let result = constraintMaxHome(ct, new Match(1, 0, 1))
+        expect(result).toBe(true)
+    })
+
+    it('6 teams, 5 round, 12 matches, max home constraint (2) second round (not satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxHome = 2
+        let constraintMaxHome = factory.createMaxHome(team, maxHome)
+        let ct = new ConTable(6, 5)
+        ct.setMatch(new Match(0, 5, 4))
+        ct.setMatch(new Match(0, 2, 1))
+        ct.setMatch(new Match(0, 3, 0))
+        ct.setMatch(new Match(2, 1, 4))
+        ct.setMatch(new Match(2, 5, 0))
+        ct.setMatch(new Match(2, 3, 2))
+        ct.setMatch(new Match(3, 5, 1))
+        ct.setMatch(new Match(3, 4, 3))
+        ct.setMatch(new Match(3, 0, 2))
+        ct.setMatch(new Match(4, 5, 2))
+        ct.setMatch(new Match(4, 3, 1))
+        ct.setMatch(new Match(4, 0, 4))
+        let result = constraintMaxHome(ct, new Match(1, 0, 1))
+        expect(result).toBe(false)
+    })
+
+    // max away constraint
+
+    it('max away constraint (3) unrelated match (satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxAway = 3
+        let constraintMaxAway = factory.createMaxAway(team, maxAway)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(0, 1, 0))
+        ct.setMatch(new Match(1, 2, 0))
+        let result = constraintMaxAway(ct, new Match(2, 1, 3))
+        expect(result).toBe(true)
+    })
+
+    it('4 teams, 3 round, max away constraint (3) (satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxAway = 3
+        let constraintMaxAway = factory.createMaxAway(team, maxAway)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(0, 1, 0))
+        ct.setMatch(new Match(1, 2, 0))
+        let result = constraintMaxAway(ct, new Match(2, 3, 0))
+        expect(result).toBe(true)
+    })
+
+    it('4 teams, 3 round, max away constraint (2) last round (satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxAway = 2
+        let constraintMaxAway = factory.createMaxAway(team, maxAway)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(0, 1, 0))
+        ct.setMatch(new Match(1, 2, 0))
+        let result = constraintMaxAway(ct, new Match(2, 3, 1))
+        expect(result).toBe(true)
+    })
+
+    it('4 teams, 3 round, max away constraint (2) last round (not satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxAway = 2
+        let constraintMaxAway = factory.createMaxAway(team, maxAway)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(0, 1, 0))
+        ct.setMatch(new Match(1, 2, 0))
+        let result = constraintMaxAway(ct, new Match(2, 3, 0))
+        expect(result).toBe(false)
+    })
+
+    it('4 teams, 3 round, max away constraint (2) first round (satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxAway = 2
+        let constraintMaxAway = factory.createMaxAway(team, maxAway)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(1, 1, 0))
+        ct.setMatch(new Match(2, 2, 0))
+        let result = constraintMaxAway(ct, new Match(0, 0, 3))
+        expect(result).toBe(true)
+    })
+
+    it('4 teams, 3 round, max away constraint (2) first round (not satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxAway = 2
+        let constraintMaxAway = factory.createMaxAway(team, maxAway)
+        let ct = new ConTable(4, 3)
+        ct.setMatch(new Match(1, 1, 0))
+        ct.setMatch(new Match(2, 2, 0))
+        let result = constraintMaxAway(ct, new Match(0, 3, 0))
+        expect(result).toBe(false)
+    })
+
+    it('6 teams, 5 round, 12 matches, max away constraint (2) second round (satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxAway = 2
+        let constraintMaxAway = factory.createMaxAway(team, maxAway)
+        let ct = new ConTable(6, 5)
+        ct.setMatch(new Match(0, 5, 4))
+        ct.setMatch(new Match(0, 2, 1))
+        ct.setMatch(new Match(0, 0, 3))
+        ct.setMatch(new Match(2, 1, 4))
+        ct.setMatch(new Match(2, 0, 5))
+        ct.setMatch(new Match(2, 3, 2))
+        ct.setMatch(new Match(3, 5, 1))
+        ct.setMatch(new Match(3, 4, 3))
+        ct.setMatch(new Match(3, 0, 2))
+        ct.setMatch(new Match(4, 5, 2))
+        ct.setMatch(new Match(4, 3, 1))
+        ct.setMatch(new Match(4, 4, 0))
+        let result = constraintMaxAway(ct, new Match(1, 1, 0))
+        expect(result).toBe(true)
+    })
+
+    it('6 teams, 5 round, 12 matches, max away constraint (2) second round (not satisified)', () => {
+        let factory = new ConstraintFactory()
+        let team = 0
+        let maxAway = 2
+        let constraintMaxAway = factory.createMaxAway(team, maxAway)
+        let ct = new ConTable(6, 5)
+        ct.setMatch(new Match(0, 5, 4))
+        ct.setMatch(new Match(0, 2, 1))
+        ct.setMatch(new Match(0, 3, 0))
+        ct.setMatch(new Match(2, 1, 4))
+        ct.setMatch(new Match(2, 5, 0))
+        ct.setMatch(new Match(2, 3, 2))
+        ct.setMatch(new Match(3, 5, 1))
+        ct.setMatch(new Match(3, 4, 3))
+        ct.setMatch(new Match(3, 0, 2))
+        ct.setMatch(new Match(4, 5, 2))
+        ct.setMatch(new Match(4, 3, 1))
+        ct.setMatch(new Match(4, 0, 4))
+        let result = constraintMaxAway(ct, new Match(1, 1, 0))
+        expect(result).toBe(false)
+    })
+
 })
