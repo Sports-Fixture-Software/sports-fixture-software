@@ -1,5 +1,6 @@
 import { Constraint, FixtureInterface } from '../../../util/constraint_factory';
 import { Match } from '../../../util/scheduler/match'
+import { Team } from '../../../util/scheduler/team'
 
 /**
  * Costs - Constraint costs
@@ -246,7 +247,7 @@ export class CostsTable {
         let counter: number;
 
         // Adding consecutive home/away games constraint costs where applicable
-        let maxConscHome: number = homeTeam.consecutiveHomeGamesMax();
+        let maxConscHome: number = homeTeam.consecutiveHomeGamesMax;
         if( maxConscHome > -1 ){
             counter = 1;
 
@@ -281,7 +282,7 @@ export class CostsTable {
 
         }
 
-        let maxConscAway: number = awayTeam.consecutiveAwayGamesMax();
+        let maxConscAway: number = awayTeam.consecutiveAwayGamesMax;
         if( maxConscAway > -1 ){
             counter = 1;
 
@@ -315,7 +316,7 @@ export class CostsTable {
         }
 
         // Adding max home/away games constraint where applicable
-        let maxHome: number = homeTeam.homeGamesMax();
+        let maxHome: number = homeTeam.homeGamesMax;
         if( maxHome > -1 ){
             counter = 0;
             for( let i: number = 0; i < this.roundCount; i++ ){
@@ -328,7 +329,7 @@ export class CostsTable {
             }
         }
 
-        let maxAway: number = awayTeam.awayGamesMax();
+        let maxAway: number = awayTeam.awayGamesMax;
         if( maxAway > -1 ){
             counter = 0;
             for( let i: number = 0; i < this.roundCount; i++ ){
