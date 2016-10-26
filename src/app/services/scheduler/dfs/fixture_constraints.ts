@@ -1,4 +1,5 @@
 import { Constraint } from '../../../util/constraint_factory'
+import { Match as BaseMatch } from '../../../util/scheduler/match'
 
 /**
  * Match struct
@@ -6,12 +7,14 @@ import { Constraint } from '../../../util/constraint_factory'
  * the footPrnt member is used by look-ahead to follow the min-conflict
  * heuristic and may be ignored otherwise. 
  */
-export class Match {
-    constructor( 
-        public roundNum: number,
-        public homeTeam: number,
-        public awayTeam: number, 
-        public footPrnt: number = 0 ){}
+export class Match extends BaseMatch {
+    constructor(
+        roundNum: number,
+        homeTeam: number,
+        awayTeam: number,
+        public footPrnt: number = 0) {
+        super(roundNum, homeTeam, awayTeam)
+    }
 }
 
 /**
