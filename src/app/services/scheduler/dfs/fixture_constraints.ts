@@ -69,12 +69,12 @@ export class ConTable implements FixtureInterface {
     private games: number[][][]; //[round][Home Team Index][Away Team Index]
     domainOfRound: number[];
 
-    constructor(private teamsCount: number, private roundCount: number){
-        this.domainOfRound = new Array(this.roundCount);
+    constructor(private teamsCount: number, public numberOfRounds: number) {
+        this.domainOfRound = new Array(this.numberOfRounds);
         // Instantiates the round matrices to zero in all entries
         // Table is big enough for a full rotation over all teams.
-        this.games = new Array(this.roundCount);
-        for(var i: number = 0; i < this.roundCount; i++ ){ // Round
+        this.games = new Array(this.numberOfRounds);
+        for(var i: number = 0; i < this.numberOfRounds; i++ ){ // Round
             this.games[i] = new Array(teamsCount);
             this.domainOfRound[i] = (teamsCount*teamsCount) - teamsCount;
 
@@ -95,7 +95,7 @@ export class ConTable implements FixtureInterface {
 
     // INTERFACE FUNCTIONS
     getHomeTeamVs( round: number, awayTeam: number ): number {
-        if( !(round >= this.roundCount    || round < 0    ||
+        if( !(round >= this.numberOfRounds    || round < 0    ||
               awayTeam >= this.teamsCount || awayTeam < 0)){
             
             for( var i: number = 0; i < this.teamsCount; i++ ){
@@ -110,7 +110,7 @@ export class ConTable implements FixtureInterface {
     }
 
     getAwayTeamVs( round: number, homeTeam: number ): number {
-        if( !(round >= this.roundCount    || round < 0    ||
+        if( !(round >= this.numberOfRounds    || round < 0    ||
               homeTeam >= this.teamsCount || homeTeam < 0)){
             
             for( var i: number = 0; i < this.teamsCount; i++ ){
@@ -125,13 +125,6 @@ export class ConTable implements FixtureInterface {
     }
 
     /**
-     * See `FixtureInterface.getNumberOfRounds`
-     */
-    getNumberOfRounds(): number {
-        return this.roundCount
-    }
-
-    /**
      * getMask
      * Gets the bitmask representing the availability of a particular 
      * matchup. 
@@ -143,7 +136,7 @@ export class ConTable implements FixtureInterface {
      */
     getMask(match: Match): number {
         // Checking for an illegal matchup
-        if( match.roundNum >= this.roundCount || match.roundNum < 0 ||
+        if( match.roundNum >= this.numberOfRounds || match.roundNum < 0 ||
             match.homeTeam >= this.teamsCount || match.homeTeam < 0 ||
             match.awayTeam >= this.teamsCount || match.awayTeam < 0 ||
             match.homeTeam === match.awayTeam ){
@@ -203,7 +196,7 @@ export class ConTable implements FixtureInterface {
         let gamesPerRotation = this.teamsCount - 1
 
         // Setting this match in the fixture
-        for(var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.roundCount); i++){
+        for(var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.numberOfRounds); i++){
             if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
                 this.domainOfRound[i] -= 1;    
             }
@@ -270,7 +263,7 @@ export class ConTable implements FixtureInterface {
         let gamesPerRotation = this.teamsCount - 1
 
         // Clearing this match in the fixture
-        for (var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.roundCount); i++){
+        for (var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.numberOfRounds); i++){
             this.games[i][match.homeTeam][match.awayTeam] &= MatchState.NOT_SET;
             if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
                 this.domainOfRound[i] += 1;
@@ -327,7 +320,7 @@ export class ConTable implements FixtureInterface {
      */
     calcFootPrint(match: Match): number {
         // Checking for an illegal matchup
-        if( match.roundNum >= this.roundCount || match.roundNum < 0 ||
+        if( match.roundNum >= this.numberOfRounds || match.roundNum < 0 ||
             match.homeTeam >= this.teamsCount || match.homeTeam < 0 ||
             match.awayTeam >= this.teamsCount || match.awayTeam < 0 ||
             match.homeTeam === match.awayTeam ){
@@ -339,7 +332,7 @@ export class ConTable implements FixtureInterface {
         let gamesPerRotation = this.teamsCount - 1
 
         // Footprint throughout other rounds
-        for (var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.roundCount); i++){
+        for (var i: number = Math.max(match.roundNum - (gamesPerRotation - 1), 0); i < Math.min(match.roundNum + (gamesPerRotation - 1), this.numberOfRounds); i++){
             if (i != match.roundNum) {
                 if( this.games[i][match.homeTeam][match.awayTeam] == MatchState.OPEN ){
                     openGamesOverlapped += 1;
