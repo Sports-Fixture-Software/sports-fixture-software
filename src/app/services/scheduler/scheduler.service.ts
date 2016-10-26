@@ -94,6 +94,15 @@ export class SchedulerService {
     }
 
     /**
+     * Cancel the current scheduling process
+     */
+    generateCancel() {
+        if (this.worker) {
+            this.worker.kill()
+        }
+    }
+
+    /**
      * Convert database data structure `teams` to DFS data structure.
      *
      * Returns the DFS data structure
