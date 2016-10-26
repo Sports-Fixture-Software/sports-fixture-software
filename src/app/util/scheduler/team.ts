@@ -10,8 +10,8 @@ export interface Team {
      * 
      * These must return -1 if not in use.
      */
-    consecutiveHomeGamesMax(): number;
-    consecutiveAwayGamesMax(): number;
-    homeGamesMax(): number;
-    awayGamesMax(): number;
+    consecutiveHomeGamesMax: number;
+    consecutiveAwayGamesMax: number;
+    homeGamesMax: number;
+    awayGamesMax: number;
 }
