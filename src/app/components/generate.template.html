@@ -1,15 +1,35 @@
 <h2 aria-label="Summary">Summary</h2>
 <div class="spacer30"></div>
-<p><strong>{{league?.name}}</strong> - 
-    <strong>{{fixture?.name}}</strong>
+<p><strong>{{league?.name}}</strong> -
+	<strong>{{fixture?.name}}</strong>
 </p>
-<p><strong>{{numberOfTeams}}</strong> teams
-    play <strong>{{numberOfRounds}}</strong> rounds
+<p><strong>{{numberOfTeams}}</strong> teams play <strong>{{numberOfRounds}}</strong> rounds
 </p>
-<p>Starting on <strong>{{fixture?.startDate?.isValid() ? fixture.startDate.format('ll') : 'not specified' }}</strong>
-    ending on <strong>{{fixture?.endDate?.isValid() ? fixture.endDate.format('ll') : 'not specified' }}</strong>
+<p>Starting on <strong>{{fixture?.startDate?.isValid() ? fixture.startDate.format('ll') : 'not specified' }}</strong> ending
+	on <strong>{{fixture?.endDate?.isValid() ? fixture.endDate.format('ll') : 'not specified' }}</strong>
 </p>
+<div class="spacer20"></div>
+
+<div *ngIf="generating" class="progress">
+	<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+		style="width: 100%">
+		<span class="sr-only">Generating Fixture…</span>
+	</div>
+</div>
+<div *ngIf="!generating" style="height: 40px"></div>
+
+<div class="row">
+	<div class="col-xs-8">
+		<button-popover #generateButton btn-class="btn btn-primary btn-lg btn-block vert-sep" type="button" (click)="generate()"
+			[disabled]="generating" aria-label="Generate">
+			Generate
+		</button-popover>
+	</div>
+	<div class="col-xs-4">
+		<button *ngIf="generating" class="btn btn-danger btn-lg btn-block" type="button" (click)="cancel()">
+            Cancel
+        </button>
+	</div>
+</div>
+
 <div class="spacer30"></div>
-<button-popover #generateButton btn-class="btn btn-primary btn-lg btn-block vert-sep" type="button" (click)="generate()" aria-label="Generate">
-    Generate
-</button-popover>

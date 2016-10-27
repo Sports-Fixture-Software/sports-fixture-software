@@ -59,23 +59,34 @@ export class GenerateComponent implements OnInit, OnDestroy {
         if (this.fixture) {
             this.notifyService.emitGenerateState(GenerateState.Generating)
             this.fixture.generatedOn = moment()
+            this.generating = true
             this.fixtureService.updateFixture(this.fixture).then(() => {
                 return this.schedulerService.generateFixture(this.fixture)
             }).then(() => {
                 this.notifyService.emitGenerateState(GenerateState.Generated)
-                }).catch((err: Error) => {
-                    if (err.message && err.message.toUpperCase().indexOf('SQL') > 0) {
-                        this.generateButton.showError('Error generating fixture',
-                            'A database error occurred when generating the fixture. ' + AppConfig.DatabaseErrorGuidance)
-                    } else {
-                        this.generateButton.showError('Error generating fixture', err.message)
-                    }
+                this.generating = false
+                this.changeref.detectChanges()
+            }).catch((err: Error) => {
+                if (err.message && err.message.toUpperCase().indexOf('SQL') > 0) {
+                    this.generateButton.showError('Error generating fixture',
+                        'A database error occurred when generating the fixture. ' + AppConfig.DatabaseErrorGuidance)
+                } else {
+                    this.generateButton.showError('Error generating fixture', err.message)
+                }
                 AppConfig.log(err)
+                this.generating = false
                 this.changeref.detectChanges()
             })
         }
     }
 
+    cancel() {
+        this.schedulerService.generateCancel()
+        this.generating = false
+        this.changeref.detectChanges()
+    }
+
+    private generating: boolean = false
     private numberOfTeams: number
     private numberOfRounds: number
     private league: League
