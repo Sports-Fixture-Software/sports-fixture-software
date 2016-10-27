@@ -1,5 +1,6 @@
-import { Match, Team, CostsTable } from './fixture_constraints';
+import { Team, CostsTable } from './fixture_constraints';
 import { Constraint } from '../../../util/constraint_factory'
+import { Match } from '../../../util/scheduler/match'
 
 // Configuration constants. Tweak these for different performance.
 const DEFAULT_SEARCH_TIMEOUT: number = 90000; // Milliseconds before the algorithm gives up.
