@@ -1,38 +1,6 @@
-import { Constraint } from '../../../util/constraint_factory';
-import { FixtureInterface } from '../dfs/fixture_constraints';
+import { Constraint, FixtureInterface } from '../../../util/constraint_factory';
 import { Match } from '../../../util/scheduler/match'
-
-/**
- * Team
- * Interface to represent a team in a fixture to allow the fixture to check
- * against the team's constraints.
- */
-export interface Team {
-    /** 
-     * constraintsSatisfied 
-     * Returns the constraint that is broken by placing the proposedMatch into 
-     * the fixture. Returns the value Constraint.SATISFIED if none are broken.
-     * 
-     * params:
-     * fixture - The fixture in a state before the proposedMatch is applied
-     * proposedMatch - The match that is being checked for constraints in the 
-     *   given fixture
-     * home - true if the team being tested is the home team in proposedMatch, 
-     *   false if it is the away team in proposedMatch. 
-     */   
-    constraintsSatisfied( fixture: FixtureInterface, proposedMatch: Match, home: boolean ): Constraint;
-
-    /**
-     * Getter functions for constraint parameters. Used for CostsTable to help 
-     * calculate constraint costs.
-     * 
-     * These must return -1 if not in use.
-     */
-    consecutiveHomeGamesMax(): number;
-    consecutiveAwayGamesMax(): number;
-    homeGamesMax(): number;
-    awayGamesMax(): number;
-}
+import { Team } from '../../../util/scheduler/team'
 
 /**
  * Costs - Constraint costs
@@ -279,7 +247,7 @@ export class CostsTable {
         let counter: number;
 
         // Adding consecutive home/away games constraint costs where applicable
-        let maxConscHome: number = homeTeam.consecutiveHomeGamesMax();
+        let maxConscHome: number = homeTeam.consecutiveHomeGamesMax;
         if( maxConscHome > -1 ){
             counter = 1;
 
@@ -314,7 +282,7 @@ export class CostsTable {
 
         }
 
-        let maxConscAway: number = awayTeam.consecutiveAwayGamesMax();
+        let maxConscAway: number = awayTeam.consecutiveAwayGamesMax;
         if( maxConscAway > -1 ){
             counter = 1;
 
@@ -348,7 +316,7 @@ export class CostsTable {
         }
 
         // Adding max home/away games constraint where applicable
-        let maxHome: number = homeTeam.homeGamesMax();
+        let maxHome: number = homeTeam.homeGamesMax;
         if( maxHome > -1 ){
             counter = 0;
             for( let i: number = 0; i < this.roundCount; i++ ){
@@ -361,7 +329,7 @@ export class CostsTable {
             }
         }
 
-        let maxAway: number = awayTeam.awayGamesMax();
+        let maxAway: number = awayTeam.awayGamesMax;
         if( maxAway > -1 ){
             counter = 0;
             for( let i: number = 0; i < this.roundCount; i++ ){

@@ -1,6 +1,7 @@
 import { plotFixtureRotation } from '../../../../app/services/scheduler/dfs/plot_fixture_rotation';
 import { Match } from '../../../../app/services/scheduler/dfs/fixture_constraints';
-import { TestUtil, TestTeamNoConstraints } from './helpers/test_util'
+import { TestUtil } from './helpers/test_util'
+import { Team } from '../../../../app/util/scheduler/team'
 
 describe('services DFS scheduler plot fixture rotation, reserved matches', () => {
     let timeout: number = 30000 // each test has 30 seconds

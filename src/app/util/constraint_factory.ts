@@ -1,4 +1,3 @@
-import { FixtureInterface } from '../services/scheduler/dfs/fixture_constraints';
 import { Match } from './scheduler/match';
 
 /**
@@ -17,6 +16,34 @@ export enum Constraint {
     MIN_AWAY = 4,
     MAX_CONSEC_HOME = 5,
     MAX_CONSEC_AWAY = 6
+}
+
+/**
+ * FixtureInterface
+ * Interface to retrieve matches from a fixture representation. Used primarily
+ * for constraint checking.
+ */
+export interface FixtureInterface {
+    /**
+     * getHomeTeamVs
+     * Returns the index of the home team vs. awayTeam on the given round.
+     * Returns -1 if a game where the awayTeam is playing does not exist on the
+     *   given round.
+     */
+    getHomeTeamVs( round: number, awayTeam: number ): number;
+
+    /**
+     * getAwayTeamVs
+     * Returns the index of the away team vs. homeTeam on the given round.
+     * Returns -1 if a game where the homeTeam is playing does not exist on the
+     *   given round.
+     */
+    getAwayTeamVs( round: number, homeTeam: number ): number;
+
+    /**
+     * The number of rounds in the fixture.
+     */
+    numberOfRounds: number
 }
 
 /** 
@@ -198,7 +225,7 @@ export class ConstraintFactory {
             }
 
             let count = 0
-            for (let round = 0; round < fixture.getNumberOfRounds(); round++) {
+            for (let round = 0; round < fixture.numberOfRounds; round++) {
                 if (fixture.getAwayTeamVs(round, teamid) >= 0) {
                     count++
                     if (count >= homeGamesMax) {
@@ -226,7 +253,7 @@ export class ConstraintFactory {
             }
 
             let count = 0
-            for (let round = 0; round < fixture.getNumberOfRounds(); round++) {
+            for (let round = 0; round < fixture.numberOfRounds; round++) {
                 if (fixture.getHomeTeamVs(round, teamid) >= 0) {
                     count++
                     if (count >= awayGamesMax) {

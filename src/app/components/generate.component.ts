@@ -9,8 +9,7 @@ import { TeamService } from '../services/team.service'
 import { NotifyService, GenerateState } from '../services/notify.service'
 import { RoundService } from '../services/round.service'
 import { MatchService } from '../services/match.service'
-// import { SchedulerService } from '../services/scheduler/random/scheduler.service'
-import { SchedulerService } from '../services/scheduler/dfs/scheduler.service'
+import { SchedulerService } from '../services/scheduler/scheduler.service'
 import { Collection } from '../services/collection'
 import { DateTime } from '../util/date_time'
 import { AppConfig } from '../util/app_config'
@@ -64,9 +63,13 @@ export class GenerateComponent implements OnInit, OnDestroy {
                 return this.schedulerService.generateFixture(this.fixture)
             }).then(() => {
                 this.notifyService.emitGenerateState(GenerateState.Generated)
-            }).catch((err: Error) => {
-                this.generateButton.showError('Error generating fixture',
-                    'A database error occurred when generating the fixture. ' + AppConfig.DatabaseErrorGuidance)
+                }).catch((err: Error) => {
+                    if (err.message && err.message.toUpperCase().indexOf('SQL') > 0) {
+                        this.generateButton.showError('Error generating fixture',
+                            'A database error occurred when generating the fixture. ' + AppConfig.DatabaseErrorGuidance)
+                    } else {
+                        this.generateButton.showError('Error generating fixture', err.message)
+                    }
                 AppConfig.log(err)
                 this.changeref.detectChanges()
             })
