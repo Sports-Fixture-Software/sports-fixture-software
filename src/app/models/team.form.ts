@@ -8,5 +8,9 @@ export interface TeamForm {
     awayGamesMin: string,
     awayGamesMax: string,
     awayGamesEnabled: boolean,
+    consecutiveHomeGamesMaxEnabled: boolean,
+    consecutiveHomeGamesMax: string,
+    consecutiveAwayGamesMaxEnabled: boolean,
+    consecutiveAwayGamesMax: string
     team: Team
 }
