@@ -148,6 +148,8 @@ export class DatabaseService {
                         table.integer('homeGamesMax')
                         table.integer('awayGamesMin')
                         table.integer('awayGamesMax')
+                        table.integer('consecutiveHomeGamesMax')
+                        table.integer('consecutiveAwayGamesMax')
                         table.integer('team_id').notNullable().references
                             ('id').inTable('team')
                 })
@@ -286,7 +288,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
 
-    private _databaseVersion: number = 12
+    private _databaseVersion: number = 13
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null

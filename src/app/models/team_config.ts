@@ -20,6 +20,10 @@ export class TeamConfig extends (databaseInjector.get(DatabaseService) as Databa
     set awayGamesMin(value: number) { this.set('awayGamesMin', value) }
     get awayGamesMax(): number { return this.get('awayGamesMax') }
     set awayGamesMax(value: number) { this.set('awayGamesMax', value) }
+    get consecutiveHomeGamesMax(): number { return this.get('consecutiveHomeGamesMax') }
+    set consecutiveHomeGamesMax(value: number) { this.set('consecutiveHomeGamesMax', value) }
+    get consecutiveAwayGamesMax(): number { return this.get('consecutiveAwayGamesMax') }
+    set consecutiveAwayGamesMax(value: number) { this.set('consecutiveAwayGamesMax', value) }
 
     setTeam(team: Team) {
         this.set('team_id', team.id)
