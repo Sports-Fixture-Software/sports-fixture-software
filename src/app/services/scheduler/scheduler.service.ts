@@ -116,11 +116,15 @@ export class SchedulerService {
     checkConsecutiveConflict(teams: Team[], fixtureConfig: FixtureConfig, leagueConfig: LeagueConfig, numRounds: number) {
         for (let team of teams) {
             let consecutiveConstraint = this.calculateConsecutiveConstraint(team.teamConfigPreLoaded, this.fixture.fixtureConfigPreLoaded, this.fixture.leaguePreLoaded.leagueConfigPreLoaded)
-            if (consecutiveConstraint.consecutiveAwayGamesMax < numRounds / (team.teamConfigPreLoaded.homeGamesMax + 1)) {
-                throw new Error(`${team.name} has ${team.teamConfigPreLoaded.homeGamesMax} maximum home games, but has ${consecutiveConstraint.consecutiveAwayGamesMax} maximum consecutive away games. Consider increasing maximum consecutive away games for team ${team.name}`)
+            if (consecutiveConstraint.consecutiveAwayGamesMax != -1 && team.teamConfigPreLoaded.homeGamesMax != null && team.teamConfigPreLoaded.homeGamesMax != undefined) {
+                if (consecutiveConstraint.consecutiveAwayGamesMax < numRounds / (team.teamConfigPreLoaded.homeGamesMax + 1)) {
+                    throw new Error(`${team.name} has ${team.teamConfigPreLoaded.homeGamesMax} maximum home games, but has ${consecutiveConstraint.consecutiveAwayGamesMax} maximum consecutive away games. Consider increasing maximum consecutive away games for team ${team.name}.`)
+                }
             }
-            if (consecutiveConstraint.consecutiveHomeGamesMax < numRounds / (team.teamConfigPreLoaded.awayGamesMax + 1)) {
-                throw new Error(`${team.name} has ${team.teamConfigPreLoaded.homeGamesMax} maximum away games, but has ${consecutiveConstraint.consecutiveHomeGamesMax} maximum consecutive home games. Consider increasing maximum consecutive away games for team ${team.name}`)
+            if (consecutiveConstraint.consecutiveHomeGamesMax != -1 && team.teamConfigPreLoaded.awayGamesMax != null && team.teamConfigPreLoaded.awayGamesMax != undefined) {
+                if (consecutiveConstraint.consecutiveHomeGamesMax < numRounds / (team.teamConfigPreLoaded.awayGamesMax + 1)) {
+                    throw new Error(`${team.name} has ${team.teamConfigPreLoaded.homeGamesMax} maximum away games, but has ${consecutiveConstraint.consecutiveHomeGamesMax} maximum consecutive home games. Consider increasing maximum consecutive away games for team ${team.name}.`)
+                }
             }
         }
     }
