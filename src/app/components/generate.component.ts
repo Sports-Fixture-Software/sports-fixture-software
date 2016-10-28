@@ -91,9 +91,7 @@ export class GenerateComponent implements OnInit, OnDestroy {
     private generating: boolean = false
     private numberOfTeams: number
     private numberOfRounds: number
-    private hourLimit: number
     private minutesLimit: number;
-    private secondsLimit: number;
     private league: League
     private fixture: Fixture
     private routeSubscription: Subscription;
