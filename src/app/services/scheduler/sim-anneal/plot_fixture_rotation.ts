@@ -48,7 +48,7 @@ const COOLFREQ_RETRY_FACTOR: number = 1.1; // The factor by which the cooling fr
  * Helper function errors
  * CostsTable.x() errors 
  */
-export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRounds: number, verbose: boolean = false, searchTimeout: number = DEFAULT_SEARCH_TIMEOUT ): Match[] {
+export function plotFixtureRotation( teams: Team[], resvdMatches: Match[], numRounds: number, verbose: boolean = false, searchTimeout: number = numRounds*teams.length*6000 ): Match[] {
     
     let numTeams: number = teams.length;
     let table: CostsTable = new CostsTable(numTeams, numRounds); // The matrix used to calculate constraint costs of fixtures
