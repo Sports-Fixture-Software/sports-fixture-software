@@ -148,6 +148,8 @@ export class DatabaseService {
                         table.integer('homeGamesMax')
                         table.integer('awayGamesMin')
                         table.integer('awayGamesMax')
+                        table.integer('consecutiveHomeGamesMax')
+                        table.integer('consecutiveAwayGamesMax')
                         table.integer('team_id').notNullable().references
                             ('id').inTable('team')
                 })
@@ -255,7 +257,10 @@ export class DatabaseService {
             { name: 'Port U16', league_id: 4},
         ]
         let teamConfigs = [
-            { homeGamesMin: 0, homeGamesMax: 0, team_id: 1 }
+            { homeGamesMin: 0, homeGamesMax: 0, consecutiveAwayGamesMax: 99, team_id: 1 }
+        ]
+        let leagueConfigs = [
+            { consecutiveHomeGamesMax: 2, consecutiveAwayGamesMax: 2, league_id: 1 }
         ]
         return Promise.each(leagues, (val) => {
             return this.get().knex('league').insert(val)
@@ -270,6 +275,10 @@ export class DatabaseService {
         }).then((res) => {
             return Promise.each(teamConfigs, (val) => {
                 return this.get().knex('teamconfig').insert(val)
+            })
+        }).then((res) => {
+            return Promise.each(leagueConfigs, (val) => {
+                return this.get().knex('leagueconfig').insert(val)
             })
         })
     }
@@ -286,7 +295,7 @@ export class DatabaseService {
         useNullAsDefault: true
     }
 
-    private _databaseVersion: number = 12
+    private _databaseVersion: number = 13
     private _initError: Error
     private _initCalled: boolean = false
     private _db : bookshelf = null

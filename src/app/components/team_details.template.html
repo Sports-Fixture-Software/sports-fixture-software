@@ -117,6 +117,60 @@
                     <div class="form-text-small">(max)</div>
                 </td>
             </tr>
+            <tr>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" formControlName="consecutiveHomeGamesMaxEnabled" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-title"><strong>Consecutive Home Games</strong></div>
+                </td>
+                <td *ngIf="teamForm.controls.consecutiveHomeGamesMaxEnabled.value && editing">
+                    <input-popover #consecutiveHomeGamesMaxInput *ngIf="editing" type="text" [formGroup]="teamForm" input-class="form-control form-number"
+                        inputFormControlName="consecutiveHomeGamesMax"></input-popover>
+                </td>
+                <td *ngIf="teamForm.controls.consecutiveHomeGamesMaxEnabled.value && !editing">
+                    <div class="form-title-ro pull-right">
+                        {{ team?.teamConfigPreLoaded?.consecutiveHomeGamesMax }}
+                    </div>
+                </td>
+                <td *ngIf="!teamForm.controls.consecutiveHomeGamesMaxEnabled.value" colspan="2">
+                    <div class="form-inherit oversize-header">
+                        Using league's configuration
+                    </div>
+                </td>
+                <td *ngIf="teamForm.controls.consecutiveHomeGamesMaxEnabled.value">
+                    <div class="form-text-small">(max)</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-control-ro">
+                        <input type="checkbox" formControlName="consecutiveAwayGamesMaxEnabled" />
+                    </div>
+                </td>
+                <td>
+                    <div class="form-title"><strong>Consecutive Away Games</strong></div>
+                </td>
+                <td *ngIf="teamForm.controls.consecutiveAwayGamesMaxEnabled.value && editing">
+                    <input-popover #consecutiveAwayGamesMaxInput *ngIf="editing" type="text" [formGroup]="teamForm" input-class="form-control form-number"
+                        inputFormControlName="consecutiveAwayGamesMax"></input-popover>
+                </td>
+                <td *ngIf="teamForm.controls.consecutiveAwayGamesMaxEnabled.value && !editing">
+                    <div class="form-title-ro pull-right">
+                        {{ team?.teamConfigPreLoaded?.consecutiveAwayGamesMax }}
+                    </div>
+                </td>
+                <td *ngIf="!teamForm.controls.consecutiveAwayGamesMaxEnabled.value" colspan="2">
+                    <div class="form-inherit oversize-header">
+                        Using league's configuration
+                    </div>
+                </td>
+                <td *ngIf="teamForm.controls.consecutiveAwayGamesMaxEnabled.value">
+                    <div class="form-text-small">(max)</div>
+                </td>
+            </tr>
         </tbody>
     </table>
 </form>

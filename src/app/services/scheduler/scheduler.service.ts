@@ -61,6 +61,11 @@ export class SchedulerService {
                 return this.matchService.deleteMatches(item)
             })
         }).then(() => {
+            // check for conflicts with consecutive constraints
+            // If the user sets Adelaide as 0 home games, then Adelaide's
+            // maximum consecutive away games must be at least the number of rounds
+            this.checkConsecutiveConflict(this.teams, this.fixture.fixtureConfigPreLoaded, this.fixture.leaguePreLoaded.leagueConfigPreLoaded, this.rounds.length)
+
             // convert database data structures to DFS data structures     
             let dfsTeams = this.convertTeams(this.teams)
             let dfsReservedMatches = this.convertReservedMatches(this.rounds)
@@ -103,6 +108,28 @@ export class SchedulerService {
     }
 
     /**
+     * Check for conflict with consecutive constraint.
+     * The consecutive away constraint must be consistent with max home constraint.
+     * e.g. If the user sets Adelaide as 0 home games, then Adelaide's
+     * maximum consecutive away games must be at least the number of rounds
+     */
+    checkConsecutiveConflict(teams: Team[], fixtureConfig: FixtureConfig, leagueConfig: LeagueConfig, numRounds: number) {
+        for (let team of teams) {
+            let consecutiveConstraint = this.calculateConsecutiveConstraint(team.teamConfigPreLoaded, this.fixture.fixtureConfigPreLoaded, this.fixture.leaguePreLoaded.leagueConfigPreLoaded)
+            if (consecutiveConstraint.consecutiveAwayGamesMax != -1 && team.teamConfigPreLoaded.homeGamesMax != null && team.teamConfigPreLoaded.homeGamesMax != undefined) {
+                if (consecutiveConstraint.consecutiveAwayGamesMax < numRounds / (team.teamConfigPreLoaded.homeGamesMax + 1)) {
+                    throw new Error(`${team.name} has ${team.teamConfigPreLoaded.homeGamesMax} maximum home games, but has ${consecutiveConstraint.consecutiveAwayGamesMax} maximum consecutive away games. Consider increasing maximum consecutive away games for team ${team.name}.`)
+                }
+            }
+            if (consecutiveConstraint.consecutiveHomeGamesMax != -1 && team.teamConfigPreLoaded.awayGamesMax != null && team.teamConfigPreLoaded.awayGamesMax != undefined) {
+                if (consecutiveConstraint.consecutiveHomeGamesMax < numRounds / (team.teamConfigPreLoaded.awayGamesMax + 1)) {
+                    throw new Error(`${team.name} has ${team.teamConfigPreLoaded.homeGamesMax} maximum away games, but has ${consecutiveConstraint.consecutiveHomeGamesMax} maximum consecutive home games. Consider increasing maximum consecutive away games for team ${team.name}.`)
+                }
+            }
+        }
+    }
+
+    /**
      * Convert database data structure `teams` to DFS data structure.
      *
      * Returns the DFS data structure
@@ -116,12 +143,12 @@ export class SchedulerService {
             //let newTeam: SchedulerTeam = new SchedulerTeam()
 
             let teamConstraint = this.calculateTeamConstraint(team.teamConfigPreLoaded)
-            let leagueFixtureConstraint = this.calculateLeagueFixtureConstraint(this.fixture.fixtureConfigPreLoaded, this.fixture.leaguePreLoaded.leagueConfigPreLoaded)
+            let consecutiveConstraint = this.calculateConsecutiveConstraint(team.teamConfigPreLoaded, this.fixture.fixtureConfigPreLoaded, this.fixture.leaguePreLoaded.leagueConfigPreLoaded)
             let newTeam: SchedulerTeam = {
                 homeGamesMax: teamConstraint.maxHome,
                 awayGamesMax: teamConstraint.maxAway,
-                consecutiveHomeGamesMax: leagueFixtureConstraint.consecutiveHomeGamesMax,
-                consecutiveAwayGamesMax: leagueFixtureConstraint.consecutiveAwayGamesMax
+                consecutiveHomeGamesMax: consecutiveConstraint.consecutiveHomeGamesMax,
+                consecutiveAwayGamesMax: consecutiveConstraint.consecutiveAwayGamesMax
             }
             dfsTeams.push(newTeam)
             index++
@@ -152,15 +179,19 @@ export class SchedulerService {
         }
     }
 
-    private calculateLeagueFixtureConstraint(fixtureConfig: FixtureConfig, leagueConfig: LeagueConfig): LeagueFixtureConstraintInfo {
+    private calculateConsecutiveConstraint(teamConfig: TeamConfig, fixtureConfig: FixtureConfig, leagueConfig: LeagueConfig): LeagueFixtureConstraintInfo {
         let consecutiveHomeGamesMax = -1
-        if (fixtureConfig.consecutiveHomeGamesMax != null && fixtureConfig.consecutiveHomeGamesMax != undefined) {
+        if (teamConfig.consecutiveHomeGamesMax != null && teamConfig.consecutiveHomeGamesMax != undefined) {
+            consecutiveHomeGamesMax = teamConfig.consecutiveHomeGamesMax
+        } else if (fixtureConfig.consecutiveHomeGamesMax != null && fixtureConfig.consecutiveHomeGamesMax != undefined) {
             consecutiveHomeGamesMax = fixtureConfig.consecutiveHomeGamesMax
         } else if (leagueConfig.consecutiveHomeGamesMax != null && leagueConfig.consecutiveHomeGamesMax != undefined) {
             consecutiveHomeGamesMax = leagueConfig.consecutiveHomeGamesMax
         }
         let consecutiveAwayGamesMax = -1
-        if (fixtureConfig.consecutiveAwayGamesMax != null && fixtureConfig.consecutiveAwayGamesMax != undefined) {
+        if (teamConfig.consecutiveAwayGamesMax != null && teamConfig.consecutiveAwayGamesMax != undefined) {
+            consecutiveAwayGamesMax = teamConfig.consecutiveAwayGamesMax
+        } else if (fixtureConfig.consecutiveAwayGamesMax != null && fixtureConfig.consecutiveAwayGamesMax != undefined) {
             consecutiveAwayGamesMax = fixtureConfig.consecutiveAwayGamesMax
         } else if (leagueConfig.consecutiveAwayGamesMax != null && leagueConfig.consecutiveAwayGamesMax != undefined) {
             consecutiveAwayGamesMax = leagueConfig.consecutiveAwayGamesMax
