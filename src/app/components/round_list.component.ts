@@ -63,12 +63,11 @@ export class RoundListComponent implements OnInit, OnDestroy {
                 DateTime.fillInRounds(this.fixture, this.rounds, true)
                 this.homeTeamsAll = this.fixture.leaguePreLoaded.teamsPreLoaded.toArray()
                 this.awayTeamsAll = this.homeTeamsAll.slice(0) //copy
-                let anyTeam = new Team('Any')
-                anyTeam.id = Team.ANY_TEAM_ID
-                this.homeTeamsAll.push(anyTeam)
-                this.byeTeam = new Team('Bye')
-                this.byeTeam.id = Team.BYE_TEAM_ID
-                this.awayTeamsAll.push(this.byeTeam)
+                if (this.homeTeamsAll.length % 2 != 0) {
+                    this.byeTeam = new Team('Bye')
+                    this.byeTeam.id = Team.BYE_TEAM_ID
+                    this.awayTeamsAll.push(this.byeTeam)
+                }
                 this.homeTeams = this.homeTeamsAll.slice(0) //copy
                 this.awayTeams = this.homeTeamsAll.slice(0) //copy
                 this._changeref.detectChanges()
@@ -82,9 +81,6 @@ export class RoundListComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.routeSubscription.unsubscribe();
-        if (this.homeTeamChange) {
-            this.homeTeamChange.unsubscribe()
-        }
     }
 
     /**
@@ -147,20 +143,6 @@ export class RoundListComponent implements OnInit, OnDestroy {
         }
         if (!config || !config.awayTeamPreLoaded) {
             this.matchupForm.patchValue({ awayTeam: null })
-        }
-
-        if (!this.homeTeamChange) {
-            let fc = this.matchupForm.controls['homeTeam'] as FormControl
-            this.homeTeamChange = fc.valueChanges.subscribe((evt: Team) => {
-                if (evt && evt.id == Team.ANY_TEAM_ID) {
-                    this.awayTeams = [this.byeTeam]
-                    this.matchupForm.patchValue({ awayTeam: this.byeTeam })
-                } else {
-                    this.removeAwayTeamsAsAlreadyReserved(round,
-                        config ? config.homeTeamPreLoaded : null,
-                        config ? config.awayTeamPreLoaded : null)
-                }
-            })
         }
     }
 
@@ -239,8 +221,7 @@ export class RoundListComponent implements OnInit, OnDestroy {
             for (let config of configs) {
                 let count = 0
                 for (let i = this.homeTeams.length - 1; i >= 0; i--) {
-                    if ((config.homeTeam_id != Team.ANY_TEAM_ID &&
-                        this.homeTeams[i].id == config.homeTeam_id &&
+                    if ((this.homeTeams[i].id == config.homeTeam_id &&
                         // don't delete the homeTeam as requested
                         !(homeTeam && homeTeam.id == this.homeTeams[i].id))
                         ||
@@ -278,9 +259,7 @@ export class RoundListComponent implements OnInit, OnDestroy {
             for (let config of configs) {
                 let count = 0
                 for (let i = this.awayTeams.length - 1; i >= 0; i--) {
-                    // don't delete the bye from the away teams
-                    if ((config.awayTeam_id != Team.BYE_TEAM_ID &&
-                        this.awayTeams[i].id == config.awayTeam_id &&
+                    if ((this.awayTeams[i].id == config.awayTeam_id &&
                         // don't delete the awayTeam as requested
                         !(awayTeam && awayTeam.id == this.awayTeams[i].id))
                         ||
@@ -329,6 +308,5 @@ export class RoundListComponent implements OnInit, OnDestroy {
     private byeTeam : Team
     private fixture: Fixture
     private editing: boolean
-    private homeTeamChange: Subscription
     private routeSubscription: Subscription
 }
