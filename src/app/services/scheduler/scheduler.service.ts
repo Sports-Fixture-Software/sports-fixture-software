@@ -86,8 +86,14 @@ export class SchedulerService {
                 if (awayId != null && awayId == undefined) {
                     throw new Error(`cannot find team id ${item.awayTeam}, available ids are ${Array.from(this.dfsTeamtoTeamMap.keys())}`)
                 }
-                match.homeTeam_id = homeId
-                match.awayTeam_id = awayId
+                if (homeId == null) {
+                    // swap bye to be away
+                    match.homeTeam_id = awayId
+                    match.awayTeam_id = homeId
+                } else {
+                    match.homeTeam_id = homeId
+                    match.awayTeam_id = awayId
+                }
                 return this.matchService.addMatch(match)
             })
         })
@@ -190,6 +196,13 @@ export class SchedulerService {
                 if (awayId == undefined) {
                     AppConfig.log(`cannot find team id ${config.awayTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
                     continue
+                }
+                // set bye as home team if round number is odd, and bye as
+                // away team if round number is even
+                if (config.awayTeam_id == null && round.number % 2 == 1) {
+                    let swap = homeId
+                    homeId = awayId
+                    awayId = swap
                 }
                 reservedMatches.push(new SchedulerMatch(round.number - 1, homeId, awayId))
             }
