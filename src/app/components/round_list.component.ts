@@ -63,9 +63,11 @@ export class RoundListComponent implements OnInit, OnDestroy {
                 DateTime.fillInRounds(this.fixture, this.rounds, true)
                 this.homeTeamsAll = this.fixture.leaguePreLoaded.teamsPreLoaded.toArray()
                 this.awayTeamsAll = this.homeTeamsAll.slice(0) //copy
-                this.byeTeam = new Team('Bye')
-                this.byeTeam.id = Team.BYE_TEAM_ID
-                this.awayTeamsAll.push(this.byeTeam)
+                if (this.homeTeamsAll.length % 2 != 0) {
+                    this.byeTeam = new Team('Bye')
+                    this.byeTeam.id = Team.BYE_TEAM_ID
+                    this.awayTeamsAll.push(this.byeTeam)
+                }
                 this.homeTeams = this.homeTeamsAll.slice(0) //copy
                 this.awayTeams = this.homeTeamsAll.slice(0) //copy
                 this._changeref.detectChanges()
@@ -257,9 +259,7 @@ export class RoundListComponent implements OnInit, OnDestroy {
             for (let config of configs) {
                 let count = 0
                 for (let i = this.awayTeams.length - 1; i >= 0; i--) {
-                    // don't delete the bye from the away teams
-                    if ((config.awayTeam_id != Team.BYE_TEAM_ID &&
-                        this.awayTeams[i].id == config.awayTeam_id &&
+                    if ((this.awayTeams[i].id == config.awayTeam_id &&
                         // don't delete the awayTeam as requested
                         !(awayTeam && awayTeam.id == this.awayTeams[i].id))
                         ||
