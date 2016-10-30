@@ -26,7 +26,6 @@ export class Team extends (databaseInjector.get(DatabaseService) as DatabaseServ
         return this.related('teamConfig') as TeamConfig
     }
 
-    static ANY_TEAM_ID = -1
     static BYE_TEAM_ID: number = null
 
     /**

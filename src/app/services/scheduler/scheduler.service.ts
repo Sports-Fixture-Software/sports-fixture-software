@@ -181,22 +181,15 @@ export class SchedulerService {
         let reservedMatches: SchedulerMatch[] = []
         for (let round of rounds) {
             for (let config of round.matchConfigsPreLoaded) {
-                let homeId: number
-                let awayId: number
-                if (config.homeTeam_id == Team.ANY_TEAM_ID && config.awayTeam_id == Team.BYE_TEAM_ID) {
-                    homeId = config.homeTeam_id
-                    awayId = config.awayTeam_id
-                } else {
-                    homeId = this.teamtoDfsTeamMap.get(config.homeTeam_id)
-                    if (homeId == undefined) {
-                        AppConfig.log(`cannot find team id ${config.homeTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
-                        continue
-                    }
-                    awayId = this.teamtoDfsTeamMap.get(config.awayTeam_id)
-                    if (awayId == undefined) {
-                        AppConfig.log(`cannot find team id ${config.awayTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
-                        continue
-                    }
+                let homeId = this.teamtoDfsTeamMap.get(config.homeTeam_id)
+                if (homeId == undefined) {
+                    AppConfig.log(`cannot find team id ${config.homeTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
+                    continue
+                }
+                let awayId = this.teamtoDfsTeamMap.get(config.awayTeam_id)
+                if (awayId == undefined) {
+                    AppConfig.log(`cannot find team id ${config.awayTeam_id}, available ids are ${Array.from(this.teamtoDfsTeamMap.keys())}`)
+                    continue
                 }
                 reservedMatches.push(new SchedulerMatch(round.number - 1, homeId, awayId))
             }

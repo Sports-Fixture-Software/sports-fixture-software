@@ -20,9 +20,7 @@ export class MatchConfig extends (databaseInjector.get(DatabaseService) as Datab
     set awayTeam_id(value: number) { this.set('awayTeam_id', value) }
 
     get homeTeamName(): string {
-        if (this.homeTeam_id == Team.ANY_TEAM_ID) {
-            return 'Any'
-        } else if (this.homeTeam_id == Team.BYE_TEAM_ID) {
+        if (this.homeTeam_id == Team.BYE_TEAM_ID) {
             return 'Bye'
         } else if (this.homeTeamPreLoaded) {
             return this.homeTeamPreLoaded.name
@@ -31,9 +29,7 @@ export class MatchConfig extends (databaseInjector.get(DatabaseService) as Datab
         }
     }
     get awayTeamName(): string {
-        if (this.awayTeam_id == Team.ANY_TEAM_ID) {
-            return 'Any'
-        } else if (this.awayTeam_id == Team.BYE_TEAM_ID) {
+        if (this.awayTeam_id == Team.BYE_TEAM_ID) {
             return 'Bye'
         } else if (this.awayTeamPreLoaded) {
             return this.awayTeamPreLoaded.name
