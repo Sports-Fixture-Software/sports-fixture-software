@@ -46,6 +46,8 @@ export class GenerateComponent implements OnInit, OnDestroy {
                 return this.teamService.countTeams(this.league)
             }).then((res) => {
                 this.numberOfTeams = res
+                let timeLimit = this.numberOfTeams*this.numberOfRounds*6;
+                this.minutesLimit = Math.floor((timeLimit/60)%60);
                 this.changeref.detectChanges()
             })
         })
@@ -89,6 +91,7 @@ export class GenerateComponent implements OnInit, OnDestroy {
     private generating: boolean = false
     private numberOfTeams: number
     private numberOfRounds: number
+    private minutesLimit: number;
     private league: League
     private fixture: Fixture
     private routeSubscription: Subscription;
