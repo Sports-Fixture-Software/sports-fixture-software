@@ -64,7 +64,9 @@
         <tr>
             <th class="oversize-header">Round</th>
             <th>Date</th>
-            <th>Matches</th>
+            <th style="text-align: center" *ngIf="editingFixture">Home v Away</th>
+            <th *ngIf="!editingFixture">Home v Away</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
