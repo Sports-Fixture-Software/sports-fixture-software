@@ -58,13 +58,13 @@ body {
     color: #7692e2;
     vertical-align: inherit;
 }
-.SANFL-logo-container {
-    padding-left: 40.5px;
+.logo-container {
+    padding-left: 25.5px;
     padding-top: 10px;
     padding-bottom: 10px;
     min-width: 150px;
 }
-.SANFL-logo-container > img {
+.logo-container > img {
     -webkit-filter: drop-shadow(1px 1px 0 white)
                     drop-shadow(-1px 1px 0 white)  
                     drop-shadow(-1px -1px 0 white)
