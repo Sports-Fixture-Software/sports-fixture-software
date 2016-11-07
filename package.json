@@ -1,9 +1,9 @@
 {
-  "name": "sanfl",
+  "name": "sfs",
   "version": "0.0.1",
   "main": "main.js",
   "license": "UNLICENSED",
-  "description": "Football fixture scheduling",
+  "description": "Sports fixture scheduling",
   "scripts": {
     "build": "gulp",
     "start": "gulp run",
