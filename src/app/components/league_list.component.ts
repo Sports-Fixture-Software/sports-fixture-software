@@ -1,9 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs/subscription';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { League } from '../models/league';
 import { LeagueService } from '../services/league.service';
-import { Collection } from '../services/collection'
+import { Collection }  from '../services/collection'
+import { BreadcrumbService, Breadcrumb } from '../services/breadcrumb.service';
 import { LeagueForm } from '../models/league.form'
 import * as Promise from 'bluebird'
 import { Navbar } from './navbar.component';
@@ -19,7 +21,8 @@ import { ButtonPopover } from './button_popover.component'
     providers: [LeagueService]
 })
 
-export class LeagueListComponent implements OnInit {
+export class LeagueListComponent implements OnInit, OnDestroy {
+
     /**
      * ## API
      * - `changeref` (provided by the injector)
@@ -28,7 +31,9 @@ export class LeagueListComponent implements OnInit {
      */
     constructor(private leagueService: LeagueService,
         private changeref: ChangeDetectorRef,
-        private router: Router) {
+        public route: ActivatedRoute,
+        private router: Router,
+        private breadcrumbService: BreadcrumbService) {
         this._leagueService = leagueService
         this._changeref = changeref
     }
@@ -61,6 +66,16 @@ export class LeagueListComponent implements OnInit {
                 this._changeref.detectChanges()
             })
         }
+
+        this.routeSubscription = this.route.params.subscribe(params => {
+            this.breadcrumbService.setBreadcrumbs([
+                    new Breadcrumb("Leagues", ["/"]),
+            ]);
+        });
+    }
+
+    ngOnDestroy() {
+        this.routeSubscription.unsubscribe();
     }
 
     submitAddLeague(form: LeagueForm) {
@@ -93,5 +108,6 @@ export class LeagueListComponent implements OnInit {
 
     private _leagueService: LeagueService
     private _changeref: ChangeDetectorRef
-    private _leagues: League[]
+    private _leagues : League[]
+    private routeSubscription: Subscription;
 }

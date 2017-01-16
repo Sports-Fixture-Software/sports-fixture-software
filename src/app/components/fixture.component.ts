@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { NotifyService, GenerateState } from '../services/notify.service';
 import { Fixture } from '../models/fixture';
 import { FixtureService } from '../services/fixture.service';
+import { BreadcrumbService, Breadcrumb } from '../services/breadcrumb.service';
 import { Collection } from '../services/collection'
 
 import { ModalComponent } from 'ng2-bs3-modal/ng2-bs3-modal';
@@ -24,7 +25,8 @@ export class FixtureComponent implements OnInit, OnDestroy {
         public route: ActivatedRoute,
         private fixtureService: FixtureService,
         private notifyService: NotifyService,
-        private changeref: ChangeDetectorRef) {
+        private changeref: ChangeDetectorRef,
+        private breadcrumbService: BreadcrumbService) {
     }
 
     ngOnInit() {
@@ -32,10 +34,20 @@ export class FixtureComponent implements OnInit, OnDestroy {
             let id = +params['id']
             this.fixtureService.getFixture(id).then(fixture => {
                 this.fixture = fixture
+
+                let league = fixture.leaguePreLoaded;
+                this.breadcrumbService.setBreadcrumbs([
+                    new Breadcrumb("Leagues", ["/"]),
+                    new Breadcrumb(league.name, ['/league', league.id]),
+                    new Breadcrumb(this.fixture.name, ['/fixtures', this.fixture.id])
+                ])
+
                 this.canReview = fixture.generatedOn.isValid()
-                this.changeref.detectChanges()
+            }).then(() => {
+                this.changeref.detectChanges();
             })
         })
+        
         this.generateSubscription = this.notifyService.generateState$.subscribe((value) => {
             if (value == GenerateState.Generating) {
                 this.canReview = false

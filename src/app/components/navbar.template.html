@@ -1,18 +1,39 @@
+<style>
+    .breadcrumb {
+        width: 100%;
+        background: none;
+        margin-top: 16px;
+    }
+    
+    .breadcrumb > .selectable > a {
+        color: #AAA;
+    }
+    
+    .breadcrumb > li {
+        max-width: 50%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+    }
+
+    .active {
+        color: #FFF;
+    }
+
+    img {
+        padding: 4px;
+    }
+</style>
+
 <nav class="navbar navbar-default">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <table>
-                <tr>
-                    <td class="SANFL-logo-container">
-                        <img src="images/LogoNavbar.png" />
-                    </td>
-                    <td>
-                        <a class="navbar-brand" href="#">
-                            {{title}}
-                        </a>
-                    </td>
-                </tr>
-            </table>
-        </div>
+    <div class="clearfix">
+        <img class="pull-left" src="images/LogoNavbar.png" />
+        <ol class="breadcrumb">
+            <li *ngFor="let breadcrumb of breadcrumbs; let isLast = last" [class.active]="isLast" [class.selectable]="!isLast">
+                <a (click)="navigateToBreadcrumb(breadcrumb)" *ngIf="!isLast">{{breadcrumb.title}}</a>
+                <span *ngIf="isLast">{{breadcrumb.title}}</span>
+            </li>
+        </ol>
     </div>
 </nav>
