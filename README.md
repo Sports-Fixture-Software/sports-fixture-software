@@ -1,4 +1,14 @@
-# sanfl
+# SFS (Sports Fixture Software)
+
+Within this repository is an Angular 2 Electron Typescript application made for plotting randomised sports seasons.
+
+This software was originally developed for the South Australian National Football League (SANFL) in 2016. It has now been released as free and open source software.
+
+Authors:  
+Craig Keogh  
+Louis Griffith  
+Michael Humphris  
+
 ## Install
 1. If on Windows, update npm. This is needed to fix a bug with electron-rebuild on Windows:  
    `npm install -g npm`
@@ -49,3 +59,12 @@ npm run build
 electron-packager build --platform=[darwin|linux|mas|win32] --arch=[ia32|x64]
 ```
 
+## License
+
+Copyright (c) 2016 Michael Humphris, Craig Keogh, and Louis Griffith
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
